@@ -33,7 +33,6 @@ import org.dmfs.provider.tasks.TaskContract.Tasks;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.OnAccountsUpdateListener;
-import android.annotation.SuppressLint;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
@@ -42,7 +41,6 @@ import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.os.Build;
 import de.azapps.mirakel.helper.DateTimeHelper;
 import de.azapps.mirakel.helper.Log;
 import de.azapps.mirakel.model.account.AccountMirakel;
@@ -438,7 +436,6 @@ public class MirakelContentProvider extends ContentProvider implements OnAccount
 		}
 	}
 
-	@SuppressLint("NewApi")
 	private Cursor listQuery(String[] projection, String selection, String sortOrder, SQLiteQueryBuilder sqlBuilder, boolean isSyncAdapter, boolean hasId, String _id) {
 		String listQuery;
 		if (selection.equals("1=1")) {
@@ -450,21 +447,13 @@ public class MirakelContentProvider extends ContentProvider implements OnAccount
 			listQuery += "WHERE " + TaskLists._ID + "=" + _id;
 		}
 		sqlBuilder.setTables("(" + listQuery + ")");
-		String query;
-		if (Build.VERSION.SDK_INT >= 11) {
-			query = sqlBuilder.buildQuery(projection, selection, null, null,
-					sortOrder, null);
-		} else {
-			query = sqlBuilder.buildQuery(projection, selection, null, null,
-					sortOrder, null);
-
-		}
+		String query = sqlBuilder.buildQuery(projection, selection, null, null,
+				sortOrder, null);
 		Log.d(TAG, query);
 		Cursor c = database.rawQuery(query, null);
 		return c;
 	}
 
-	@SuppressLint("NewApi")
 	private Cursor taskQuery(String[] projection, String selection, String sortOrder, SQLiteQueryBuilder sqlBuilder, boolean isSyncAdapter, Uri uri, String _id, boolean hasID) {
 		String taskQuery = getTaskQuery(isSyncAdapter);
 		if (isSyncAdapter) {
@@ -487,15 +476,8 @@ public class MirakelContentProvider extends ContentProvider implements OnAccount
 		}
 
 		sqlBuilder.setTables("(" + taskQuery + ")");
-		String query;
-		if (Build.VERSION.SDK_INT >= 11) {
-			query = sqlBuilder.buildQuery(projection, selection, null, null,
-					sortOrder, null);
-		} else {
-			query = sqlBuilder.buildQuery(projection, selection, null, null,
-					sortOrder, null);
-
-		}
+		String query = sqlBuilder.buildQuery(projection, selection, null, null,
+				sortOrder, null);
 		Log.d(TAG, query);
 		return database.rawQuery(query, null);
 	}
@@ -609,8 +591,7 @@ public class MirakelContentProvider extends ContentProvider implements OnAccount
 				taskQuery = getTaskQuery(true, not ? 0 : list_id, isSyncAdapter);
 				if (s.getWhereQuery(true) != null
 						&& !s.getWhereQuery(true).trim().equals("")) {
-					taskQuery += " WHERE "
-							+ (not ? "NOT ( " : "")
+					taskQuery += " WHERE " + (not ? "NOT ( " : "")
 							+ s.getWhereQuery(true) + (not ? " )" : "");
 				}
 			} else {

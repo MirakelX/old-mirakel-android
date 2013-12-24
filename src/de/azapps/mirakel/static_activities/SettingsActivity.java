@@ -16,7 +16,6 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -24,23 +23,17 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
 import android.preference.PreferenceActivity;
 import android.view.MenuItem;
 import android.widget.ListAdapter;
 import android.widget.Toast;
 import de.azapps.mirakel.adapter.SettingsAdapter;
-import de.azapps.mirakel.helper.Helpers;
 import de.azapps.mirakel.helper.Log;
 import de.azapps.mirakel.helper.MirakelPreferences;
-import de.azapps.mirakel.helper.PreferencesHelper;
 import de.azapps.mirakel.helper.export_import.AnyDoImport;
 import de.azapps.mirakel.helper.export_import.ExportImport;
 import de.azapps.mirakel.helper.export_import.WunderlistImport;
-import de.azapps.mirakel.settings.accounts.AccountSettingsActivity;
-import de.azapps.mirakel.settings.special_list.SpecialListsSettingsActivity;
 import de.azapps.mirakel.settings.taskfragment.TaskFragmentSettingsFragment;
 import de.azapps.mirakelandroid.R;
 import de.azapps.tools.FileUtils;
@@ -55,102 +48,19 @@ public class SettingsActivity extends PreferenceActivity {
 	private boolean				darkTheme;
 	private SettingsAdapter		mAdapter;
 
-	@SuppressWarnings("deprecation")
-	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		darkTheme = MirakelPreferences.isDark();
 		if (darkTheme) setTheme(R.style.AppBaseThemeDARK);
 		super.onCreate(savedInstanceState);
-
-		if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-
-			Intent i = getIntent();
-			if (i == null) {
-				Log.e(TAG, "intent==null");
-
-			} else {
-				if (i.getAction() == null) {
-					addPreferencesFromResource(R.xml.settings_v10);
-				} else if (i.getAction().equals(
-						"de.azapps.mirakel.preferences.NOTIFICATION")) {
-					addPreferencesFromResource(R.xml.settings_notifications);
-				} else if (i.getAction().equals(
-						"de.azapps.mirakel.preferences.GUI")) {
-					addPreferencesFromResource(R.xml.settings_gui);
-				} else if (i.getAction().equals(
-						"de.azapps.mirakel.preferences.TASKS")) {
-					addPreferencesFromResource(R.xml.settings_tasks);
-				} else if (i.getAction().equals(
-						"de.azapps.mirakel.preferences.ABOUT")) {
-					addPreferencesFromResource(R.xml.settings_about);
-				} else if (i.getAction().equals(
-						"de.azapps.mirakel.preferences.HELP")) {
-					Helpers.openHelp(this);
-					finish();
-				} else if (i.getAction().equals(
-						"de.azapps.mirakel.preferences.DONATE")) {
-					startActivityForResult(new Intent(this,
-							DonationsActivity.class), DONATE);
-					if (!MirakelPreferences.isTablet()) finish();
-				} else if (i.getAction().equals(
-						"de.azapps.mirakel.preferences.MISC")) {
-					addPreferencesFromResource(R.xml.settings_misc);
-				} else if (i.getAction().equals(
-						"de.azapps.mirakel.preferences.BACKUP")) {
-					addPreferencesFromResource(R.xml.settings_backup);
-				} else if (i.getAction().equals(
-						"de.azapps.mirakel.preferences.ACCOUNTS")) {
-					startActivity(new Intent(this,
-							AccountSettingsActivity.class));
-					if (!MirakelPreferences.isTablet()) finish();
-					else {
-						addPreferencesFromResource(R.xml.settings_notifications);
-					}
-				} else if (i.getAction().equals(
-						"de.azapps.mirakel.preferences.SPECIAL_LISTS")) {
-					startActivity(new Intent(this,
-							SpecialListsSettingsActivity.class));
-					if (!MirakelPreferences.isTablet()) finish();
-				} else {
-					Log.wtf(TAG, "unkown Preference");
-				}
-			}
-			new PreferencesHelper(this).setFunctionsApp();
-		} else {
-			getActionBar().setDisplayHomeAsUpEnabled(true);
-		}
+		getActionBar().setDisplayHomeAsUpEnabled(true);
 	}
 
-	@SuppressLint("NewApi")
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		Log.d(TAG, "Menu");
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				// if(getParent()!=null){
-				// final Switch s = (Switch) findViewById(R.id.switchWidget);
-				// final Activity a = this;
-				// if (s != null) {
-				// // need to reset onchangelistner else valuechange will triger
-				// // event
-				// s.setOnCheckedChangeListener(null);
-				// s.setChecked(MirakelPreferences.useSync());
-				// s.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-				//
-				// @Override
-				// public void onCheckedChanged(CompoundButton buttonView,
-				// boolean isChecked) {
-				// PreferencesHelper.createAuthActivity(isChecked, a, s,
-				// false);
-				// }
-				// });
-				// } else {
-				// Log.d(TAG, "switch not found");
-				// }
-				// }else{
-				// Log.d(TAG,"Parent=null");
-				// }
 				finish();
 				return true;
 			default:
@@ -168,8 +78,6 @@ public class SettingsActivity extends PreferenceActivity {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
-	@SuppressLint("NewApi")
 	@Override
 	protected void onActivityResult(final int requestCode, int resultCode, final Intent data) {
 		Log.d(TAG, "activity");
@@ -223,12 +131,6 @@ public class SettingsActivity extends PreferenceActivity {
 								}).create().show();
 				break;
 			case NEW_ACCOUNT:
-				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-					PreferencesHelper.updateSyncText(
-							(CheckBoxPreference) findPreference("syncUse"),
-							findPreference("syncServer"),
-							findPreference("syncFrequency"), this);
-				}
 				break;
 			case FILE_ASTRID:
 			case FILE_ANY_DO:
@@ -291,7 +193,6 @@ public class SettingsActivity extends PreferenceActivity {
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
-	@SuppressLint("NewApi")
 	@Override
 	public void onBuildHeaders(List<Header> target) {
 		loadHeadersFromResource(R.xml.settings, target);

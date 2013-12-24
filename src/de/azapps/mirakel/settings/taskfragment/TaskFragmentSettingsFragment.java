@@ -20,7 +20,6 @@ package de.azapps.mirakel.settings.taskfragment;
 
 import java.util.List;
 
-import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -34,7 +33,6 @@ import de.azapps.mirakel.main_activity.DragNDropListView;
 import de.azapps.mirakel.main_activity.DragNDropListView.RemoveListener;
 import de.azapps.mirakelandroid.R;
 
-@SuppressLint("NewApi")
 public class TaskFragmentSettingsFragment extends Fragment {
 	private final static String TAG = "de.azapps.mirakel.settings.taskfragment.TaskFragmentSettings";
 	private DragNDropListView listView;

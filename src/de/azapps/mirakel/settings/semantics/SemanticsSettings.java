@@ -20,7 +20,6 @@ package de.azapps.mirakel.settings.semantics;
 
 import java.util.List;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -39,33 +38,22 @@ import de.azapps.widgets.DueDialog;
 import de.azapps.widgets.DueDialog.VALUE;
 
 public class SemanticsSettings implements OnPreferenceChangeListener {
-	private Semantic semantic;
-	private boolean v4_0;
-	private Object settings;
-	private Context ctx;
+	private Semantic			semantic;
+	private Object				settings;
+	private Context				ctx;
 
-	protected AlertDialog alert;
-	private EditTextPreference semanticsCondition;
-	private ListPreference semanticsList, semanticsPriority, semanticsWeekday;
-	private Preference semanticsDue;
-	private int dueDialogValue;
-	private VALUE dueDialogDayYear;
+	protected AlertDialog		alert;
+	private EditTextPreference	semanticsCondition;
+	private ListPreference		semanticsList, semanticsPriority,
+			semanticsWeekday;
+	private Preference			semanticsDue;
+	private int					dueDialogValue;
+	private VALUE				dueDialogDayYear;
 
-	@SuppressLint("NewApi")
-	public SemanticsSettings(SemanticsSettingsFragment activity,
-			Semantic semantic) {
+	public SemanticsSettings(SemanticsSettingsFragment activity, Semantic semantic) {
 		this.semantic = semantic;
-		v4_0 = true;
 		settings = activity;
 		ctx = activity.getActivity();
-	}
-
-	public SemanticsSettings(SemanticsSettingsActivity activity,
-			Semantic semantic) {
-		ctx = activity;
-		settings = activity;
-		v4_0 = false;
-		this.semantic = semantic;
 	}
 
 	public void setup() {
@@ -106,16 +94,13 @@ public class SemanticsSettings implements OnPreferenceChangeListener {
 								new DialogInterface.OnClickListener() {
 
 									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
-									}
+									public void onClick(DialogInterface dialog, int which) {}
 								});
 						dueDialog.setNeutralButton(R.string.no_date,
 								new DialogInterface.OnClickListener() {
 
 									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
+									public void onClick(DialogInterface dialog, int which) {
 										semantic.setDue(null);
 										semanticsDue
 												.setSummary(updateDueStuff());
@@ -126,25 +111,24 @@ public class SemanticsSettings implements OnPreferenceChangeListener {
 								new OnClickListener() {
 
 									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
+									public void onClick(DialogInterface dialog, int which) {
 										int val = dueDialog.getValue();
 										VALUE dayYear = dueDialog.getDayYear();
 										switch (dayYear) {
-										case DAY:
-											semantic.setDue(val);
-											break;
-										case MONTH:
-											semantic.setDue(val * 30);
-											break;
-										case YEAR:
-											semantic.setDue(val * 365);
-											break;
-										default:
-											// The other things aren't shown in
-											// the dialog so we haven't to care
-											// about them
-											break;
+											case DAY:
+												semantic.setDue(val);
+												break;
+											case MONTH:
+												semantic.setDue(val * 30);
+												break;
+											case YEAR:
+												semantic.setDue(val * 365);
+												break;
+											default:
+												// The other things aren't shown in
+												// the dialog so we haven't to care
+												// about them
+												break;
 										}
 										semanticsDue
 												.setSummary(updateDueStuff());
@@ -166,10 +150,8 @@ public class SemanticsSettings implements OnPreferenceChangeListener {
 		CharSequence[] weekdaysNum = { "0", "1", "2", "3", "4", "5", "6", "7" };
 
 		semanticsWeekday.setEntryValues(weekdaysNum);
-		if (weekday == null)
-			semanticsWeekday.setValueIndex(0);
-		else
-			semanticsWeekday.setValueIndex(weekday);
+		if (weekday == null) semanticsWeekday.setValueIndex(0);
+		else semanticsWeekday.setValueIndex(weekday);
 		semanticsWeekday.setSummary(semanticsWeekday.getEntry());
 
 		// List
@@ -236,17 +218,10 @@ public class SemanticsSettings implements OnPreferenceChangeListener {
 		return summary;
 	}
 
-	@SuppressWarnings("deprecation")
-	@SuppressLint("NewApi")
 	private Preference findPreference(String key) {
-		if (v4_0) {
-			return ((SemanticsSettingsFragment) settings).findPreference(key);
-		} else {
-			return ((SemanticsSettingsActivity) settings).findPreference(key);
-		}
+		return ((SemanticsSettingsFragment) settings).findPreference(key);
 	}
 
-	@SuppressLint("NewApi")
 	@Override
 	public boolean onPreferenceChange(Preference preference, Object nv) {
 		String newValue = String.valueOf(nv);
@@ -266,8 +241,7 @@ public class SemanticsSettings implements OnPreferenceChangeListener {
 
 		} else if (key.equals("semantics_weekday")) {
 			Integer weekday = Integer.parseInt(newValue);
-			if (weekday == 0)
-				weekday = null;
+			if (weekday == 0) weekday = null;
 			semantic.setWeekday(weekday);
 			semanticsWeekday.setValue(newValue);
 			semanticsWeekday.setSummary(semanticsWeekday.getEntry());
@@ -290,7 +264,7 @@ public class SemanticsSettings implements OnPreferenceChangeListener {
 			semantic.save();
 			semanticsCondition.setSummary(newValue);
 			semanticsCondition.setText(newValue);
-			if (MirakelPreferences.isTablet() && v4_0) {
+			if (MirakelPreferences.isTablet()) {
 				((ListSettings) ctx).invalidateHeaders();
 			}
 		}

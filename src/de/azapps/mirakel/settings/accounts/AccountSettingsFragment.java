@@ -1,8 +1,6 @@
 package de.azapps.mirakel.settings.accounts;
 
-import android.annotation.TargetApi;
 import android.app.ActionBar;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.view.Gravity;
@@ -15,7 +13,6 @@ import de.azapps.mirakel.model.account.AccountMirakel;
 import de.azapps.mirakel.settings.ListSettings;
 import de.azapps.mirakelandroid.R;
 
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class AccountSettingsFragment extends PreferenceFragment {
 	private static final String TAG = "AccountSettingsFragment";
 

@@ -19,17 +19,13 @@
 package de.azapps.mirakel.main_activity.list_fragment;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.ActionMode;
@@ -71,8 +67,6 @@ public class ListFragment extends MirakelFragment {
 	protected EditText				input;
 	protected boolean				EditName;
 	private DragNDropListView		listView;
-	private static final int		LIST_COLOR	= 0, LIST_RENAME = 1,
-			LIST_DESTROY = 2, LIST_SHARE = 3;
 	protected static final String	TAG			= "ListFragment";
 	private boolean					enableDrag;
 	private ActionMode				mActionMode	= null;
@@ -101,7 +95,6 @@ public class ListFragment extends MirakelFragment {
 		update();
 	}
 
-	@SuppressLint("NewApi")
 	public void update() {
 		if (view == null || this.getActivity() == null) return;
 		final List<ListMirakel> values = ListMirakel.all();
@@ -166,124 +159,76 @@ public class ListFragment extends MirakelFragment {
 				main.setCurrentList(list, item);
 			}
 		});
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+		listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+		if (adapter != null) {
+			adapter.resetSelected();
+		}
+		listView.setHapticFeedbackEnabled(true);
+		listView.setMultiChoiceModeListener(new MultiChoiceModeListener() {
 
-				@Override
-				public boolean onItemLongClick(AdapterView<?> parent, View item, int position, final long id) {
+			@Override
+			public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+				menu.findItem(R.id.edit_list).setVisible(
+						adapter.getSelectedCount() <= 1);
+				menu.findItem(R.id.share_list_from_lists).setVisible(
+						adapter.getSelectedCount() <= 1);
+				return false;
+			}
 
-					AlertDialog.Builder builder = new AlertDialog.Builder(
-							getActivity());
-					ListMirakel list = values.get((int) id);
-					builder.setTitle(list.getName());
-					List<CharSequence> items = new ArrayList<CharSequence>(
-							Arrays.asList(getActivity().getResources()
-									.getStringArray(R.array.list_actions_items)));
-
-					builder.setItems(
-							items.toArray(new CharSequence[items.size()]),
-							new DialogInterface.OnClickListener() {
-
-								public void onClick(DialogInterface dialog, int item) {
-									ListMirakel list = values.get((int) id);
-									switch (item) {
-										case LIST_COLOR:
-											editColor(list);
-											break;
-										case LIST_RENAME:
-											editList(list);
-											break;
-										case LIST_DESTROY:
-											main.handleDestroyList(list);
-											break;
-										case LIST_SHARE:
-											SharingHelper.share(getActivity(),
-													list);
-											break;
-										default:
-											break;
-									}
-								}
-							});
-
-					AlertDialog dialog = builder.create();
-					dialog.show();
-
-					return false;
-				}
-			});
-		} else {
-			listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-			if (adapter != null) {
+			@Override
+			public void onDestroyActionMode(ActionMode mode) {
 				adapter.resetSelected();
 			}
-			listView.setHapticFeedbackEnabled(true);
-			listView.setMultiChoiceModeListener(new MultiChoiceModeListener() {
 
-				@Override
-				public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-					menu.findItem(R.id.edit_list).setVisible(
-							adapter.getSelectedCount() <= 1);
-					menu.findItem(R.id.share_list_from_lists).setVisible(
-							adapter.getSelectedCount() <= 1);
-					return false;
+			@Override
+			public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+				MenuInflater inflater = mode.getMenuInflater();
+				inflater.inflate(R.menu.context_lists, menu);
+				mActionMode = mode;
+				return true;
+			}
+
+			@Override
+			public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+				List<ListMirakel> lists = adapter.getSelected();
+				switch (item.getItemId()) {
+					case R.id.menu_delete:
+						main.handleDestroyList(lists);
+						break;
+					case R.id.menu_color:
+						editColor(lists);
+						break;
+					case R.id.edit_list:
+						editList(lists.get(0));
+						break;
+					case R.id.share_list_from_lists:
+						SharingHelper.share(getActivity(), lists.get(0));
+						break;
+					case R.id.edit_listaccount:
+						editListAccount(lists);
+				}
+				mode.finish();
+				return false;
+			}
+
+			@Override
+			public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+				Log.d(TAG, "item " + position + " selected");
+				int oldCount = adapter.getSelectedCount();
+				adapter.setSelected(position, checked);
+				int newCount = adapter.getSelectedCount();
+				Log.e(TAG, "old count: " + oldCount + " | newCount: "
+						+ newCount);
+				mode.setTitle(main.getResources().getQuantityString(
+						R.plurals.selected_lists, newCount, newCount));
+				if ((oldCount < 2 && newCount >= 2)
+						|| (oldCount >= 2 && newCount < 2)) {
+					mode.invalidate();
 				}
 
-				@Override
-				public void onDestroyActionMode(ActionMode mode) {
-					adapter.resetSelected();
-				}
+			}
+		});
 
-				@SuppressLint("NewApi")
-				@Override
-				public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-					MenuInflater inflater = mode.getMenuInflater();
-					inflater.inflate(R.menu.context_lists, menu);
-					mActionMode = mode;
-					return true;
-				}
-
-				@Override
-				public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-					List<ListMirakel> lists = adapter.getSelected();
-					switch (item.getItemId()) {
-						case R.id.menu_delete:
-							main.handleDestroyList(lists);
-							break;
-						case R.id.menu_color:
-							editColor(lists);
-							break;
-						case R.id.edit_list:
-							editList(lists.get(0));
-							break;
-						case R.id.share_list_from_lists:
-							SharingHelper.share(getActivity(), lists.get(0));
-							break;
-						case R.id.edit_listaccount:
-							editListAccount(lists);
-					}
-					mode.finish();
-					return false;
-				}
-
-				@Override
-				public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-					Log.d(TAG, "item " + position + " selected");
-					int oldCount = adapter.getSelectedCount();
-					adapter.setSelected(position, checked);
-					int newCount = adapter.getSelectedCount();
-					Log.e(TAG, "old count: " + oldCount + " | newCount: "
-							+ newCount);
-					mode.setTitle(main.getResources().getQuantityString(
-							R.plurals.selected_lists, newCount, newCount));
-					if ((oldCount < 2 && newCount >= 2)
-							|| (oldCount >= 2 && newCount < 2)) {
-						mode.invalidate();
-					}
-
-				}
-			});
-		}
 	}
 
 	protected void editListAccount(final List<ListMirakel> lists) {
@@ -334,11 +279,8 @@ public class ListFragment extends MirakelFragment {
 
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void closeActionMode() {
-		if (mActionMode != null
-				&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-			mActionMode.finish();
+		if (mActionMode != null) mActionMode.finish();
 	}
 
 	public ListAdapter getAdapter() {

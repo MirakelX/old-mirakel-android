@@ -18,9 +18,7 @@
  ******************************************************************************/
 package de.azapps.mirakel.settings.recurring;
 
-import android.annotation.TargetApi;
 import android.app.ActionBar;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.view.Gravity;
@@ -32,14 +30,12 @@ import de.azapps.mirakel.model.recurring.Recurring;
 import de.azapps.mirakel.settings.ListSettings;
 import de.azapps.mirakelandroid.R;
 
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class RecurringFragment extends PreferenceFragment {
-	private static final String TAG = "RecurringFragment";
-	private Recurring recurring;
+	private static final String	TAG	= "RecurringFragment";
+	private Recurring			recurring;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		Log.d(TAG, "foo");
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.settings_recurring);
 		ActionBar actionBar = getActivity().getActionBar();
@@ -55,10 +51,11 @@ public class RecurringFragment extends PreferenceFragment {
 						.setBackgroundResource(android.R.drawable.ic_menu_delete);
 				actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM,
 						ActionBar.DISPLAY_SHOW_CUSTOM);
-				actionBar.setCustomView(delSemantic,
-						new ActionBar.LayoutParams(
-								ActionBar.LayoutParams.WRAP_CONTENT,
-								ActionBar.LayoutParams.WRAP_CONTENT,
+				actionBar
+						.setCustomView(delSemantic,
+								new ActionBar.LayoutParams(
+										ActionBar.LayoutParams.WRAP_CONTENT,
+										ActionBar.LayoutParams.WRAP_CONTENT,
 										Gravity.CENTER_VERTICAL
 												| Mirakel.GRAVITY_RIGHT));
 				delSemantic.setOnClickListener(((ListSettings) getActivity())

@@ -18,50 +18,35 @@
  ******************************************************************************/
 package de.azapps.mirakel.widget;
 
-import android.annotation.SuppressLint;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
-import android.os.Build;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.widget.FrameLayout;
 import de.azapps.mirakel.helper.Log;
 import de.azapps.mirakel.helper.MirakelPreferences;
-import de.azapps.mirakel.helper.PreferencesHelper;
 import de.azapps.mirakelandroid.R;
 
 public class MainWidgetSettingsActivity extends PreferenceActivity {
 	@SuppressWarnings("unused")
-	private static final String TAG = "MainWidgetSettingsActivity";
+	private static final String	TAG				= "MainWidgetSettingsActivity";
 
-	private static int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
+	private static int			mAppWidgetId	= AppWidgetManager.INVALID_APPWIDGET_ID;
 
-	@SuppressWarnings("deprecation")
-	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		if (MirakelPreferences.isDark())
-			setTheme(R.style.AppBaseThemeDARK);
+		if (MirakelPreferences.isDark()) setTheme(R.style.AppBaseThemeDARK);
 		super.onCreate(savedInstanceState);
 		mAppWidgetId = getIntent().getIntExtra(
 				MainWidgetProvider.EXTRA_WIDGET_ID, 0);
-		if (VERSION.SDK_INT < VERSION_CODES.HONEYCOMB) {
-			addPreferencesFromResource(R.xml.settings_widget);
-			new PreferencesHelper(this).setFunctionsWidget(this, mAppWidgetId);
-		} else {
-			// Display the fragment as the main content.
-			((FrameLayout) findViewById(android.R.id.content)).removeAllViews();
-			MainWidgetSettingsFragment fragment = new MainWidgetSettingsFragment();
-			getFragmentManager().beginTransaction()
-					.replace(android.R.id.content, fragment).commit();
-			fragment.setup(mAppWidgetId);
-		}
+		// Display the fragment as the main content.
+		((FrameLayout) findViewById(android.R.id.content)).removeAllViews();
+		MainWidgetSettingsFragment fragment = new MainWidgetSettingsFragment();
+		getFragmentManager().beginTransaction()
+				.replace(android.R.id.content, fragment).commit();
+		fragment.setup(mAppWidgetId);
 	}
 
-	@SuppressLint("NewApi")
-	@Override
 	protected void onPause() {
 		super.onPause();
 		Log.e("WIDGET", "updated");
@@ -72,9 +57,8 @@ public class MainWidgetSettingsActivity extends PreferenceActivity {
 		// since it seems the onUpdate() is only fired on that:
 		int widgets[] = { mAppWidgetId };
 		intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgets);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-			AppWidgetManager.getInstance(this).notifyAppWidgetViewDataChanged(
-					mAppWidgetId, R.id.widget_tasks_list);
+		AppWidgetManager.getInstance(this).notifyAppWidgetViewDataChanged(
+				mAppWidgetId, R.id.widget_tasks_list);
 		sendBroadcast(intent);
 		// Finish this activity
 		finish();

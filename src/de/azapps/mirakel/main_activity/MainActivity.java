@@ -644,12 +644,9 @@ public class MainActivity extends ActionBarActivity implements ViewPager.OnPageC
 		int widgets[] = AppWidgetManager.getInstance(context).getAppWidgetIds(
 				name);
 		intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgets);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			for (int id : widgets) {
-				AppWidgetManager.getInstance(this)
-						.notifyAppWidgetViewDataChanged(id,
-								R.id.widget_tasks_list);
-			}
+		for (int id : widgets) {
+			AppWidgetManager.getInstance(this).notifyAppWidgetViewDataChanged(
+					id, R.id.widget_tasks_list);
 		}
 		sendBroadcast(intent);
 		TaskDialogHelpers.stopRecording();

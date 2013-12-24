@@ -21,7 +21,6 @@ package de.azapps.mirakel.settings.recurring;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
@@ -43,25 +42,15 @@ import de.azapps.mirakel.settings.NumPickerPref;
 import de.azapps.mirakelandroid.R;
 
 public class RecurringSettings {
-	private static final String TAG = "RecurringSettings";
-	private Recurring recurring;
-	private boolean v4_0;
-	private Object settings;
-	private Context ctx;
+	private static final String	TAG	= "RecurringSettings";
+	private Recurring			recurring;
+	private Object				settings;
+	private Context				ctx;
 
-	@SuppressLint("NewApi")
 	public RecurringSettings(RecurringFragment activity, Recurring recurring) {
 		this.recurring = recurring;
-		v4_0 = true;
 		settings = activity;
 		ctx = activity.getActivity();
-	}
-
-	public RecurringSettings(RecurringActivity activity, Recurring recurring) {
-		ctx = activity;
-		settings = activity;
-		v4_0 = false;
-		this.recurring = recurring;
 	}
 
 	public void setup() {
@@ -110,8 +99,7 @@ public class RecurringSettings {
 				.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 
 					@Override
-					public boolean onPreferenceChange(Preference preference,
-							Object newValue) {
+					public boolean onPreferenceChange(Preference preference, Object newValue) {
 						recurring.setDays(recurring_day.getValue());
 						setSummary(recurring_day, R.plurals.every_days,
 								recurring.getDays());
@@ -123,8 +111,7 @@ public class RecurringSettings {
 				.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 
 					@Override
-					public boolean onPreferenceChange(Preference preference,
-							Object newValue) {
+					public boolean onPreferenceChange(Preference preference, Object newValue) {
 						Log.d(TAG, "change");
 						recurring.setMonths(recurring_month.getValue());
 						setSummary(recurring_month, R.plurals.every_months,
@@ -137,8 +124,7 @@ public class RecurringSettings {
 				.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 
 					@Override
-					public boolean onPreferenceChange(Preference preference,
-							Object newValue) {
+					public boolean onPreferenceChange(Preference preference, Object newValue) {
 						recurring.setYears(recurring_year.getValue());
 						setSummary(recurring_year, R.plurals.every_years,
 								recurring.getYears());
@@ -150,8 +136,7 @@ public class RecurringSettings {
 				.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 
 					@Override
-					public boolean onPreferenceChange(Preference preference,
-							Object newValue) {
+					public boolean onPreferenceChange(Preference preference, Object newValue) {
 						recurring.setHours(recurring_hour.getValue());
 						setSummary(recurring_hour, R.plurals.every_hours,
 								recurring.getHours());
@@ -163,8 +148,7 @@ public class RecurringSettings {
 				.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 
 					@Override
-					public boolean onPreferenceChange(Preference preference,
-							Object newValue) {
+					public boolean onPreferenceChange(Preference preference, Object newValue) {
 						recurring.setMinutes(recurring_minute.getValue());
 						setSummary(recurring_minute, R.plurals.every_minutes,
 								recurring.getMinutes());
@@ -176,17 +160,15 @@ public class RecurringSettings {
 		labelRecurring
 				.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 
-					@SuppressLint("NewApi")
 					@Override
-					public boolean onPreferenceChange(Preference preference,
-							Object newValue) {
+					public boolean onPreferenceChange(Preference preference, Object newValue) {
 						recurring.setLabel(newValue.toString());
 						preference.setSummary(recurring.getLabel());
 						preference.setPersistent(false);
 						((EditTextPreference) preference).setText(recurring
 								.getLabel());
 						recurring.save();
-						if (MirakelPreferences.isTablet() && v4_0) {
+						if (MirakelPreferences.isTablet()) {
 							((ListSettings) ctx).invalidateHeaders();
 						}
 						return false;
@@ -195,8 +177,7 @@ public class RecurringSettings {
 		forDue.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 
 			@Override
-			public boolean onPreferenceChange(Preference preference,
-					Object newValue) {
+			public boolean onPreferenceChange(Preference preference, Object newValue) {
 				recurring.setForDue((Boolean) newValue);
 				hideForReminder(recurring.isForDue(), recurring_minute,
 						recurring_hour);
@@ -223,9 +204,7 @@ public class RecurringSettings {
 		});
 	}
 
-	@SuppressLint("NewApi")
-	protected void DateDialog(final boolean start, final Preference date,
-			final String s) {
+	protected void DateDialog(final boolean start, final Preference date, final String s) {
 		Calendar c = new GregorianCalendar();
 		String no = ctx.getString(R.string.no_begin_end, s);
 		if (start && recurring.getStartDate() != null) {
@@ -233,61 +212,37 @@ public class RecurringSettings {
 		} else if (start && recurring.getEndDate() != null) {
 			c = recurring.getEndDate();
 		}
-		OnDateSetListener listner = (!v4_0 ? new OnDateSetListener() {
-
-			@Override
-			public void onDateSet(DatePicker view, int year, int monthOfYear,
-					int dayOfMonth) {
-				Calendar c = new GregorianCalendar(year, monthOfYear,
-						dayOfMonth);
-				if (start) {
-					recurring.setStartDate(c);
-				} else if (recurring.getStartDate() == null
-						| (recurring.getStartDate().before(c))) {
-					recurring.setEndDate(c);
-				} else {
-					recurring.save();
-					return;
-				}
-				date.setSummary(DateTimeHelper.formatDate(c,
-						ctx.getString(R.string.humanDateTimeFormat)));
-				recurring.save();
-			}
-		} : null);
+		OnDateSetListener listner = null;
 		final DatePickerDialog picker = new DatePickerDialog(ctx, listner,
 				c.get(Calendar.YEAR), c.get(Calendar.MONTH),
 				c.get(Calendar.DAY_OF_MONTH));
-		if (v4_0) {
-			picker.getDatePicker().setCalendarViewShown(false);
-			picker.setButton(Dialog.BUTTON_POSITIVE,
-					ctx.getString(android.R.string.ok),
-					new DialogInterface.OnClickListener() {
+		picker.getDatePicker().setCalendarViewShown(false);
+		picker.setButton(Dialog.BUTTON_POSITIVE,
+				ctx.getString(android.R.string.ok),
+				new DialogInterface.OnClickListener() {
 
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							if (which == DialogInterface.BUTTON_POSITIVE) {
-								DatePicker dp = picker.getDatePicker();
-								Calendar c = new GregorianCalendar(
-										dp.getYear(), dp.getMonth(), dp
-												.getDayOfMonth());
-								if (start) {
-									recurring.setStartDate(c);
-								} else if (recurring.getStartDate() == null
-										| (recurring.getStartDate().before(c))) {
-									recurring.setEndDate(c);
-								} else {
-									recurring.save();
-									return;
-								}
-								date.setSummary(DateTimeHelper.formatDate(
-										c,
-										ctx.getString(R.string.humanDateTimeFormat)));
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if (which == DialogInterface.BUTTON_POSITIVE) {
+							DatePicker dp = picker.getDatePicker();
+							Calendar c = new GregorianCalendar(dp.getYear(), dp
+									.getMonth(), dp.getDayOfMonth());
+							if (start) {
+								recurring.setStartDate(c);
+							} else if (recurring.getStartDate() == null
+									| (recurring.getStartDate().before(c))) {
+								recurring.setEndDate(c);
+							} else {
 								recurring.save();
+								return;
 							}
-
+							date.setSummary(DateTimeHelper.formatDate(c,
+									ctx.getString(R.string.humanDateTimeFormat)));
+							recurring.save();
 						}
-					});
-		}
+
+					}
+				});
 		picker.setButton(Dialog.BUTTON_NEGATIVE, no,
 				new DialogInterface.OnClickListener() {
 
@@ -306,8 +261,7 @@ public class RecurringSettings {
 
 	}
 
-	private void hideForReminder(boolean forDue, Preference recurring_minute,
-			Preference recurring_hour) {
+	private void hideForReminder(boolean forDue, Preference recurring_minute, Preference recurring_hour) {
 		PreferenceCategory cat = (PreferenceCategory) findPreference("recurring_intervall");
 		if (forDue) {
 			cat.removePreference(recurring_hour);
@@ -328,14 +282,8 @@ public class RecurringSettings {
 
 	}
 
-	@SuppressWarnings("deprecation")
-	@SuppressLint("NewApi")
 	private Preference findPreference(String key) {
-		if (v4_0) {
-			return ((RecurringFragment) settings).findPreference(key);
-		} else {
-			return ((RecurringActivity) settings).findPreference(key);
-		}
+		return ((RecurringFragment) settings).findPreference(key);
 	}
 
 }

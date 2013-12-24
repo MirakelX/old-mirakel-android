@@ -29,7 +29,6 @@ import java.util.List;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.text.Editable;
@@ -84,8 +83,7 @@ public class RecurrencePickerDialog extends DialogFragment implements OnCheckedC
 	private boolean					mForDue;
 	private Spinner					mRecurenceSelection;
 	private int						extraItems;
-	private CompoundButton			mToggle;
-	private boolean					toggleIsSwitch		= true;
+	private Switch					mToggle;
 	private Button					mDoneButton;
 	private int						mPosition;
 	private boolean					mDark;
@@ -162,11 +160,6 @@ public class RecurrencePickerDialog extends DialogFragment implements OnCheckedC
 
 		final View view = inflater
 				.inflate(R.layout.recurrencepicker, container);
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			View v = view.findViewById(R.id.recurrence_picker_dialog);
-			v.setBackgroundColor(ctx.getResources().getColor(
-					mDark ? android.R.color.black : android.R.color.white));
-		}
 		mRecurenceSelection = (Spinner) view.findViewById(R.id.freqSpinner);
 		Resources res = ctx.getResources();
 		boolean isNotTwoRows;
@@ -285,11 +278,8 @@ public class RecurrencePickerDialog extends DialogFragment implements OnCheckedC
 		mUseExact = (CheckBox) view.findViewById(R.id.recurrence_is_exact);
 		Log.w(TAG, "exact: " + mInitialExact);
 		mUseExact.setChecked(mInitialExact);
-		mToggle = (CompoundButton) view.findViewById(R.id.repeat_switch);
-		if (mToggle == null) {
-			mToggle = (CheckBox) view.findViewById(R.id.repeat_checkbox);
-			toggleIsSwitch = false;
-		}
+		mToggle = (Switch) view.findViewById(R.id.repeat_switch);
+
 		mToggle.setChecked(mRecurring != null && mRecurring.getId() != -1);
 		mToggle.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
@@ -579,9 +569,8 @@ public class RecurrencePickerDialog extends DialogFragment implements OnCheckedC
 			view.findViewById(R.id.recurrence_picker_head).setBackgroundColor(
 					res.getColor(R.color.dialog_dark_gray));
 			mDoneButton.setTextColor(res.getColor(R.color.White));
-			if (toggleIsSwitch)
-				((Switch) mToggle).setThumbDrawable(res
-						.getDrawable(R.drawable.switch_thumb_dark));
+			mToggle.setThumbDrawable(res
+					.getDrawable(R.drawable.switch_thumb_dark));
 			mEndDateView.setTextColor(res.getColor(R.color.White));
 			mStartDateView.setTextColor(res.getColor(R.color.White));
 			mUseExact.setButtonDrawable(R.drawable.btn_check_holo_dark_red);

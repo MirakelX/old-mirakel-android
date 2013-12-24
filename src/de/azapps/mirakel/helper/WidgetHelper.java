@@ -39,8 +39,7 @@ import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakelandroid.R;
 
 public class WidgetHelper {
-	public static RemoteViews configureItem(RemoteViews rv, Task task,
-			Context context, int listId, boolean isMinimal, int widgetId) {
+	public static RemoteViews configureItem(RemoteViews rv, Task task, Context context, int listId, boolean isMinimal, int widgetId) {
 		Intent openIntent = new Intent(context, MainActivity.class);
 		openIntent.setAction(MainActivity.SHOW_TASK);
 		openIntent.putExtra(MainActivity.EXTRA_ID, task.getId());
@@ -130,23 +129,15 @@ public class WidgetHelper {
 				rv.setViewVisibility(R.id.tasks_row_due, View.GONE);
 			}
 		}
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			rv.setTextColor(
-					R.id.tasks_row_name,
-					context.getResources()
-							.getColor(
-									WidgetHelper.isDark(context, widgetId) ? R.color.White
-											: R.color.Black));
-		}
 		return rv;
 	}
 
 	// For settings
-	private static final String PREFS_NAME = "de.azapps.mirakelandroid.appwidget.MainWidgetProvider";
-	private static final String PREF_PREFIX = "widget_";
+	private static final String			PREFS_NAME	= "de.azapps.mirakelandroid.appwidget.MainWidgetProvider";
+	private static final String			PREF_PREFIX	= "widget_";
 	@SuppressWarnings("unused")
-	private static final String TAG = "WidgetHelper";
-	private static SharedPreferences settings = null;
+	private static final String			TAG			= "WidgetHelper";
+	private static SharedPreferences	settings	= null;
 
 	private static SharedPreferences getSettings(Context ctx) {
 		if (settings == null) {
@@ -159,14 +150,12 @@ public class WidgetHelper {
 		return PREF_PREFIX + widgetId + "_" + key;
 	}
 
-	private static boolean getBoolean(Context context, int widgetId,
-			String key, boolean def) {
+	private static boolean getBoolean(Context context, int widgetId, String key, boolean def) {
 		return getSettings(context).getBoolean(getKey(widgetId, key), def);
 
 	}
 
-	private static int getInt(Context context, int widgetId, String key,
-			int white) {
+	private static int getInt(Context context, int widgetId, String key, int white) {
 		return getSettings(context).getInt(getKey(widgetId, key), white);
 	}
 
@@ -220,16 +209,14 @@ public class WidgetHelper {
 		editor.commit();
 	}
 
-	public static void putBool(Context context, int widgetId, String key,
-			boolean value) {
+	public static void putBool(Context context, int widgetId, String key, boolean value) {
 		Editor editor = getSettings(context).edit();
 		editor.putBoolean(getKey(widgetId, key), value);
 		editor.commit();
 
 	}
 
-	public static void putInt(Context context, int widgetId, String key,
-			int value) {
+	public static void putInt(Context context, int widgetId, String key, int value) {
 		Editor editor = getSettings(context).edit();
 		editor.putInt(getKey(widgetId, key), value);
 		editor.commit();
@@ -240,14 +227,14 @@ public class WidgetHelper {
 		putBool(context, widgetId, "showDone", done);
 	}
 
-	public static void setMinimalistic(Context context, int widgetId,
-			boolean minimalistic) {
+	public static void setMinimalistic(Context context, int widgetId, boolean minimalistic) {
 		putBool(context, widgetId, "isMinimalistic", minimalistic);
 	}
 
 	public static void setDark(Context context, int widgetId, boolean dark) {
 		putBool(context, widgetId, "isDark", dark);
 	}
+
 	public static void setDueColors(Context context, int widgetId, boolean done) {
 		putBool(context, widgetId, "widgetDueColors", done);
 	}
@@ -256,8 +243,7 @@ public class WidgetHelper {
 		putInt(context, widgetId, "widgetFontColor", color);
 	}
 
-	public static void setTransparency(Context context, int widgetId,
-			int transparency) {
+	public static void setTransparency(Context context, int widgetId, int transparency) {
 		putInt(context, widgetId, "widgetTransparency", transparency);
 	}
 }

@@ -43,17 +43,12 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.Button;
 import android.widget.NumberPicker;
 import android.widget.SeekBar;
 import android.widget.Switch;
-import android.widget.TextView;
 import android.widget.Toast;
 import de.azapps.mirakel.Mirakel;
 import de.azapps.mirakel.helper.export_import.AnyDoImport;
@@ -76,7 +71,6 @@ import de.azapps.mirakel.sync.AuthenticatorActivity;
 import de.azapps.mirakel.sync.SyncAdapter;
 import de.azapps.mirakel.sync.mirakel.MirakelSync;
 import de.azapps.mirakel.sync.taskwarrior.TaskWarriorSync;
-import de.azapps.mirakel.widget.MainWidgetSettingsActivity;
 import de.azapps.mirakel.widget.MainWidgetSettingsFragment;
 import de.azapps.mirakelandroid.R;
 
@@ -86,43 +80,21 @@ public class PreferencesHelper {
 	private static final String	TAG	= "PreferencesHelper";
 	private final Object		ctx;
 	private final Activity		activity;
-	private static boolean		v4_0;
-	static View					numberPicker;
+	static NumberPicker			numberPicker;
 	public Switch				actionBarSwitch;
 
-	public PreferencesHelper(SettingsActivity c) {
-		ctx = c;
-		v4_0 = false;
-		activity = c;
-	}
-
-	@SuppressLint("NewApi")
 	public PreferencesHelper(SettingsFragment c) {
 		ctx = c;
-		v4_0 = true;
 		activity = c.getActivity();
 	}
 
-	public PreferencesHelper(MainWidgetSettingsActivity c) {
-		ctx = c;
-		v4_0 = false;
-		activity = c;
-	}
-
-	@SuppressLint("NewApi")
 	public PreferencesHelper(MainWidgetSettingsFragment c) {
 		ctx = c;
-		v4_0 = true;
 		activity = c.getActivity();
 	}
 
-	@SuppressWarnings("deprecation")
-	@SuppressLint("NewApi")
 	private Preference findPreference(String key) {
-		if (v4_0) {
-			return ((PreferenceFragment) ctx).findPreference(key);
-		}
-		return ((PreferenceActivity) ctx).findPreference(key);
+		return ((PreferenceFragment) ctx).findPreference(key);
 	}
 
 	@SuppressLint("NewApi")
@@ -213,77 +185,67 @@ public class PreferencesHelper {
 					}
 				});
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			final Preference widgetTransparency = findPreference("widgetTransparency");
-			final ColorPickerPref widgetFontColor = (ColorPickerPref) findPreference("widgetFontColor");
-			// ((SettingsFragment)ctx).getActivity().findViewById(R.id.color_box).setBackgroundColor(WidgetHelper.getFontColor(context,
-			// widgetId));
-			widgetFontColor.setColor(WidgetHelper.getFontColor(context,
-					widgetId));
-			widgetFontColor.setOldColor(WidgetHelper.getFontColor(context,
-					widgetId));
-			widgetFontColor
-					.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+		final Preference widgetTransparency = findPreference("widgetTransparency");
+		final ColorPickerPref widgetFontColor = (ColorPickerPref) findPreference("widgetFontColor");
+		// ((SettingsFragment)ctx).getActivity().findViewById(R.id.color_box).setBackgroundColor(WidgetHelper.getFontColor(context,
+		// widgetId));
+		widgetFontColor.setColor(WidgetHelper.getFontColor(context, widgetId));
+		widgetFontColor.setOldColor(WidgetHelper
+				.getFontColor(context, widgetId));
+		widgetFontColor
+				.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 
-						@Override
-						public boolean onPreferenceChange(Preference preference, Object newValue) {
-							WidgetHelper.setFontColor(context, widgetId,
-									widgetFontColor.getColor());
-							return false;
-						}
-					});
-			widgetTransparency.setSummary(activity.getString(
-					R.string.widget_transparency_summary, 100 - Math
-							.round((WidgetHelper.getTransparency(context,
-									widgetId) / 255f) * 1000) / 10));
-			widgetTransparency
-					.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+					@Override
+					public boolean onPreferenceChange(Preference preference, Object newValue) {
+						WidgetHelper.setFontColor(context, widgetId,
+								widgetFontColor.getColor());
+						return false;
+					}
+				});
+		widgetTransparency.setSummary(activity.getString(
+				R.string.widget_transparency_summary,
+				100 - Math.round((WidgetHelper.getTransparency(context,
+						widgetId) / 255f) * 1000) / 10));
+		widgetTransparency
+				.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
-						@Override
-						public boolean onPreferenceClick(Preference preference) {
-							final SeekBar sb = new SeekBar(context);
-							sb.setMax(255);
-							sb.setInterpolator(new DecelerateInterpolator());
-							sb.setProgress(255 - WidgetHelper.getTransparency(
-									context, widgetId));
-							sb.setPadding(20, 30, 20, 30);
-							new AlertDialog.Builder(context)
-									.setTitle(R.string.widget_transparency)
-									.setView(sb)
-									.setPositiveButton(android.R.string.ok,
-											new OnClickListener() {
+					@Override
+					public boolean onPreferenceClick(Preference preference) {
+						final SeekBar sb = new SeekBar(context);
+						sb.setMax(255);
+						sb.setInterpolator(new DecelerateInterpolator());
+						sb.setProgress(255 - WidgetHelper.getTransparency(
+								context, widgetId));
+						sb.setPadding(20, 30, 20, 30);
+						new AlertDialog.Builder(context)
+								.setTitle(R.string.widget_transparency)
+								.setView(sb)
+								.setPositiveButton(android.R.string.ok,
+										new OnClickListener() {
 
-												@Override
-												public void onClick(DialogInterface dialog, int which) {
-													// Fix Direction
-													WidgetHelper
-															.setTransparency(
-																	context,
-																	widgetId,
-																	255 - sb.getProgress());
-													float t = 100 - Math
-															.round((WidgetHelper
-																	.getTransparency(
-																			context,
-																			widgetId) / 255f) * 1000) / 10;
-													widgetTransparency
-															.setSummary(activity
-																	.getString(
-																			R.string.widget_transparency_summary,
-																			t));
+											@Override
+											public void onClick(DialogInterface dialog, int which) {
+												// Fix Direction
+												WidgetHelper.setTransparency(
+														context, widgetId,
+														255 - sb.getProgress());
+												float t = 100 - Math.round((WidgetHelper
+														.getTransparency(
+																context,
+																widgetId) / 255f) * 1000) / 10;
+												widgetTransparency.setSummary(activity
+														.getString(
+																R.string.widget_transparency_summary,
+																t));
 
-												}
-											})
-									.setNegativeButton(android.R.string.cancel,
-											null).show();
-							return false;
-						}
-					});
-		} else {
-			removePreference("widgetTransparency");
-			removePreference("widgetFontColor");
-			if (isMinimalistic != null) removePreference("isMinimalistic");
-		}
+											}
+										})
+								.setNegativeButton(android.R.string.cancel,
+										null).show();
+						return false;
+					}
+				});
+
 	}
 
 	@SuppressLint("NewApi")
@@ -582,7 +544,6 @@ public class PreferencesHelper {
 					ExportImport.getBackupDir().getAbsolutePath()));
 
 			backup.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-				@SuppressLint("NewApi")
 				public boolean onPreferenceClick(Preference preference) {
 					ExportImport.exportDB(activity);
 					return true;
@@ -624,7 +585,6 @@ public class PreferencesHelper {
 		if (changelog != null) {
 			changelog
 					.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-						@SuppressLint("NewApi")
 						public boolean onPreferenceClick(Preference preference) {
 							ChangeLog cl = new ChangeLog(activity);
 							cl.getFullLogDialog().show();
@@ -838,60 +798,13 @@ public class PreferencesHelper {
 									.getAutoBackupIntervall();
 							final int max = 31;
 							final int min = 0;
-							if (v4_0) {
-								numberPicker = new NumberPicker(activity);
-								((NumberPicker) numberPicker).setMaxValue(max);
-								((NumberPicker) numberPicker).setMinValue(min);
-								((NumberPicker) numberPicker)
-										.setWrapSelectorWheel(false);
-								((NumberPicker) numberPicker).setValue(old_val);
-								((NumberPicker) numberPicker)
-										.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
-							} else {
-								numberPicker = ((LayoutInflater) activity
-										.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-										.inflate(
-												R.layout.dialog_num_picker_v10,
-												null);
-
-								((TextView) numberPicker
-										.findViewById(R.id.dialog_num_pick_val))
-										.setText(old_val + "");
-								((Button) numberPicker
-										.findViewById(R.id.dialog_num_pick_plus))
-										.setOnClickListener(new View.OnClickListener() {
-											@Override
-											public void onClick(View v) {
-												int val = Integer
-														.parseInt(((TextView) numberPicker
-																.findViewById(R.id.dialog_num_pick_val))
-																.getText()
-																.toString());
-												if (val < max) {
-													((TextView) numberPicker
-															.findViewById(R.id.dialog_num_pick_val))
-															.setText(++val + "");
-												}
-											}
-										});
-								((Button) numberPicker
-										.findViewById(R.id.dialog_num_pick_minus))
-										.setOnClickListener(new View.OnClickListener() {
-											@Override
-											public void onClick(View v) {
-												int val = Integer
-														.parseInt(((TextView) numberPicker
-																.findViewById(R.id.dialog_num_pick_val))
-																.getText()
-																.toString());
-												if (val > min) {
-													((TextView) numberPicker
-															.findViewById(R.id.dialog_num_pick_val))
-															.setText(--val + "");
-												}
-											}
-										});
-							}
+							numberPicker = new NumberPicker(activity);
+							numberPicker.setMaxValue(max);
+							numberPicker.setMinValue(min);
+							numberPicker.setWrapSelectorWheel(false);
+							numberPicker.setValue(old_val);
+							numberPicker
+									.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 							new AlertDialog.Builder(activity)
 									.setTitle(R.string.auto_backup_intervall)
 									.setView(numberPicker)
@@ -899,17 +812,8 @@ public class PreferencesHelper {
 											android.R.string.ok,
 											new DialogInterface.OnClickListener() {
 												public void onClick(DialogInterface dialog, int whichButton) {
-													int val;
-													if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
-														val = ((NumberPicker) numberPicker)
-																.getValue();
-													} else {
-														val = Integer
-																.parseInt(((TextView) numberPicker
-																		.findViewById(R.id.dialog_num_pick_val))
-																		.getText()
-																		.toString());
-													}
+													int val = numberPicker
+															.getValue();
 													MirakelPreferences
 															.setAutoBackupIntervall(val);
 													autoBackupIntervall
@@ -944,60 +848,13 @@ public class PreferencesHelper {
 									.getUndoNumber();
 							final int max = 25;
 							final int min = 1;
-							if (v4_0) {
-								numberPicker = new NumberPicker(activity);
-								((NumberPicker) numberPicker).setMaxValue(max);
-								((NumberPicker) numberPicker).setMinValue(min);
-								((NumberPicker) numberPicker)
-										.setWrapSelectorWheel(false);
-								((NumberPicker) numberPicker).setValue(old_val);
-								((NumberPicker) numberPicker)
-										.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
-							} else {
-								numberPicker = ((LayoutInflater) activity
-										.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-										.inflate(
-												R.layout.dialog_num_picker_v10,
-												null);
-
-								((TextView) numberPicker
-										.findViewById(R.id.dialog_num_pick_val))
-										.setText(old_val + "");
-								((Button) numberPicker
-										.findViewById(R.id.dialog_num_pick_plus))
-										.setOnClickListener(new View.OnClickListener() {
-											@Override
-											public void onClick(View v) {
-												int val = Integer
-														.parseInt(((TextView) numberPicker
-																.findViewById(R.id.dialog_num_pick_val))
-																.getText()
-																.toString());
-												if (val < max) {
-													((TextView) numberPicker
-															.findViewById(R.id.dialog_num_pick_val))
-															.setText(++val + "");
-												}
-											}
-										});
-								((Button) numberPicker
-										.findViewById(R.id.dialog_num_pick_minus))
-										.setOnClickListener(new View.OnClickListener() {
-											@Override
-											public void onClick(View v) {
-												int val = Integer
-														.parseInt(((TextView) numberPicker
-																.findViewById(R.id.dialog_num_pick_val))
-																.getText()
-																.toString());
-												if (val > min) {
-													((TextView) numberPicker
-															.findViewById(R.id.dialog_num_pick_val))
-															.setText(--val + "");
-												}
-											}
-										});
-							}
+							numberPicker = new NumberPicker(activity);
+							numberPicker.setMaxValue(max);
+							numberPicker.setMinValue(min);
+							numberPicker.setWrapSelectorWheel(false);
+							numberPicker.setValue(old_val);
+							numberPicker
+									.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 							new AlertDialog.Builder(activity)
 									.setTitle(R.string.undo_number)
 									.setMessage(R.string.undo_number_summary)
@@ -1008,17 +865,8 @@ public class PreferencesHelper {
 												public void onClick(DialogInterface dialog, int whichButton) {
 													SharedPreferences.Editor editor = MirakelPreferences
 															.getEditor();
-													int val;
-													if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
-														val = ((NumberPicker) numberPicker)
-																.getValue();
-													} else {
-														val = Integer
-																.parseInt(((TextView) numberPicker
-																		.findViewById(R.id.dialog_num_pick_val))
-																		.getText()
-																		.toString());
-													}
+													int val = numberPicker
+															.getValue();
 													editor.putInt("UndoNumber",
 															val);
 													undoNumber
@@ -1099,10 +947,7 @@ public class PreferencesHelper {
 
 						@Override
 						public boolean onPreferenceClick(Preference preference) {
-							if (v4_0) {
-								((SettingsFragment) ctx)
-										.showTaskFragmentSettings();
-							}
+							((SettingsFragment) ctx).showTaskFragmentSettings();
 							return false;
 						}
 					});
@@ -1228,22 +1073,14 @@ public class PreferencesHelper {
 		}
 	}
 
-	@SuppressLint("NewApi")
-	@SuppressWarnings("deprecation")
 	private void removePreference(String which) {
 		Preference pref = findPreference(which);
 		if (pref != null) {
-			if (v4_0) {
-				((PreferenceFragment) ctx).getPreferenceScreen()
-						.removePreference(pref);
-			} else {
-				((PreferenceActivity) activity).getPreferenceScreen()
-						.removePreference(pref);
-			}
+			((PreferenceFragment) ctx).getPreferenceScreen().removePreference(
+					pref);
 		}
 	}
 
-	@SuppressLint("NewApi")
 	public static void createAuthActivity(boolean newValue, final Object activity, final Object box, final boolean fragment) {
 		final Context ctx;
 		if (fragment) {
@@ -1260,7 +1097,6 @@ public class PreferencesHelper {
 					.setMessage(R.string.sync_warning_message)
 					.setPositiveButton(android.R.string.ok,
 							new OnClickListener() {
-								@SuppressLint("NewApi")
 								@Override
 								public void onClick(DialogInterface dialogInterface, int i) {
 									for (Account a : accounts) {
@@ -1292,21 +1128,13 @@ public class PreferencesHelper {
 							})
 					.setNegativeButton(android.R.string.cancel,
 							new OnClickListener() {
-								@SuppressLint("NewApi")
 								@Override
 								public void onClick(DialogInterface dialogInterface, int i) {
 									SharedPreferences.Editor editor = MirakelPreferences
 											.getEditor();
 									editor.putBoolean("syncUse", false);
 									editor.commit();
-									if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-										((CheckBoxPreference) box)
-												.setChecked(false);
-										((CheckBoxPreference) box)
-												.setSummary(R.string.sync_use_summary_nothing);
-									} else {
-										((Switch) box).setChecked(false);
-									}
+									((Switch) box).setChecked(false);
 								}
 							}).show();
 		} else {

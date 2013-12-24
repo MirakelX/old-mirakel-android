@@ -20,10 +20,8 @@ package de.azapps.mirakel.widget;
 
 import java.util.List;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -33,7 +31,6 @@ import de.azapps.mirakel.model.list.ListMirakel;
 import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakelandroid.R;
 
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class MainWidgetService extends RemoteViewsService {
 
 	private static final String TAG = "MainWidgetService";
@@ -46,7 +43,6 @@ public class MainWidgetService extends RemoteViewsService {
 
 }
 
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 class MainWidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
 	private static final String TAG = "MainWidgetViewsFactory";
