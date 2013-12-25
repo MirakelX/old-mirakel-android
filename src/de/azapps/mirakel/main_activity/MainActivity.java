@@ -1103,6 +1103,10 @@ public class MainActivity extends ActionBarActivity implements ViewPager.OnPageC
 	 * @return
 	 */
 	public Task getCurrentTask() {
+		currentTask = currentList.getFirstTask();
+		if (currentTask == null)
+			currentTask = Task.getDummy(getApplicationContext());
+		
 		return currentTask;
 	}
 
@@ -1230,13 +1234,9 @@ public class MainActivity extends ActionBarActivity implements ViewPager.OnPageC
 		this.currentList = currentList;
 		if (mDrawerLayout != null) mDrawerLayout.closeDrawers();
 
-		List<Task> currentTasks = currentList.tasks(MirakelPreferences
-				.showDoneMain());
-		if (currentTasks.size() == 0) {
+		currentTask = currentList.getFirstTask();
+		if (currentTask == null)
 			currentTask = Task.getDummy(getApplicationContext());
-		} else {
-			currentTask = currentTasks.get(0);
-		}
 
 		if (getTasksFragment() != null) {
 			getTasksFragment().updateList();
