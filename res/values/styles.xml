@@ -72,12 +72,12 @@
         <item name="android:shadowRadius">1</item>
     </style>
 
-    <style name="Theme.SplashScreen" parent="@style/Theme.AppCompat.Light">
+    <style name="Theme.SplashScreen" parent="@android:style/Theme.Holo.Light">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowBackground">@drawable/splashscreen_background</item>
     </style>
 
-    <style name="Theme.SplashScreenDark" parent="@style/Theme.AppCompat">
+    <style name="Theme.SplashScreenDark" parent="@android:style/Theme.Holo">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowBackground">@drawable/splashscreen_background_dark</item>
     </style>
