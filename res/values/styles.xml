@@ -134,11 +134,13 @@
         <item name="android:paddingRight">12dp</item>
     </style>
 
-    <!--
-        Base application theme for API 14+. This theme completely replaces
-        AppBaseTheme from BOTH res/values/styles.xml and
-        res/values-v11/styles.xml on API 14+ devices.
-    -->
+    <style name="Dialog" parent="android:Theme.Holo.Light.Dialog">
+        <!-- API 14 theme customizations can go here. -->
+    </style>
+
+    <style name="DialogDark" parent="android:Theme.Holo.Dialog">
+        <!-- API 14 theme customizations can go here. -->
+    </style>
 
     <style name="selectableButton">
         <item name="android:background">?android:attr/selectableItemBackground</item>
