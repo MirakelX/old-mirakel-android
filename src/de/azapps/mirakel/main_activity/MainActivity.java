@@ -42,9 +42,9 @@ import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -87,7 +87,7 @@ import de.azapps.tools.FileUtils;
  * 
  * @author az
  */
-public class MainActivity extends ActionBarActivity implements ViewPager.OnPageChangeListener {
+public class MainActivity extends FragmentActivity implements ViewPager.OnPageChangeListener {
 
 	// Layout variables
 	ViewPager					mViewPager;
@@ -429,7 +429,7 @@ public class MainActivity extends ActionBarActivity implements ViewPager.OnPageC
 		switch (position) {
 			case -1:
 				newmenu = R.menu.activity_list;
-				getSupportActionBar().setTitle(getString(R.string.list_title));
+				getActionBar().setTitle(getString(R.string.list_title));
 				break;
 			case RIGHT_FRAGMENT:
 				newmenu = isRTL ? handleTasksFragmentMenu()
@@ -468,8 +468,8 @@ public class MainActivity extends ActionBarActivity implements ViewPager.OnPageC
 		int newmenu;
 		newmenu = R.menu.activity_task;
 		getTaskFragment().update(currentTask);
-		if (getSupportActionBar() != null && currentTask != null)
-			getSupportActionBar().setTitle(currentTask.getName());
+		if (getActionBar() != null && currentTask != null)
+			getActionBar().setTitle(currentTask.getName());
 		return newmenu;
 	}
 
@@ -482,7 +482,7 @@ public class MainActivity extends ActionBarActivity implements ViewPager.OnPageC
 		if (currentList == null) return -1;
 		if (!MirakelPreferences.isTablet()) newmenu = R.menu.tasks;
 		else newmenu = R.menu.tablet_right;
-		getSupportActionBar().setTitle(currentList.getName());
+		getActionBar().setTitle(currentList.getName());
 		return newmenu;
 	}
 
@@ -1057,8 +1057,8 @@ public class MainActivity extends ActionBarActivity implements ViewPager.OnPageC
 			mDrawerLayout.openDrawer(Mirakel.GRAVITY_LEFT);
 		}
 
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		getSupportActionBar().setHomeButtonEnabled(true);
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		getActionBar().setHomeButtonEnabled(true);
 		/*
 		 * Setup other Fragments
 		 */
@@ -1260,7 +1260,7 @@ public class MainActivity extends ActionBarActivity implements ViewPager.OnPageC
 		}
 		if (switchFragment) setCurrentTask(currentTask);
 		if (currentPosition == getTasksFragmentPosition())
-			getSupportActionBar().setTitle(currentList.getName());
+			getActionBar().setTitle(currentList.getName());
 
 	}
 
