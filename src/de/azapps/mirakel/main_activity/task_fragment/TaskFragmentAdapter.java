@@ -709,18 +709,6 @@ public class TaskFragmentAdapter extends MirakelArrayAdapter<Pair<Integer, Integ
 														// mode
 														@Override
 														public void onDestroyActionMode(ActionMode mode) {
-															if (editContent
-																	&& Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {// on
-																																// 2.x
-																																// you
-																																// cannot
-																																// get
-																																// done
-																																// button
-																editContent = !editContent;
-																saveContent();
-																notifyDataSetChanged();
-															}
 															mActionMode = null;
 														}
 
@@ -757,7 +745,6 @@ public class TaskFragmentAdapter extends MirakelArrayAdapter<Pair<Integer, Integ
 
 	}
 
-	@SuppressLint("NewApi")
 	private View setupContent(ViewGroup parent, View convertView) {
 		final View content = convertView == null ? inflater.inflate(
 				R.layout.task_content, parent, false) : convertView;
@@ -800,8 +787,6 @@ public class TaskFragmentAdapter extends MirakelArrayAdapter<Pair<Integer, Integ
 				public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 					if (editContent) {
 						cursorPos = holder.taskContentEdit.getSelectionEnd();
-						if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
-							++cursorPos;// ugly hack to make this work on android 2.x....
 					}
 
 				}
@@ -838,18 +823,7 @@ public class TaskFragmentAdapter extends MirakelArrayAdapter<Pair<Integer, Integ
 					inactive_color));
 			editContent = false;// do not record Textchanges
 
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {// Buggy android 2.x
-				holder.taskContentEdit.postDelayed(new Runnable() {
-
-					@Override
-					public void run() {
-						setContentCursorPosition(holder);
-
-					}
-				}, 1);
-			} else {
-				setContentCursorPosition(holder);
-			}
+			setContentCursorPosition(holder);
 
 			Linkify.addLinks(holder.taskContentEdit, Linkify.WEB_URLS);
 			holder.taskContentEdit.requestFocus();
@@ -862,26 +836,24 @@ public class TaskFragmentAdapter extends MirakelArrayAdapter<Pair<Integer, Integ
 				mActionMode = ((ActionBarActivity) context)
 						.startSupportActionMode(mActionModeCallback);
 				View doneButton;
-				if (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB) {
-					int doneButtonId = Resources.getSystem().getIdentifier(
-							"action_mode_close_button", "id", "android");
-					doneButton = ((ActionBarActivity) context)
-							.findViewById(doneButtonId);
-					if (doneButton != null) {
-						doneButton
-								.setOnClickListener(new View.OnClickListener() {
+				int doneButtonId = Resources.getSystem().getIdentifier(
+						"action_mode_close_button", "id", "android");
+				doneButton = ((ActionBarActivity) context)
+						.findViewById(doneButtonId);
+				if (doneButton != null) {
+					doneButton.setOnClickListener(new View.OnClickListener() {
 
-									@Override
-									public void onClick(View v) {
-										saveContent();
-										editContent = false;
-										notifyDataSetChanged();
-										if (mActionMode != null) {
-											mActionMode.finish();
-										}
-									}
-								});
-					}
+						@Override
+						public void onClick(View v) {
+							saveContent();
+							editContent = false;
+							notifyDataSetChanged();
+							if (mActionMode != null) {
+								mActionMode.finish();
+							}
+						}
+					});
+
 				}
 			}
 			editContent = true;
@@ -1062,7 +1034,6 @@ public class TaskFragmentAdapter extends MirakelArrayAdapter<Pair<Integer, Integ
 			});
 			holder.taskDue.setOnClickListener(new View.OnClickListener() {
 
-				@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 				@Override
 				public void onClick(View v) {
 					mIgnoreTimeSet = false;

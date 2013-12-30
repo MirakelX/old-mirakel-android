@@ -18,8 +18,6 @@
  ******************************************************************************/
 package de.azapps.mirakel.widget;
 
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -35,20 +33,16 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
 import android.util.Log;
-import android.view.View;
 import android.widget.RemoteViews;
 import de.azapps.mirakel.helper.WidgetHelper;
 import de.azapps.mirakel.main_activity.MainActivity;
 import de.azapps.mirakel.model.list.ListMirakel;
-import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakelandroid.R;
 
 public class MainWidgetProvider extends AppWidgetProvider {
-	private static final String TAG = "MainWidgetProvider";
-	public static final String EXTRA_LISTID = "de.azapps.mirakel.EXTRA_LISTID",
+	private static final String	TAG	= "MainWidgetProvider";
+	public static final String	EXTRA_LISTID	= "de.azapps.mirakel.EXTRA_LISTID",
 			EXTRA_LISTSORT = "de.azapps.mirakel.EXTRA_LISTSORT",
 			EXTRA_SHOWDONE = "de.azapps.mirakel.EXTRA_SHOWDONE",
 			CLICK_TASK = "de.azapps.mirakel.CLICK_TASK",
@@ -56,53 +50,33 @@ public class MainWidgetProvider extends AppWidgetProvider {
 			EXTRA_WIDGET_LAYOUT = "de.azapps.mirakel.EXTRA_WIDGET_LAYOUT",
 			EXTRA_WIDGET_ID = "de.azapps.mirakel.EXTRA_WIDGET_ID";
 
-	public static final int MINIMAL_WIDGET = 1;
-	public static final int NORMAL_WIDGET = 0;
-	private static final boolean oldAPI = VERSION.SDK_INT < VERSION_CODES.HONEYCOMB;
+	public static final int		MINIMAL_WIDGET	= 1;
+	public static final int		NORMAL_WIDGET	= 0;
 
-	@SuppressLint("NewApi")
-	public void onUpdate(Context context, AppWidgetManager appWidgetManager,
-			int[] appWidgetIds) {
+	public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
 		for (int widgetId : appWidgetIds) {
 			Log.v(TAG, "update Widget: " + widgetId);
 			boolean isDark = WidgetHelper.isDark(context, widgetId);
-			boolean isMinimalistic = WidgetHelper.isMinimalistic(context,
-					widgetId);
-			int layout_id;
-			if (isMinimalistic && !oldAPI) {
-				layout_id = R.layout.widget_minimal;
-			} else {
-				isMinimalistic = false;
-				layout_id = oldAPI ? R.layout.widget_main_layout_v10
-						: R.layout.widget_main;
-			}
+			int layout_id = R.layout.widget_minimal;
 			RemoteViews views = new RemoteViews(context.getPackageName(),
 					layout_id);
 
 			int widgetBackground;
-			if (isMinimalistic) {
-				widgetBackground = isDark ? R.drawable.widget_background_minimalistic_dark
-						: R.drawable.widget_background_minimalistic;
-			} else {
-				widgetBackground = isDark ? R.drawable.widget_background_dark
-						: R.drawable.widget_background;
-			}
-			if (!oldAPI) {
-				GradientDrawable drawable = (GradientDrawable) context
-						.getResources().getDrawable(widgetBackground);
-				drawable.setAlpha(WidgetHelper.getTransparency(context,
-						widgetId));
-				Bitmap bitmap = Bitmap.createBitmap(500, 500, Config.ARGB_8888);
-				Canvas canvas = new Canvas(bitmap);
-				drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-				drawable.draw(canvas);
-				views.setImageViewBitmap(R.id.widget_background, bitmap);
-				views.setTextColor(R.id.widget_list_name,
-						WidgetHelper.getFontColor(context, widgetId));
-			}
+			widgetBackground = isDark ? R.drawable.widget_background_minimalistic_dark
+					: R.drawable.widget_background_minimalistic;
+			GradientDrawable drawable = (GradientDrawable) context
+					.getResources().getDrawable(widgetBackground);
+			drawable.setAlpha(WidgetHelper.getTransparency(context, widgetId));
+			Bitmap bitmap = Bitmap.createBitmap(500, 500, Config.ARGB_8888);
+			Canvas canvas = new Canvas(bitmap);
+			drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+			drawable.draw(canvas);
+			views.setImageViewBitmap(R.id.widget_background, bitmap);
+			views.setTextColor(R.id.widget_list_name,
+					WidgetHelper.getFontColor(context, widgetId));
+
 			ListMirakel list = WidgetHelper.getList(context, widgetId);
-			if (list == null)
-				continue;
+			if (list == null) continue;
 
 			// Create an Intent to launch SettingsActivity
 			Intent settingsIntent = new Intent(context,
@@ -114,32 +88,20 @@ public class MainWidgetProvider extends AppWidgetProvider {
 					context, 0, settingsIntent, 0);
 			views.setOnClickPendingIntent(R.id.widget_preferences,
 					settingsPendingIntent);
-			if (!oldAPI) {
-				views.setImageViewBitmap(
-						R.id.widget_preferences,
-						colorizeBitmap(
-								WidgetHelper.getFontColor(context, widgetId),
-								context.getResources().getDrawable(
-										R.drawable.ic_action_overflow),
-								new int[] { 52, 52, 52 }, 3));
-				views.setImageViewBitmap(
-						R.id.widget_add_task,
-						colorizeBitmap(
-								WidgetHelper.getFontColor(context, widgetId),
-								context.getResources().getDrawable(
-										R.drawable.ic_action_new),
-								new int[] { 52, 52, 52 }, 3));
-			}
-
-			if (!isMinimalistic && !oldAPI) {
-				views.setImageViewBitmap(
-						R.id.widget_add_task,
-						colorizeBitmap(
-								WidgetHelper.getFontColor(context, widgetId),
-								context.getResources().getDrawable(
-										android.R.drawable.ic_menu_add),
-								new int[] { 250, 250, 250 }, 200));
-			}
+			views.setImageViewBitmap(
+					R.id.widget_preferences,
+					colorizeBitmap(
+							WidgetHelper.getFontColor(context, widgetId),
+							context.getResources().getDrawable(
+									R.drawable.ic_action_overflow), new int[] {
+									52, 52, 52 }, 3));
+			views.setImageViewBitmap(
+					R.id.widget_add_task,
+					colorizeBitmap(
+							WidgetHelper.getFontColor(context, widgetId),
+							context.getResources().getDrawable(
+									R.drawable.ic_action_new), new int[] { 52,
+									52, 52 }, 3));
 
 			// Create an Intent to launch MainActivity and show the List
 			Intent mainIntent = new Intent(context, MainActivity.class);
@@ -162,74 +124,35 @@ public class MainWidgetProvider extends AppWidgetProvider {
 			views.setOnClickPendingIntent(R.id.widget_add_task,
 					addPendingIntent);
 			boolean showDone = WidgetHelper.showDone(context, widgetId);
-			if (!oldAPI) {
-				Intent intent = new Intent(context, MainWidgetService.class);
-				intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
-				intent.putExtra(EXTRA_LISTID, list.getId());
-				intent.putExtra(EXTRA_SHOWDONE, showDone);
-				intent.putExtra(EXTRA_WIDGET_ID, widgetId);
-				intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
-				views.setRemoteAdapter(R.id.widget_tasks_list, intent);
-				appWidgetManager.updateAppWidget(new int[] { widgetId }, views);
-				// Empty view
-				views.setEmptyView(R.id.widget_tasks_list, R.id.empty_view);
+			Intent intent = new Intent(context, MainWidgetService.class);
+			intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
+			intent.putExtra(EXTRA_LISTID, list.getId());
+			intent.putExtra(EXTRA_SHOWDONE, showDone);
+			intent.putExtra(EXTRA_WIDGET_ID, widgetId);
+			intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
+			views.setRemoteAdapter(R.id.widget_tasks_list, intent);
+			appWidgetManager.updateAppWidget(new int[] { widgetId }, views);
+			// Empty view
+			views.setEmptyView(R.id.widget_tasks_list, R.id.empty_view);
 
-				// Main Intent
-				Intent toastIntent = new Intent(context,
-						MainWidgetProvider.class);
-				intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
-				intent.putExtra(EXTRA_WIDGET_LAYOUT, NORMAL_WIDGET);
-				PendingIntent toastPendingIntent = PendingIntent.getBroadcast(
-						context, 0, toastIntent,
-						PendingIntent.FLAG_UPDATE_CURRENT);
-				views.setPendingIntentTemplate(R.id.widget_tasks_list,
-						toastPendingIntent);
+			// Main Intent
+			Intent toastIntent = new Intent(context, MainWidgetProvider.class);
+			intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
+			intent.putExtra(EXTRA_WIDGET_LAYOUT, NORMAL_WIDGET);
+			PendingIntent toastPendingIntent = PendingIntent.getBroadcast(
+					context, 0, toastIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+			views.setPendingIntentTemplate(R.id.widget_tasks_list,
+					toastPendingIntent);
 
-			} else {
-				views.removeAllViews(R.id.widget_main_view);
-				List<Task> tasks = Task.getTasks(list.getId(),
-						list.getSortBy(), showDone);
-				if (tasks.size() == 0) {
-					views.setViewVisibility(R.id.empty_view, View.VISIBLE);
-				} else {
-					boolean darkTheme = WidgetHelper.isDark(context, widgetId);
-					views.setInt(R.id.widget_main, "setBackgroundResource",
-							darkTheme ? R.drawable.widget_background_dark
-									: R.drawable.widget_background);
-					views.setTextColor(
-							R.id.widget_list_name,
-							context.getResources().getColor(
-									darkTheme ? R.color.White : R.color.Black));
-					views.setViewVisibility(R.id.empty_view, View.GONE);
-					int end = tasks.size() >= 7 ? 7 : tasks.size();
-					try {
-						int row_id = isMinimalistic ? R.layout.widget_row_minimal
-								: R.layout.widget_row;
-						for (Task t : tasks.subList(0, end)) {
-							views.addView(R.id.widget_main_view, WidgetHelper
-									.configureItem(
-											new RemoteViews(context
-													.getPackageName(), row_id),
-											t, context, list.getId(), false,
-											widgetId));
-						}
-					} catch (IndexOutOfBoundsException e) {
-						Log.wtf(TAG,
-								"The list has been shortened while processing it…");
-					}
-				}
-			}
 			appWidgetManager.updateAppWidget(widgetId, views);
 
 		}
-		if (!oldAPI)
-			appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds,
-					R.id.tasks_list);
+		appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds,
+				R.id.tasks_list);
 
 	}
 
-	private Bitmap colorizeBitmap(int to, Drawable c, int[] oldColor,
-			int THRESHOLD) {
+	private Bitmap colorizeBitmap(int to, Drawable c, int[] oldColor, int THRESHOLD) {
 		Bitmap bitmap;
 		Bitmap src = ((BitmapDrawable) c).getBitmap();
 		bitmap = src.copy(Bitmap.Config.ARGB_8888, true);
@@ -251,7 +174,6 @@ public class MainWidgetProvider extends AppWidgetProvider {
 				&& Math.abs(Color.blue(pixel) - FROM_COLOR[2]) < THRESHOLD;
 	}
 
-	@SuppressLint("NewApi")
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		if (intent.getAction().equals(CLICK_TASK)) {
@@ -270,8 +192,7 @@ public class MainWidgetProvider extends AppWidgetProvider {
 			AppWidgetManager a = AppWidgetManager.getInstance(context);
 			for (int w : a.getAppWidgetIds(new ComponentName(context,
 					MainWidgetProvider.class))) {
-				if (!oldAPI)
-					a.notifyAppWidgetViewDataChanged(w, R.id.tasks_list);
+				a.notifyAppWidgetViewDataChanged(w, R.id.tasks_list);
 			}
 			onUpdate(context, a, a.getAppWidgetIds(new ComponentName(context,
 					MainWidgetProvider.class)));

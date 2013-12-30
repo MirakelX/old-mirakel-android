@@ -13,11 +13,8 @@ package de.azapps.mirakel.main_activity.task_fragment;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -56,13 +53,11 @@ public class TaskFragment extends Fragment {
 	public TaskFragmentAdapter	adapter;
 	private ActionMode			mActionMode	= null;
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public void closeActionMode() {
 		if (mActionMode != null) mActionMode.finish();
 		if (adapter != null) adapter.closeActionMode();
 	}
 
-	@SuppressLint("NewApi")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		Log.w(TAG, "taskfragment");
@@ -99,208 +94,130 @@ public class TaskFragment extends Fragment {
 
 			}
 		});
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-				@Override
-				public boolean onItemLongClick(AdapterView<?> parent, View item, final int position, final long id) {
-					Integer typ = adapter.getData().get(position).first;
-					if (typ == TYPE.SUBTASK) {
-						AlertDialog.Builder builder = new AlertDialog.Builder(
-								getActivity());
-						builder.setTitle(adapter.getTask().getSubtasks()
-								.get(adapter.getData().get(position).second)
-								.getName());
 
-						builder.setItems(
-								new String[] { getString(R.string.remove_subtask) },
-								new DialogInterface.OnClickListener() {
+		listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+		if (adapter != null) {
+			adapter.resetSelected();
+		}
+		listView.setHapticFeedbackEnabled(true);
+		listView.setMultiChoiceModeListener(new MultiChoiceModeListener() {
 
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-										if (which == 0) {
-											List<Task> l = new ArrayList<Task>();
-											l.add(adapter
-													.getTask()
-													.getSubtasks()
-													.get(adapter.getData().get(
-															position).second));
-											TaskDialogHelpers
-													.handleRemoveSubtask(l,
-															main, adapter,
-															adapter.getTask());
-										}
-
-									}
-
-								});
-						builder.create().show();
-					} else if (typ == TYPE.FILE) {
-						AlertDialog.Builder builder = new AlertDialog.Builder(
-								getActivity());
-						builder.setTitle(adapter.getTask().getFiles()
-								.get(adapter.getData().get(position).second)
-								.getName());
-
-						builder.setItems(
-								new String[] { getString(R.string.remove_files) },
-								new DialogInterface.OnClickListener() {
-
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-										if (which == 0) {
-											List<FileMirakel> l = new ArrayList<FileMirakel>();
-											l.add(adapter
-													.getTask()
-													.getFiles()
-													.get(adapter.getData().get(
-															position).second));
-											TaskDialogHelpers.handleDeleteFile(
-													l, main, adapter.getTask(),
-													adapter);
-										}
-
-									}
-
-								});
-						builder.create().show();
-						return false;
-					}
-					return true;
+			@Override
+			public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+				if (adapter.getSelectedCount() > 0) {
+					menu.findItem(R.id.edit_task)
+							.setVisible(
+									adapter.getSelectedCount() == 1
+											&& (adapter.getSelected().get(0).first == TYPE.SUBTASK));
+					menu.findItem(R.id.done_task).setVisible(
+							adapter.getSelected().get(0).first == TYPE.SUBTASK);
 				}
-			});
-		} else {
-			listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-			if (adapter != null) {
+				return false;
+			}
+
+			@Override
+			public void onDestroyActionMode(ActionMode mode) {
 				adapter.resetSelected();
 			}
-			listView.setHapticFeedbackEnabled(true);
-			listView.setMultiChoiceModeListener(new MultiChoiceModeListener() {
 
-				@Override
-				public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-					if (adapter.getSelectedCount() > 0) {
-						menu.findItem(R.id.edit_task)
-								.setVisible(
-										adapter.getSelectedCount() == 1
-												&& (adapter.getSelected()
-														.get(0).first == TYPE.SUBTASK));
-						menu.findItem(R.id.done_task)
-								.setVisible(
-										adapter.getSelected().get(0).first == TYPE.SUBTASK);
-					}
-					return false;
-				}
+			@Override
+			public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+				MenuInflater menuInflater = mode.getMenuInflater();
+				menuInflater.inflate(R.menu.context_task, menu);
+				mActionMode = mode;
+				return true;
+			}
 
-				@Override
-				public void onDestroyActionMode(ActionMode mode) {
-					adapter.resetSelected();
-				}
+			@Override
+			public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
 
-				@Override
-				public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-					MenuInflater menuInflater = mode.getMenuInflater();
-					menuInflater.inflate(R.menu.context_task, menu);
-					mActionMode = mode;
-					return true;
-				}
-
-				@Override
-				public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-
-					switch (item.getItemId()) {
-						case R.id.menu_delete:
-							List<Pair<Integer, Integer>> selected = adapter
-									.getSelected();
-							if (adapter.getSelectedCount() > 0
-									&& adapter.getSelected().get(0).first == TYPE.FILE) {
-								List<FileMirakel> files = adapter.getTask()
-										.getFiles();
-								List<FileMirakel> selectedItems = new ArrayList<FileMirakel>();
-								for (Pair<Integer, Integer> p : selected) {
-									if (p.first == TYPE.FILE) {
-										selectedItems.add(files.get(p.second));
-									}
+				switch (item.getItemId()) {
+					case R.id.menu_delete:
+						List<Pair<Integer, Integer>> selected = adapter
+								.getSelected();
+						if (adapter.getSelectedCount() > 0
+								&& adapter.getSelected().get(0).first == TYPE.FILE) {
+							List<FileMirakel> files = adapter.getTask()
+									.getFiles();
+							List<FileMirakel> selectedItems = new ArrayList<FileMirakel>();
+							for (Pair<Integer, Integer> p : selected) {
+								if (p.first == TYPE.FILE) {
+									selectedItems.add(files.get(p.second));
 								}
-								TaskDialogHelpers.handleDeleteFile(
-										selectedItems, main, adapter.getTask(),
-										adapter);
-								break;
-							} else if (adapter.getSelectedCount() > 0
-									&& adapter.getSelected().get(0).first == TYPE.SUBTASK) {
-								List<Task> subtasks = adapter.getTask()
-										.getSubtasks();
-								List<Task> selectedItems = new ArrayList<Task>();
-								for (Pair<Integer, Integer> p : selected) {
-									if (p.first == TYPE.SUBTASK) {
-										selectedItems.add(subtasks
-												.get(p.second));
-									}
-								}
-								TaskDialogHelpers.handleRemoveSubtask(
-										selectedItems, main, adapter,
-										adapter.getTask());
-							} else {
-								Log.e(TAG, "How did you get selected this?");
 							}
+							TaskDialogHelpers.handleDeleteFile(selectedItems,
+									main, adapter.getTask(), adapter);
 							break;
-						case R.id.edit_task:
-							if (adapter.getSelectedCount() == 1) {
-								adapter.setData(adapter
-										.getTask()
-										.getSubtasks()
-										.get(adapter.getSelected().get(0).second));
-							}
-							break;
-						case R.id.done_task:
+						} else if (adapter.getSelectedCount() > 0
+								&& adapter.getSelected().get(0).first == TYPE.SUBTASK) {
 							List<Task> subtasks = adapter.getTask()
 									.getSubtasks();
-							for (Pair<Integer, Integer> s : adapter
-									.getSelected()) {
-								Task t = subtasks.get(s.second);
-								t.setDone(true);
-								try {
-									t.save();
-								} catch (NoSuchListException e) {
-									Log.d(TAG, "list did vanish");
+							List<Task> selectedItems = new ArrayList<Task>();
+							for (Pair<Integer, Integer> p : selected) {
+								if (p.first == TYPE.SUBTASK) {
+									selectedItems.add(subtasks.get(p.second));
 								}
 							}
-							break;
-						default:
-							break;
-					}
-					mode.finish();
-					return false;
+							TaskDialogHelpers.handleRemoveSubtask(
+									selectedItems, main, adapter,
+									adapter.getTask());
+						} else {
+							Log.e(TAG, "How did you get selected this?");
+						}
+						break;
+					case R.id.edit_task:
+						if (adapter.getSelectedCount() == 1) {
+							adapter.setData(adapter.getTask().getSubtasks()
+									.get(adapter.getSelected().get(0).second));
+						}
+						break;
+					case R.id.done_task:
+						List<Task> subtasks = adapter.getTask().getSubtasks();
+						for (Pair<Integer, Integer> s : adapter.getSelected()) {
+							Task t = subtasks.get(s.second);
+							t.setDone(true);
+							try {
+								t.save();
+							} catch (NoSuchListException e) {
+								Log.d(TAG, "list did vanish");
+							}
+						}
+						break;
+					default:
+						break;
+				}
+				mode.finish();
+				return false;
+			}
+
+			@Override
+			public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+				Log.d(TAG, "item " + position + " selected");
+				Integer type = adapter.getData().get(position).first;
+				int count = adapter.getSelectedCount();
+				if ((type == TYPE.FILE && (count == 0 || (adapter.getSelected()
+						.get(0).first == TYPE.FILE)))
+						|| (type == TYPE.SUBTASK && (count == 0 || adapter
+								.getSelected().get(0).first == TYPE.SUBTASK))) {
+					adapter.setSelected(position, checked);
+					adapter.notifyDataSetChanged();
+					mode.invalidate();
+				}
+				count = adapter.getSelectedCount();
+				if (count == 0) {
+					mode.finish();// No CAB
+					return;
+				}
+				if (type == TYPE.FILE) {
+					mode.setTitle(getResources().getQuantityString(
+							R.plurals.file, count, count));
+				} else if (type == TYPE.SUBTASK) {
+					mode.setTitle(getResources().getQuantityString(
+							R.plurals.subtasks, count, count));
 				}
 
-				@Override
-				public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-					Log.d(TAG, "item " + position + " selected");
-					Integer type = adapter.getData().get(position).first;
-					int count = adapter.getSelectedCount();
-					if ((type == TYPE.FILE && (count == 0 || (adapter
-							.getSelected().get(0).first == TYPE.FILE)))
-							|| (type == TYPE.SUBTASK && (count == 0 || adapter
-									.getSelected().get(0).first == TYPE.SUBTASK))) {
-						adapter.setSelected(position, checked);
-						adapter.notifyDataSetChanged();
-						mode.invalidate();
-					}
-					count = adapter.getSelectedCount();
-					if (count == 0) {
-						mode.finish();// No CAB
-						return;
-					}
-					if (type == TYPE.FILE) {
-						mode.setTitle(getResources().getQuantityString(
-								R.plurals.file, count, count));
-					} else if (type == TYPE.SUBTASK) {
-						mode.setTitle(getResources().getQuantityString(
-								R.plurals.subtasks, count, count));
-					}
-
-				}
-			});
-		}
+			}
+		});
 
 		if (MirakelPreferences.useBtnCamera()
 				&& Helpers.isIntentAvailable(main,

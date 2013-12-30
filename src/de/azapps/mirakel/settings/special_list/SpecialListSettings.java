@@ -22,20 +22,16 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceScreen;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
@@ -53,46 +49,30 @@ import de.azapps.mirakelandroid.R;
 import de.azapps.widgets.DueDialog;
 import de.azapps.widgets.DueDialog.VALUE;
 
-@SuppressLint("NewApi")
 public class SpecialListSettings implements OnPreferenceChangeListener {
-	private SpecialList specialList;
-	private boolean v4_0;
-	private Object settings;
-	private Context ctx;
+	private SpecialList	specialList;
+	private Object		settings;
+	private Context		ctx;
 
-	@SuppressLint("NewApi")
 	public SpecialListSettings(SpecialListsSettingsFragment p, SpecialList s) {
 		specialList = s;
-		v4_0 = true;
 		settings = p;
 		ctx = p.getActivity();
 	}
 
-	public SpecialListSettings(SpecialListsSettingsActivity p,
-			SpecialList specialList) {
-		ctx = p;
-		settings = p;
-		v4_0 = false;
-		this.specialList = specialList;
-	}
-
 	public void setup() throws NoSuchListException {
-		if (specialList == null)
-			throw new NoSuchListException();
+		if (specialList == null) throw new NoSuchListException();
 		final EditTextPreference name = (EditTextPreference) findPreference("special_list_name");
 		name.setText(specialList.getName());
 		name.setSummary(specialList.getName());
 		name.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-
-			@SuppressLint("NewApi")
 			@Override
-			public boolean onPreferenceChange(Preference preference,
-					Object newValue) {
+			public boolean onPreferenceChange(Preference preference, Object newValue) {
 				if (newValue != null && !((String) newValue).equals("")) {
 					specialList.setName(newValue.toString());
 					specialList.save();
 					name.setSummary(specialList.getName());
-					if (MirakelPreferences.isTablet() && v4_0) {
+					if (MirakelPreferences.isTablet()) {
 						((ListSettings) ctx).invalidateHeaders();
 					}
 				}
@@ -104,8 +84,7 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 		active.setChecked(specialList.isActive());
 		active.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 			@Override
-			public boolean onPreferenceChange(Preference preference,
-					Object newValue) {
+			public boolean onPreferenceChange(Preference preference, Object newValue) {
 				specialList.setActive((Boolean) newValue);
 				specialList.save();
 				return true;
@@ -154,9 +133,9 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 		int[] values = ctx.getResources().getIntArray(
 				R.array.special_list_def_date_picker_val);
 		for (int j = 0; j < values.length; j++) {
-			if (specialList.getDefaultDate() == null)
-				defDate.setSummary(ctx.getResources().getStringArray(
-						R.array.special_list_def_date_picker)[0]);
+			if (specialList.getDefaultDate() == null) defDate.setSummary(ctx
+					.getResources().getStringArray(
+							R.array.special_list_def_date_picker)[0]);
 			else if (values[j] == specialList.getDefaultDate()) {
 				defDate.setSummary(ctx.getResources().getStringArray(
 						R.array.special_list_def_date_picker)[j]);
@@ -199,31 +178,29 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 						ctx.getString(R.string.done),
 						ctx.getString(R.string.undone) };
 				int defVal = 0;
-				if (specialList.getWhereQuery(false).contains("done=0"))
-					defVal = 2;
+				if (specialList.getWhereQuery(false).contains("done=0")) defVal = 2;
 				else if (specialList.getWhereQuery(false).contains("done=1"))
 					defVal = 1;
 				new AlertDialog.Builder(ctx)
 						.setTitle(ctx.getString(R.string.select_by))
 						.setSingleChoiceItems(SortingItems, defVal,
 								new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog,
-											int item) {
+									public void onClick(DialogInterface dialog, int item) {
 										String newWhere = "";
 										switch (item) {
-										case 1:
-											newWhere = "done=1";
-											done.setSummary(R.string.done);
-											break;
-										case 2:
-											newWhere = "done=0";
-											done.setSummary(ctx
-													.getString(R.string.undone));
-											break;
-										default:
-											done.setSummary(ctx
-													.getString(R.string.empty));
-											break;
+											case 1:
+												newWhere = "done=1";
+												done.setSummary(R.string.done);
+												break;
+											case 2:
+												newWhere = "done=0";
+												done.setSummary(ctx
+														.getString(R.string.undone));
+												break;
+											default:
+												done.setSummary(ctx
+														.getString(R.string.empty));
+												break;
 										}
 										updateWhere("done", newWhere);
 										dialog.dismiss(); // Ugly
@@ -245,31 +222,29 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 						ctx.getString(R.string.reminder_unset) };
 
 				int defVal = 0;
-				if (specialList.getWhereQuery(false).contains("not"))
-					defVal = 1;
+				if (specialList.getWhereQuery(false).contains("not")) defVal = 1;
 				else if (specialList.getWhereQuery(false).contains("reminder"))
 					defVal = 2;
 				new AlertDialog.Builder(ctx)
 						.setTitle(ctx.getString(R.string.select_by))
 						.setSingleChoiceItems(SortingItems, defVal,
 								new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog,
-											int item) {
+									public void onClick(DialogInterface dialog, int item) {
 										String newWhere = "";
 										switch (item) {
-										case 1:
-											newWhere = "reminder is not null";
-											reminder.setSummary(R.string.reminder_set);
-											break;
-										case 2:
-											newWhere = "reminder is null";
-											reminder.setSummary(ctx
-													.getString(R.string.reminder_unset));
-											break;
-										default:
-											reminder.setSummary(ctx
-													.getString(R.string.empty));
-											break;
+											case 1:
+												newWhere = "reminder is not null";
+												reminder.setSummary(R.string.reminder_set);
+												break;
+											case 2:
+												newWhere = "reminder is null";
+												reminder.setSummary(ctx
+														.getString(R.string.reminder_unset));
+												break;
+											default:
+												reminder.setSummary(ctx
+														.getString(R.string.empty));
+												break;
 										}
 										updateWhere("reminder", newWhere);
 										dialog.dismiss();
@@ -283,7 +258,7 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 		list.setOnPreferenceChangeListener(this);
 		list.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
-			private boolean[] mSelectedItems;
+			private boolean[]	mSelectedItems;
 
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
@@ -320,8 +295,7 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 						.setTitle(ctx.getString(R.string.select_by))
 						.setPositiveButton(android.R.string.ok,
 								new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog,
-											int id) {
+									public void onClick(DialogInterface dialog, int id) {
 										String newWhere = (mSelectedItems[0] ? "not "
 												: "")
 												+ "list_id in(";
@@ -347,8 +321,7 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 								})
 						.setNegativeButton(android.R.string.cancel,
 								new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog,
-											int id) {
+									public void onClick(DialogInterface dialog, int id) {
 										// User cancelled the dialog
 									}
 								})
@@ -357,8 +330,7 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 								new OnMultiChoiceClickListener() {
 
 									@Override
-									public void onClick(DialogInterface dialog,
-											int which, boolean isChecked) {
+									public void onClick(DialogInterface dialog, int which, boolean isChecked) {
 										mSelectedItems[which] = isChecked;
 									}
 
@@ -371,7 +343,7 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 		prio.setOnPreferenceChangeListener(this);
 		prio.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
-			private boolean[] mSelectedItems;
+			private boolean[]	mSelectedItems;
 
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
@@ -398,24 +370,23 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 						for (String t : r) {
 							try {
 								switch (Integer.parseInt(t)) {
-								case -2:
-									mSelectedItems[1] = true;
-									break;
-								case -1:
-									mSelectedItems[2] = true;
-									break;
-								case 0:
-									mSelectedItems[3] = true;
-									break;
-								case 1:
-									mSelectedItems[4] = true;
-									break;
-								case 2:
-									mSelectedItems[5] = true;
-									break;
+									case -2:
+										mSelectedItems[1] = true;
+										break;
+									case -1:
+										mSelectedItems[2] = true;
+										break;
+									case 0:
+										mSelectedItems[3] = true;
+										break;
+									case 1:
+										mSelectedItems[4] = true;
+										break;
+									case 2:
+										mSelectedItems[5] = true;
+										break;
 								}
-							} catch (NumberFormatException e) {
-							}
+							} catch (NumberFormatException e) {}
 						}
 						break;
 					}
@@ -424,8 +395,7 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 						.setTitle(ctx.getString(R.string.select_by))
 						.setPositiveButton(android.R.string.ok,
 								new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog,
-											int id) {
+									public void onClick(DialogInterface dialog, int id) {
 										String newWhere = (mSelectedItems[0] ? "not "
 												: "")
 												+ "priority in (";
@@ -451,8 +421,7 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 								})
 						.setNegativeButton(android.R.string.cancel,
 								new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog,
-											int id) {
+									public void onClick(DialogInterface dialog, int id) {
 										// User cancelled the dialog
 									}
 								})
@@ -461,8 +430,7 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 								new OnMultiChoiceClickListener() {
 
 									@Override
-									public void onClick(DialogInterface dialog,
-											int which, boolean isChecked) {
+									public void onClick(DialogInterface dialog, int which, boolean isChecked) {
 										mSelectedItems[which] = isChecked;
 									}
 
@@ -524,8 +492,7 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 								new DialogInterface.OnClickListener() {
 
 									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
+									public void onClick(DialogInterface dialog, int which) {
 
 									}
 								})
@@ -534,8 +501,7 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 								new DialogInterface.OnClickListener() {
 
 									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
+									public void onClick(DialogInterface dialog, int which) {
 										String t = ((EditText) dialogView
 												.findViewById(R.id.where_like))
 												.getText().toString();
@@ -557,24 +523,24 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 										switch (((RadioGroup) dialogView
 												.findViewById(R.id.where_like_radio))
 												.getCheckedRadioButtonId()) {
-										case R.id.where_like_begin:
-											newWhere += "'" + t + "%'";
-											text += ctx
-													.getString(R.string.where_like_begin_text)
-													+ " " + t;
-											break;
-										case R.id.where_like_end:
-											newWhere += "'%" + t + "'";
-											text += ctx
-													.getString(R.string.where_like_end_text)
-													+ " " + t;
-											break;
-										default:
-											newWhere += "'%" + t + "%'";
-											text += ctx
-													.getString(R.string.where_like_contain_text)
-													+ " " + t;
-											break;
+											case R.id.where_like_begin:
+												newWhere += "'" + t + "%'";
+												text += ctx
+														.getString(R.string.where_like_begin_text)
+														+ " " + t;
+												break;
+											case R.id.where_like_end:
+												newWhere += "'%" + t + "'";
+												text += ctx
+														.getString(R.string.where_like_end_text)
+														+ " " + t;
+												break;
+											default:
+												newWhere += "'%" + t + "%'";
+												text += ctx
+														.getString(R.string.where_like_contain_text)
+														+ " " + t;
+												break;
 										}
 										updateWhere("content", newWhere);
 										content.setSummary(text);
@@ -635,8 +601,7 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 								new DialogInterface.OnClickListener() {
 
 									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
+									public void onClick(DialogInterface dialog, int which) {
 
 									}
 								})
@@ -645,8 +610,7 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 								new DialogInterface.OnClickListener() {
 
 									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
+									public void onClick(DialogInterface dialog, int which) {
 										String t = ((EditText) dialogView
 												.findViewById(R.id.where_like))
 												.getText().toString();
@@ -668,24 +632,24 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 										switch (((RadioGroup) dialogView
 												.findViewById(R.id.where_like_radio))
 												.getCheckedRadioButtonId()) {
-										case R.id.where_like_begin:
-											newWhere += "'" + t + "%'";
-											text += ctx
-													.getString(R.string.where_like_begin_text)
-													+ " " + t;
-											break;
-										case R.id.where_like_end:
-											newWhere += "'%" + t + "'";
-											text += ctx
-													.getString(R.string.where_like_end_text)
-													+ " " + t;
-											break;
-										default:
-											newWhere += "'%" + t + "%'";
-											text += ctx
-													.getString(R.string.where_like_contain_text)
-													+ " " + t;
-											break;
+											case R.id.where_like_begin:
+												newWhere += "'" + t + "%'";
+												text += ctx
+														.getString(R.string.where_like_begin_text)
+														+ " " + t;
+												break;
+											case R.id.where_like_end:
+												newWhere += "'%" + t + "'";
+												text += ctx
+														.getString(R.string.where_like_end_text)
+														+ " " + t;
+												break;
+											default:
+												newWhere += "'%" + t + "%'";
+												text += ctx
+														.getString(R.string.where_like_contain_text)
+														+ " " + t;
+												break;
 										}
 										updateWhere("name", newWhere);
 										taskName.setSummary(text);
@@ -748,16 +712,13 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 						new DialogInterface.OnClickListener() {
 
 							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-							}
+							public void onClick(DialogInterface dialog, int which) {}
 						});
 				dueDialog.setNeutralButton(R.string.no_date,
 						new DialogInterface.OnClickListener() {
 
 							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
+							public void onClick(DialogInterface dialog, int which) {
 								updateWhere("due", "");
 								due.setSummary(ctx.getString(R.string.empty));
 							}
@@ -766,8 +727,7 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 						new DialogInterface.OnClickListener() {
 
 							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
+							public void onClick(DialogInterface dialog, int which) {
 								int val = dueDialog.getValue();
 								String newWhere = "";
 								if (val == 0) {
@@ -779,35 +739,37 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 									VALUE day = dueDialog.getDayYear();
 									String summary = val + " ";
 									switch (day) {
-									case MONTH:
-										mod = (val == 1 || val == -1 ? "month"
-												: "months");
-										summary += ctx.getResources()
-												.getQuantityString(
-														R.plurals.due_month,
-														val);
-										break;
-									case YEAR:
-										mod = (val == 1 || val == -1 ? "year"
-												: "years");
-										summary += ctx
-												.getResources()
-												.getQuantityString(
-														R.plurals.due_year, val);
-										break;
-									case DAY:
-										mod = (val == 1 || val == -1 ? "day"
-												: "days");
-										summary += ctx.getResources()
-												.getQuantityString(
-														R.plurals.due_day, val);
-										break;
-									default:
-										// The other things aren't
-										// shown in
-										// the dialog so we haven't to care
-										// about them
-										break;
+										case MONTH:
+											mod = (val == 1 || val == -1 ? "month"
+													: "months");
+											summary += ctx
+													.getResources()
+													.getQuantityString(
+															R.plurals.due_month,
+															val);
+											break;
+										case YEAR:
+											mod = (val == 1 || val == -1 ? "year"
+													: "years");
+											summary += ctx.getResources()
+													.getQuantityString(
+															R.plurals.due_year,
+															val);
+											break;
+										case DAY:
+											mod = (val == 1 || val == -1 ? "day"
+													: "days");
+											summary += ctx.getResources()
+													.getQuantityString(
+															R.plurals.due_day,
+															val);
+											break;
+										default:
+											// The other things aren't
+											// shown in
+											// the dialog so we haven't to care
+											// about them
+											break;
 									}
 
 									due.setSummary(summary);
@@ -825,28 +787,12 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 
 	}
 
-	@SuppressLint("NewApi")
-	@SuppressWarnings("deprecation")
 	private PreferenceScreen getPreferenceScreen() {
-		if (v4_0) {
-			return ((SpecialListsSettingsFragment) settings)
-					.getPreferenceScreen();
-		} else {
-			return ((SpecialListsSettingsActivity) settings)
-					.getPreferenceScreen();
-		}
+		return ((SpecialListsSettingsFragment) settings).getPreferenceScreen();
 	}
 
-	@SuppressWarnings("deprecation")
-	@SuppressLint("NewApi")
 	private Preference findPreference(String key) {
-		if (v4_0) {
-			return ((SpecialListsSettingsFragment) settings)
-					.findPreference(key);
-		} else {
-			return ((SpecialListsSettingsActivity) settings)
-					.findPreference(key);
-		}
+		return ((SpecialListsSettingsFragment) settings).findPreference(key);
 	}
 
 	private void updateWhere(String attr, String newWhere) {
@@ -859,8 +805,7 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 						&& (!parts[i].contains("not null")
 								|| newWhere.trim().length() == 0 || attr != "due")) {
 					parts[i] = newWhere;
-					if (newWhere.trim().length() == 0)
-						continue;
+					if (newWhere.trim().length() == 0) continue;
 				}
 				n += (first ? "" : " and ") + parts[i].trim();
 				first = false;
@@ -887,21 +832,12 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 	}
 
 	private View getView(int id) {
-		if (VERSION.SDK_INT >= VERSION_CODES.HONEYCOMB)
-			return getLayoutInflater().inflate(id, null);
-		return View.inflate(new ContextThemeWrapper(ctx, R.style.Dialog), id,
-				null);
+		return getLayoutInflater().inflate(id, null);
 	}
 
-	@SuppressLint("NewApi")
 	private LayoutInflater getLayoutInflater() {
-		if (v4_0) {
-			return ((SpecialListsSettingsFragment) settings).getActivity()
-					.getLayoutInflater();
-		} else {
-			return ((SpecialListsSettingsActivity) settings)
-					.getLayoutInflater();
-		}
+		return ((SpecialListsSettingsFragment) settings).getActivity()
+				.getLayoutInflater();
 	}
 
 	protected String getFieldText(String queryPart) {
@@ -991,19 +927,18 @@ public class SpecialListSettings implements OnPreferenceChangeListener {
 					s = s.replace(queryPart + " like", "").trim();
 					if (s.replaceAll("[\"'%]", "").trim().length() == 0)
 						return ctx.getString(R.string.empty);
-					if (s.matches("[\"'].%['\"]"))
-						returnString += ctx
-								.getString(R.string.where_like_begin_text)
-								+ " " + s.replaceAll("[\"'%]", "");
-					else if (s.matches("[\"']%.['\"]"))
-						returnString += ctx
-								.getString(R.string.where_like_end_text)
-								+ " "
-								+ s.replaceAll("[\"'%]", "");
-					else
-						returnString += ctx
-								.getString(R.string.where_like_contain_text)
-								+ " " + s.replaceAll("[\"'%]", "");
+					if (s.matches("[\"'].%['\"]")) returnString += ctx
+							.getString(R.string.where_like_begin_text)
+							+ " "
+							+ s.replaceAll("[\"'%]", "");
+					else if (s.matches("[\"']%.['\"]")) returnString += ctx
+							.getString(R.string.where_like_end_text)
+							+ " "
+							+ s.replaceAll("[\"'%]", "");
+					else returnString += ctx
+							.getString(R.string.where_like_contain_text)
+							+ " "
+							+ s.replaceAll("[\"'%]", "");
 				} else {
 					returnString += s + " ";
 				}

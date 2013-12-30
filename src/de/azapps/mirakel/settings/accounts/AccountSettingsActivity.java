@@ -3,12 +3,10 @@ package de.azapps.mirakel.settings.accounts;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.Html;
@@ -17,7 +15,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import de.azapps.mirakel.Mirakel.NoSuchListException;
 import de.azapps.mirakel.helper.Log;
 import de.azapps.mirakel.model.account.AccountMirakel;
 import de.azapps.mirakel.model.account.AccountMirakel.ACCOUNT_TYPES;
@@ -84,7 +81,6 @@ public class AccountSettingsActivity extends ListSettings {
 		};
 	}
 
-	@SuppressLint("NewApi")
 	@Override
 	public OnClickListener getDelOnClickListener() {
 		return new OnClickListener() {
@@ -92,7 +88,7 @@ public class AccountSettingsActivity extends ListSettings {
 			@Override
 			public void onClick(View v) {
 				account.destroy();
-				if (Build.VERSION.SDK_INT < 11 || !onIsMultiPane()) finish();
+				if (!onIsMultiPane()) finish();
 				else {
 					try {
 						if (getHeader().size() > 0)
@@ -121,11 +117,6 @@ public class AccountSettingsActivity extends ListSettings {
 	@Override
 	protected void setupSettings() {
 		account = AccountMirakel.get(getIntent().getIntExtra("id", 0));
-		try {
-			new AccountSettings(this, account).setup();
-		} catch (NoSuchListException e) {
-			Log.d(TAG, "no account attached");
-		}
 	}
 
 	@Override
@@ -133,7 +124,6 @@ public class AccountSettingsActivity extends ListSettings {
 		return new ArrayList<Pair<Integer, String>>();
 	}
 
-	@SuppressLint("NewApi")
 	@Override
 	public void onBuildHeaders(List<Header> target) {
 		List<AccountMirakel> accounts = AccountMirakel.getAll();
@@ -182,15 +172,12 @@ public class AccountSettingsActivity extends ListSettings {
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {
-		if (Build.VERSION_CODES.ICE_CREAM_SANDWICH > Build.VERSION.SDK_INT) {
-			if (getIntent().hasExtra("id")) {
-				menu.add(R.string.delete);
-			} else {
-				menu.add(R.string.add);
-			}
-			return true;
+		if (getIntent().hasExtra("id")) {
+			menu.add(R.string.delete);
+		} else {
+			menu.add(R.string.add);
 		}
-		return false;
+		return true;
 	}
 
 	@Override

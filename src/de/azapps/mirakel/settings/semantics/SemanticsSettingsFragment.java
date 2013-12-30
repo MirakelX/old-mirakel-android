@@ -18,9 +18,7 @@
  ******************************************************************************/
 package de.azapps.mirakel.settings.semantics;
 
-import android.annotation.TargetApi;
 import android.app.ActionBar;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.view.Gravity;
@@ -33,7 +31,6 @@ import de.azapps.mirakel.model.semantic.Semantic;
 import de.azapps.mirakel.settings.ListSettings;
 import de.azapps.mirakelandroid.R;
 
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class SemanticsSettingsFragment extends PreferenceFragment {
 	private static final String TAG = "SemanticsSettingsFragment";
 	private Semantic semantic;

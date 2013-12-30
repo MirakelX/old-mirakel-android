@@ -21,9 +21,7 @@ package de.azapps.mirakel.settings.semantics;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.os.Build;
 import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,15 +34,14 @@ import de.azapps.mirakelandroid.R;
 
 public class SemanticsSettingsActivity extends ListSettings {
 	@SuppressWarnings("unused")
-	private static final String TAG = "SpecialListsActivity";
-	private Semantic semantic;
+	private static final String	TAG	= "SpecialListsActivity";
+	private Semantic			semantic;
 
 	private Semantic newSemantic() {
 		return Semantic.newSemantic(getString(R.string.semantic_new), null,
 				null, null, null);
 	}
 
-	@SuppressLint("NewApi")
 	@Override
 	protected OnClickListener getAddOnClickListener() {
 		return new OnClickListener() {
@@ -66,7 +63,6 @@ public class SemanticsSettingsActivity extends ListSettings {
 	@Override
 	protected void setupSettings() {
 		semantic = Semantic.get(getIntent().getIntExtra("id", 0));
-		new SemanticsSettings(this, semantic).setup();
 	}
 
 	@Override
@@ -95,39 +91,36 @@ public class SemanticsSettingsActivity extends ListSettings {
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {
-		if (Build.VERSION_CODES.ICE_CREAM_SANDWICH > Build.VERSION.SDK_INT) {
-			if (getIntent().hasExtra("id")) {
-				menu.add(R.string.delete);
-			} else {
-				menu.add(R.string.add);
-			}
-			return true;
+		if (getIntent().hasExtra("id")) {
+			menu.add(R.string.delete);
+		} else {
+			menu.add(R.string.add);
 		}
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case android.R.id.home:
-			finish();
-			return true;
-		default:
-			if (item.getTitle().equals(getString(R.string.delete))) {
-				if (semantic != null) {
-					semantic.destroy();
-				}
+			case android.R.id.home:
 				finish();
 				return true;
-			} else if (item.getTitle().equals(getString(R.string.add))) {
-				Semantic s = newSemantic();
-				Intent intent = new Intent(this,
-						SemanticsSettingsActivity.class);
-				intent.putExtra("id", s.getId());
-				startActivity(intent);
-				return true;
-			}
-			break;
+			default:
+				if (item.getTitle().equals(getString(R.string.delete))) {
+					if (semantic != null) {
+						semantic.destroy();
+					}
+					finish();
+					return true;
+				} else if (item.getTitle().equals(getString(R.string.add))) {
+					Semantic s = newSemantic();
+					Intent intent = new Intent(this,
+							SemanticsSettingsActivity.class);
+					intent.putExtra("id", s.getId());
+					startActivity(intent);
+					return true;
+				}
+				break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -148,12 +141,10 @@ public class SemanticsSettingsActivity extends ListSettings {
 		// TODO Auto-generated method stub
 		return new OnClickListener() {
 
-			@SuppressLint("NewApi")
 			@Override
 			public void onClick(View v) {
 				semantic.destroy();
-				if (Build.VERSION.SDK_INT < 11 || !onIsMultiPane())
-					finish();
+				if (!onIsMultiPane()) finish();
 				else {
 					try {
 						if (getHeader().size() > 0)

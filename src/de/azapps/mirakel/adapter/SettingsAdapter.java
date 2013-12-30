@@ -45,7 +45,6 @@ public class SettingsAdapter extends ArrayAdapter<Header> {
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
-	@SuppressLint("NewApi")
 	public View getView(int position, View convertView, ViewGroup parent) {
 		Header header = getItem(position);
 		View view = null;

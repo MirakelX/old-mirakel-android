@@ -21,8 +21,6 @@ package de.azapps.mirakel.settings.recurring;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.annotation.SuppressLint;
-import android.os.Build;
 import android.util.Pair;
 import android.util.SparseBooleanArray;
 import android.view.View;
@@ -33,9 +31,8 @@ import de.azapps.mirakelandroid.R;
 
 public class RecurringActivity extends ListSettings {
 
-	private Recurring recurring;
+	private Recurring	recurring;
 
-	@SuppressLint("NewApi")
 	@Override
 	protected OnClickListener getAddOnClickListener() {
 		return new OnClickListener() {
@@ -51,7 +48,8 @@ public class RecurringActivity extends ListSettings {
 
 	protected Recurring newRecurring(boolean temporary) {
 		return Recurring.newRecurring(getString(R.string.new_recurring), 0, 0,
-				0, 0, 1, true, null, null, temporary,false,new SparseBooleanArray());//TODO add option for exakt...
+				0, 0, 1, true, null, null, temporary, false,
+				new SparseBooleanArray());// TODO add option for exakt...
 
 	}
 
@@ -68,7 +66,6 @@ public class RecurringActivity extends ListSettings {
 	@Override
 	protected void setupSettings() {
 		recurring = Recurring.get(getIntent().getIntExtra("id", 0));
-		new RecurringSettings(this, recurring).setup();
 	}
 
 	@Override
@@ -101,7 +98,6 @@ public class RecurringActivity extends ListSettings {
 		return null;
 	}
 
-	@SuppressLint("NewApi")
 	@Override
 	public OnClickListener getDelOnClickListener() {
 		return new OnClickListener() {
@@ -109,8 +105,7 @@ public class RecurringActivity extends ListSettings {
 			@Override
 			public void onClick(View v) {
 				recurring.destroy();
-				if (Build.VERSION.SDK_INT < 11 || !onIsMultiPane())
-					finish();
+				if (!onIsMultiPane()) finish();
 				else {
 					try {
 						if (getHeader().size() > 0)

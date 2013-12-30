@@ -27,8 +27,7 @@
     <LinearLayout
         style="?android:attr/buttonBarStyle"
         android:layout_width="@dimen/date_picker_component_width"
-        android:layout_height="wrap_content"
-        tools:ignore="NewApi" >
+        android:layout_height="wrap_content">
 
         <Button
             android:id="@+id/datetime_picker_date"

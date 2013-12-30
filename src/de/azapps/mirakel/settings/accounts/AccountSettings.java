@@ -2,7 +2,6 @@ package de.azapps.mirakel.settings.accounts;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.os.Bundle;
@@ -22,23 +21,13 @@ public class AccountSettings implements OnPreferenceChangeListener {
 
 	protected static final String	TAG	= "AccountSettings";
 	private AccountMirakel			account;
-	private boolean					v4_0;
 	private Object					settings;
 	private Context					ctx;
 
-	@SuppressLint("NewApi")
 	public AccountSettings(AccountSettingsFragment accountSettingsFragment, AccountMirakel account) {
 		this.account = account;
-		v4_0 = true;
 		settings = accountSettingsFragment;
 		ctx = accountSettingsFragment.getActivity();
-	}
-
-	public AccountSettings(AccountSettingsActivity accountSettingsFragment, AccountMirakel account) {
-		this.account = account;
-		v4_0 = false;
-		settings = accountSettingsFragment;
-		ctx = accountSettingsFragment;
 	}
 
 	public void setup() throws NoSuchListException {
@@ -170,7 +159,6 @@ public class AccountSettings implements OnPreferenceChangeListener {
 
 	}
 
-
 	@Override
 	public boolean onPreferenceChange(Preference preference, Object newValue) {
 		// TODO: Nothing? Then why does this class implement
@@ -180,27 +168,15 @@ public class AccountSettings implements OnPreferenceChangeListener {
 
 	// TODO: This repeats in SpecialListSettings. Maybe extract into a
 	// superclass?
-	@SuppressWarnings("deprecation")
-	@SuppressLint("NewApi")
 	private Preference findPreference(String key) {
-		if (v4_0) {
-			return ((AccountSettingsFragment) settings).findPreference(key);
-		}
-		return ((AccountSettingsActivity) settings).findPreference(key);
+		return ((AccountSettingsFragment) settings).findPreference(key);
 	}
 
-	@SuppressLint("NewApi")
-	@SuppressWarnings("deprecation")
 	private void removePreference(String which) {
 		Preference pref = findPreference(which);
 		if (pref != null) {
-			if (v4_0) {
-				((AccountSettingsFragment) settings).getPreferenceScreen()
-						.removePreference(pref);
-			} else {
-				((AccountSettingsActivity) settings).getPreferenceScreen()
-						.removePreference(pref);
-			}
+			((AccountSettingsFragment) settings).getPreferenceScreen()
+					.removePreference(pref);
 		}
 	}
 

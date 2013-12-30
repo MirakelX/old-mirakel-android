@@ -644,12 +644,9 @@ public class MainActivity extends ActionBarActivity implements ViewPager.OnPageC
 		int widgets[] = AppWidgetManager.getInstance(context).getAppWidgetIds(
 				name);
 		intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgets);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			for (int id : widgets) {
-				AppWidgetManager.getInstance(this)
-						.notifyAppWidgetViewDataChanged(id,
-								R.id.widget_tasks_list);
-			}
+		for (int id : widgets) {
+			AppWidgetManager.getInstance(this).notifyAppWidgetViewDataChanged(
+					id, R.id.widget_tasks_list);
 		}
 		sendBroadcast(intent);
 		TaskDialogHelpers.stopRecording();
@@ -1106,6 +1103,10 @@ public class MainActivity extends ActionBarActivity implements ViewPager.OnPageC
 	 * @return
 	 */
 	public Task getCurrentTask() {
+		currentTask = currentList.getFirstTask();
+		if (currentTask == null)
+			currentTask = Task.getDummy(getApplicationContext());
+		
 		return currentTask;
 	}
 
@@ -1233,13 +1234,9 @@ public class MainActivity extends ActionBarActivity implements ViewPager.OnPageC
 		this.currentList = currentList;
 		if (mDrawerLayout != null) mDrawerLayout.closeDrawers();
 
-		List<Task> currentTasks = currentList.tasks(MirakelPreferences
-				.showDoneMain());
-		if (currentTasks.size() == 0) {
+		currentTask = currentList.getFirstTask();
+		if (currentTask == null)
 			currentTask = Task.getDummy(getApplicationContext());
-		} else {
-			currentTask = currentTasks.get(0);
-		}
 
 		if (getTasksFragment() != null) {
 			getTasksFragment().updateList();

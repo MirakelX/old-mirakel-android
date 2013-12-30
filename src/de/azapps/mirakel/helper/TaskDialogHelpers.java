@@ -16,7 +16,6 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -152,7 +151,6 @@ public class TaskDialogHelpers {
 		dtDialog.show(fm, "datetimedialog");
 	}
 
-	@SuppressLint("NewApi")
 	public static void handleRecurrence(final Activity activity, final Task task, final boolean isDue, final ImageButton image, boolean dark) {
 		FragmentManager fm = ((MainActivity) activity)
 				.getSupportFragmentManager();
@@ -440,7 +438,7 @@ public class TaskDialogHelpers {
 												if (!tasks.get(i)
 														.checkIfParent(task)) {
 													task.addSubtask(tasks
-																.get(i));
+															.get(i));
 												} else {
 													Toast.makeText(
 															ctx,
@@ -591,7 +589,6 @@ public class TaskDialogHelpers {
 
 	}
 
-	@SuppressLint("NewApi")
 	private static void setRecurence(final Task task, final boolean isDue, int id, Context ctx, ImageButton image) {
 		if (isDue) {
 			Recurring.destroyTemporary(task.getRecurrenceId());
@@ -602,9 +599,6 @@ public class TaskDialogHelpers {
 		}
 		TaskFragmentAdapter.setRecurringImage(image, ctx, id);
 		task.safeSave();
-		// if (!isDue) {
-		// ReminderAlarm.updateAlarms(ctx);
-		// }
 	}
 
 	private static MediaRecorder	audio_record_mRecorder;

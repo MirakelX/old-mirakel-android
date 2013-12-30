@@ -1,9 +1,6 @@
 package de.azapps.mirakel.static_activities;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
@@ -28,17 +25,19 @@ public class CreditsActivity extends Activity {
 			{ "DateTimePicker Compatibility Library", "Apache 2.0",
 			"https://github.com/flavienlaurent/datetimepicker" },
 			{ "Webicons", "CC-Attrib", "http://fairheadcreative.com/" },
-			{"Android Donations Lib","Apache 2.0","https://github.com/dschuermann/android-donations-lib"}};
-	private final String[][]	translations	= { { "Spanish", "macebal" },
+			{ "Android Donations Lib", "Apache 2.0",
+			"https://github.com/dschuermann/android-donations-lib" } };
+	private final String[][]	translations	= {
+			{ "Spanish", "macebal" },
 			{ "French", "Ghost of Kendo, waghanza, npettiaux, benasse" },
 			{ "German", "Anatolij Zelenin, Georg Semmler, Patrik Kernstock" },
 			{ "Portuguese", "Sérgio Marques" },
 			{ "Russian", "Katy, Dmitry Derjavin" },
 			{ "Spanisch", "macebal, RaindropR", "Pablo Corbalán (@monofluor)" },
 			{ "Norwegian", "Jim-Stefhan Johansen" }, { "Slovenian", "mateju" },
-			{ "Arabic", "Rajaa Gutknecht" }, { "Czech", "sarimak" },{"Dutch","Toon van Gerwen"} };
+			{ "Arabic", "Rajaa Gutknecht" }, { "Czech", "sarimak" },
+			{ "Dutch", "Toon van Gerwen" }		};
 
-	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -49,8 +48,7 @@ public class CreditsActivity extends Activity {
 		creditTextHead.setText(Html
 				.fromHtml(getString(R.string.credits_text_head)));
 		creditTextHead.setMovementMethod(LinkMovementMethod.getInstance());
-		if (VERSION.SDK_INT >= VERSION_CODES.HONEYCOMB)
-			getActionBar().setDisplayHomeAsUpEnabled(true);
+		getActionBar().setDisplayHomeAsUpEnabled(true);
 
 		// Set Libraries
 		String libs = "";

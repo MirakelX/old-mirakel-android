@@ -33,7 +33,6 @@ import de.azapps.mirakel.model.list.SpecialList;
 import de.azapps.mirakel.settings.ListSettings;
 import de.azapps.mirakelandroid.R;
 
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class SpecialListsSettingsFragment extends PreferenceFragment {
 	private static final String TAG = "SpecialListsSettingsFragment";
 

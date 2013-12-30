@@ -12,7 +12,7 @@
         android:layout_marginBottom="5dip" >
         <Button
             android:id="@+id/SwitchToDate"
-            style="@style/Button"
+            style="@android:attr/button"
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -26,7 +26,7 @@
         
         <Button
             android:id="@+id/SwitchToTime"
-            style="@style/Button"
+            style="@android:attr/button"
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"

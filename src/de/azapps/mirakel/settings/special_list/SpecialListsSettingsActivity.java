@@ -21,31 +21,26 @@ package de.azapps.mirakel.settings.special_list;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.os.Build;
 import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import de.azapps.mirakel.Mirakel.NoSuchListException;
 import de.azapps.mirakel.helper.Helpers;
 import de.azapps.mirakel.model.list.SpecialList;
 import de.azapps.mirakel.settings.ListSettings;
 import de.azapps.mirakelandroid.R;
 
-@SuppressLint("NewApi")
 public class SpecialListsSettingsActivity extends ListSettings {
 	@SuppressWarnings("unused")
-	private static final String TAG = "SpecialListsActivity";
+	private static final String	TAG	= "SpecialListsActivity";
 
 	private SpecialList newSpecialList() {
 		return SpecialList.newSpecialList(
 				getString(R.string.special_lists_new), "", true, this);
 	}
 
-	@SuppressLint("NewApi")
 	@Override
 	protected OnClickListener getAddOnClickListener() {
 		return new OnClickListener() {
@@ -68,12 +63,6 @@ public class SpecialListsSettingsActivity extends ListSettings {
 		specialList = SpecialList.getSpecialList(getIntent().getIntExtra("id",
 				SpecialList.firstSpecial().getId())
 				* -1);
-		try {
-			new SpecialListSettings(this, specialList).setup();
-		} catch (NoSuchListException e) {
-			finish();
-		}
-
 	}
 
 	@Override
@@ -101,42 +90,39 @@ public class SpecialListsSettingsActivity extends ListSettings {
 		return R.string.special_lists_title;
 	}
 
-	private SpecialList specialList;
+	private SpecialList	specialList;
 
 	public boolean onCreateOptionsMenu(Menu menu) {
-		if (Build.VERSION_CODES.ICE_CREAM_SANDWICH > Build.VERSION.SDK_INT) {
-			if (getIntent().hasExtra("id")) {
-				menu.add(R.string.delete);
-			} else {
-				menu.add(R.string.add);
-			}
-			return true;
+		if (getIntent().hasExtra("id")) {
+			menu.add(R.string.delete);
+		} else {
+			menu.add(R.string.add);
 		}
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case android.R.id.home:
-			finish();
-			return true;
-		default:
-			if (item.getTitle().equals(getString(R.string.delete))) {
-				if (specialList != null) {
-					specialList.destroy();
-				}
+			case android.R.id.home:
 				finish();
 				return true;
-			} else if (item.getTitle().equals(getString(R.string.add))) {
-				SpecialList s = newSpecialList();
-				Intent intent = new Intent(this,
-						SpecialListsSettingsActivity.class);
-				intent.putExtra("id", s.getId());
-				startActivity(intent);
-				return true;
-			}
-			break;
+			default:
+				if (item.getTitle().equals(getString(R.string.delete))) {
+					if (specialList != null) {
+						specialList.destroy();
+					}
+					finish();
+					return true;
+				} else if (item.getTitle().equals(getString(R.string.add))) {
+					SpecialList s = newSpecialList();
+					Intent intent = new Intent(this,
+							SpecialListsSettingsActivity.class);
+					intent.putExtra("id", s.getId());
+					startActivity(intent);
+					return true;
+				}
+				break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -159,8 +145,7 @@ public class SpecialListsSettingsActivity extends ListSettings {
 			@Override
 			public void onClick(View v) {
 				specialList.destroy();
-				if (!onIsMultiPane())
-					finish();
+				if (!onIsMultiPane()) finish();
 				else {
 					try {
 						if (getHeader().size() > 0)

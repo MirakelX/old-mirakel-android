@@ -22,11 +22,8 @@ import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.util.Pair;
 import android.view.Gravity;
@@ -44,16 +41,14 @@ import de.azapps.mirakelandroid.R;
 /**
  * This is a generic Activity for showing Lists in the settings (and edit the
  * items of that list)
- * 
  * How to use: Implement the abstract methods and if you need the
  * onOptionsItemSelected()-function
  * 
  * @author az
- * 
  */
 public abstract class ListSettings extends PreferenceActivity {
 
-	private static final String TAG = "ListSettings";
+	private static final String	TAG	= "ListSettings";
 
 	protected abstract OnClickListener getAddOnClickListener();
 
@@ -65,7 +60,6 @@ public abstract class ListSettings extends PreferenceActivity {
 
 	protected abstract void setupSettings();
 
-	private boolean loaded = false;
 	protected boolean		clickOnLast	= false;
 	protected List<Header>	mTarget;
 
@@ -77,62 +71,45 @@ public abstract class ListSettings extends PreferenceActivity {
 
 	protected abstract int getTitleRessource();
 
-	@SuppressWarnings("deprecation")
 	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		if (MirakelPreferences.isDark())
-			setTheme(R.style.AppBaseThemeDARK);
+		if (MirakelPreferences.isDark()) setTheme(R.style.AppBaseThemeDARK);
 		super.onCreate(savedInstanceState);
-		loaded = true;
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			if (getIntent().hasExtra("id")) {
-				addPreferencesFromResource(getSettingsRessource());
-				setupSettings();
-			} else {
-				addPreferencesFromResource(R.xml.settings_headers_v10);
-				setup();
-			}
-
-		} else {
-			ActionBar actionbar = getActionBar();
-			actionbar.setTitle(getTitleRessource());
-			actionbar.setDisplayHomeAsUpEnabled(true);
-			View v;
-			ImageButton addList = new ImageButton(this);
-			addList.setBackgroundResource(android.R.drawable.ic_menu_add);
-			addList.setOnClickListener(getAddOnClickListener());
-			if (MirakelPreferences.isTablet()) {
-				LinearLayout l = new LinearLayout(this);
+		ActionBar actionbar = getActionBar();
+		actionbar.setTitle(getTitleRessource());
+		actionbar.setDisplayHomeAsUpEnabled(true);
+		View v;
+		ImageButton addList = new ImageButton(this);
+		addList.setBackgroundResource(android.R.drawable.ic_menu_add);
+		addList.setOnClickListener(getAddOnClickListener());
+		if (MirakelPreferences.isTablet()) {
+			LinearLayout l = new LinearLayout(this);
+			if (Build.VERSION.SDK_INT >= 17)
 				l.setLayoutDirection(LinearLayout.VERTICAL);
-				l.addView(addList);
-				ImageButton delList = new ImageButton(this);
-				delList.setBackgroundResource(android.R.drawable.ic_menu_delete);
-				delList.setOnClickListener(getDelOnClickListener());
-				l.addView(delList);
-				Log.d(TAG, "isTablet");
+			l.addView(addList);
+			ImageButton delList = new ImageButton(this);
+			delList.setBackgroundResource(android.R.drawable.ic_menu_delete);
+			delList.setOnClickListener(getDelOnClickListener());
+			l.addView(delList);
+			Log.d(TAG, "isTablet");
 
-				v = l;
-			} else {
-				v = addList;
-			}
-
-			actionbar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM,
-					ActionBar.DISPLAY_SHOW_CUSTOM);
-			actionbar.setCustomView(v, new ActionBar.LayoutParams(
-					ActionBar.LayoutParams.WRAP_CONTENT,
-					ActionBar.LayoutParams.WRAP_CONTENT,
-					Gravity.CENTER_VERTICAL | Mirakel.GRAVITY_RIGHT));
-
+			v = l;
+		} else {
+			v = addList;
 		}
+
+		actionbar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM,
+				ActionBar.DISPLAY_SHOW_CUSTOM);
+		actionbar.setCustomView(v, new ActionBar.LayoutParams(
+				ActionBar.LayoutParams.WRAP_CONTENT,
+				ActionBar.LayoutParams.WRAP_CONTENT, Gravity.CENTER_VERTICAL
+						| Mirakel.GRAVITY_RIGHT));
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			menu.add(R.string.add);
-		}
 		return true;
 	}
 
@@ -140,9 +117,9 @@ public abstract class ListSettings extends PreferenceActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 
 		switch (item.getItemId()) {
-		case android.R.id.home:
-			finish();
-			return true;
+			case android.R.id.home:
+				finish();
+				return true;
 			default:
 				Log.d(TAG, "unknown menuentry");
 				break;
@@ -153,29 +130,6 @@ public abstract class ListSettings extends PreferenceActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
-	@SuppressWarnings("deprecation")
-	private void setup() {
-		List<Pair<Integer, String>> items = getItems();
-		for (Pair<Integer, String> item : items) {
-			Preference p = new Preference(this);
-			p.setTitle(item.second);
-			p.setKey(String.valueOf(item.first));
-			final ListSettings that = this;
-			p.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-
-				@Override
-				public boolean onPreferenceClick(Preference preference) {
-					Intent intent = new Intent(that, getDestClass());
-					intent.putExtra("id", Integer.parseInt(preference.getKey()));
-					that.startActivity(intent);
-					return false;
-				}
-			});
-			getPreferenceScreen().addPreference(p);
-		}
-	}
-
-	@SuppressLint("NewApi")
 	@Override
 	public void onHeaderClick(Header header, int position) {
 		super.onHeaderClick(header, position);
@@ -190,14 +144,12 @@ public abstract class ListSettings extends PreferenceActivity {
 	public void onResume() {
 		super.onResume();
 		invalidateHeaders();
-		loaded = false;
 	}
 
 	public List<Header> getHeader() {
 		return mTarget;
 	}
 
-	@SuppressLint("NewApi")
 	@Override
 	public void onBuildHeaders(List<Header> target) {
 		for (Pair<Integer, String> item : getItems()) {
@@ -227,17 +179,9 @@ public abstract class ListSettings extends PreferenceActivity {
 		clickOnLast = true;
 	}
 
-	@SuppressLint("NewApi")
-	@SuppressWarnings("deprecation")
 	@Override
 	public void invalidateHeaders() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			super.invalidateHeaders();
-		} else if (!loaded) {
-			getPreferenceScreen().removeAll();
-			setup();
-		}
-		loaded = false;
+		super.invalidateHeaders();
 	}
 
 	@Override
