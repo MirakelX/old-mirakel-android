@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Locale;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -39,13 +38,12 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Handler;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.view.ActionMode;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.util.Linkify;
 import android.util.Pair;
 import android.util.TypedValue;
+import android.view.ActionMode;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -833,12 +831,12 @@ public class TaskFragmentAdapter extends MirakelArrayAdapter<Pair<Integer, Integ
 					InputMethodManager.SHOW_IMPLICIT);
 			holder.taskContentEdit.setSelected(true);
 			if (mActionMode == null) {
-				mActionMode = ((ActionBarActivity) context)
-						.startSupportActionMode(mActionModeCallback);
+				mActionMode = ((Activity) context)
+						.startActionMode(mActionModeCallback);
 				View doneButton;
 				int doneButtonId = Resources.getSystem().getIdentifier(
 						"action_mode_close_button", "id", "android");
-				doneButton = ((ActionBarActivity) context)
+				doneButton = ((Activity) context)
 						.findViewById(doneButtonId);
 				if (doneButton != null) {
 					doneButton.setOnClickListener(new View.OnClickListener() {

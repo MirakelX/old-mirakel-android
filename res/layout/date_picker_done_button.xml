@@ -3,8 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="@dimen/date_picker_component_width"
-    android:layout_height="wrap_content"
-    style="?attr/buttonBarStyle">
+    android:layout_height="wrap_content">
 
     <Button
         android:textSize="@dimen/done_label_size"
@@ -14,8 +13,7 @@
         android:layout_height="wrap_content"
         android:minHeight="48dip"
         android:layout_weight="1"
-        android:text="@android:string/ok"
-        style="?attr/buttonBarButtonStyle" />
+        android:text="@android:string/ok"/>
      <Button
         android:textSize="@dimen/done_label_size"
         android:textColor="@color/done_text_color"
@@ -24,6 +22,5 @@
         android:layout_height="wrap_content"
         android:minHeight="48dip"
         android:layout_weight="1"
-        android:text="@string/no_date"
-        style="?attr/buttonBarButtonStyle" />
+        android:text="@string/no_date"/>
 </LinearLayout>
