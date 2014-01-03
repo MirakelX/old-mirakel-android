@@ -16,11 +16,11 @@ public class BuildHelper {
 	}
 
 	public static boolean isForPlayStore() {
-		return false;
+		return BuildConfig.DONATIONS_GOOGLE;
 	}
 
 	public static boolean isForFDroid() {
-		return true;
+		return BuildConfig.DONATIONS_GOOGLE;
 	}
 
 	public static boolean useAutoUpdater() {
