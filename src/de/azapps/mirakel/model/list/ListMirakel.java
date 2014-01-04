@@ -550,6 +550,9 @@ public class ListMirakel extends ListBase {
 		Cursor c = database.query(TABLE, allColumns, DatabaseHelper.NAME + "='"
 				+ context.getString(R.string.inbox) + "' and " + ACCOUNT_ID
 				+ "=" + account.getId(), null, null, null, null);
+		Log.w(TAG,"SELECT * from "+TABLE+" where "+DatabaseHelper.NAME + "='"
+				+ context.getString(R.string.inbox) + "' and " + ACCOUNT_ID
+				+ "=" + account.getId()+";");
 		c.moveToFirst();
 		if (c.getCount() > 0) {
 			ListMirakel l = cursorToList(c);

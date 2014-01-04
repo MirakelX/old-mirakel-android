@@ -2,7 +2,7 @@ package de.azapps.mirakel.helper;
 
 
 public class BuildHelper {
-	public static boolean DEBUG=false;
+	public static boolean DEBUG=true;
 	private static boolean PLAYSTORE_RELEASE=true;
 	public static boolean isNightly() {
 		return DEBUG;

@@ -6,6 +6,7 @@ import java.nio.charset.MalformedInputException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -199,7 +200,6 @@ public class TaskWarriorSync {
 		// FileUtils.writeToFile(new File("/sdcard/mirakel.log"), response);
 
 		// longInfo(response);
-
 		Msg remotes = new Msg();
 		try {
 			remotes.parse(response);
@@ -238,7 +238,7 @@ public class TaskWarriorSync {
 					taskObject = new JsonParser().parse(taskString)
 							.getAsJsonObject();
 					server_task = Task.parse_json(taskObject, accountMirakel);
-					if (server_task.getList().getAccount().getId() != accountMirakel
+					if (server_task.getList()==null||server_task.getList().getAccount().getId() != accountMirakel
 							.getId()) {
 						ListMirakel list = ListMirakel
 								.getInboxList(accountMirakel);
@@ -265,7 +265,7 @@ public class TaskWarriorSync {
 					if (local_task != null) local_task.destroy(true);
 				} else if (local_task == null) {
 					try {
-						server_task.create();
+						server_task.create(false);
 						Log.d(TAG, "create " + server_task.getName());
 					} catch (NoSuchListException e) {
 						Log.wtf(TAG, "List vanish");
@@ -365,10 +365,16 @@ public class TaskWarriorSync {
 	 * @return
 	 */
 	public String taskToJson(Task task) {
-
+		String end=null;
 		String status = "pending";
-		if (task.getSyncState() == SYNC_STATE.DELETE) status = "deleted";
-		else if (task.isDone()) status = "completed";
+		if (task.getSyncState() == SYNC_STATE.DELETE){
+			status = "deleted";
+			end=formatCal(new GregorianCalendar());
+		}
+		else if (task.isDone()){
+			status = "completed";
+			end=formatCal(new GregorianCalendar());
+		}
 		Log.e(TAG, "Status waiting / recurring is not implemented now");
 		// TODO
 
@@ -402,7 +408,7 @@ public class TaskWarriorSync {
 		json += ",\"modification\":\"" + formatCal(task.getUpdatedAt()) + "\"";
 		if (task.getReminder() != null)
 			json += ",\"reminder\":\"" + formatCal(task.getReminder()) + "\"";
-
+		if(end!=null)json+=",\"end\":\"" + end + "\"";
 		// Annotations
 		if (task.getContent() != null && !task.getContent().equals("")) {
 			json += ",\"annotations\":[";
@@ -422,7 +428,6 @@ public class TaskWarriorSync {
 			json += "]";
 		}
 		// Anotations end
-
 		// TW.depends==Mirakel.subtasks!
 		// Dependencies
 		if (task.getSubtaskCount() > 0) {
@@ -436,7 +441,6 @@ public class TaskWarriorSync {
 			json += "\"";
 		}
 		// end Dependencies
-
 		// Additional Strings
 		if (task.getAdditionalEntries() != null) {
 			Map<String, String> additionalEntries = task.getAdditionalEntries();

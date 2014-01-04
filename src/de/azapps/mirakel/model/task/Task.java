@@ -431,7 +431,11 @@ public class Task extends TaskBase {
 		}
 	}
 
-	public Task create() throws NoSuchListException {
+	public Task create() throws NoSuchListException{
+		return create(true);
+	}
+	
+	public Task create(boolean addFlag) throws NoSuchListException {
 		ContentValues values = new ContentValues();
 		values.put(UUID, getUUID());
 		values.put(DatabaseHelper.NAME, getName());
@@ -442,7 +446,7 @@ public class Task extends TaskBase {
 		values.put(DUE,
 				(getDue() == null ? null : DateTimeHelper.formatDate(getDue())));
 		values.put(PRIORITY, getPriority());
-		values.put(SyncAdapter.SYNC_STATE, SYNC_STATE.ADD.toInt());
+		values.put(SyncAdapter.SYNC_STATE, addFlag?SYNC_STATE.ADD.toInt():SYNC_STATE.NOTHING.toInt());
 		values.put(DatabaseHelper.CREATED_AT,
 				DateTimeHelper.formatDateTime(getCreatedAt()));
 		if (getUpdatedAt() == null) setUpdatedAt(new GregorianCalendar());
@@ -718,11 +722,11 @@ public class Task extends TaskBase {
 				t.setList(list);
 			} else if (key.equals("project")) {
 				ListMirakel list = ListMirakel.findByName(val.getAsString());
-				if (list == null
-						|| list.getAccount().getId() != account.getId()) {
-					list = ListMirakel.newList(val.getAsString(),
-							ListMirakel.SORT_BY_OPT, account);
-				}
+//				if (list == null
+//						|| list.getAccount().getId() != account.getId()) {
+//					list = ListMirakel.newList(val.getAsString(),
+//							ListMirakel.SORT_BY_OPT, account);
+//				}
 				t.setList(list);
 			} else if (key.equals("created_at")) {
 				t.setCreatedAt(val.getAsString().replace(":", ""));
@@ -792,10 +796,10 @@ public class Task extends TaskBase {
 				t.addAdditionalEntry(key, val.getAsString());
 			}
 		}
-		if (t.getList() == null) {
-			ListMirakel l = MirakelPreferences.getImportDefaultList(true);
-			t.setList(l);
-		}
+//		if (t.getList() == null) {
+//			ListMirakel l = MirakelPreferences.getImportDefaultList(true);
+//			t.setList(l);
+//		}
 		return t;
 	}
 
