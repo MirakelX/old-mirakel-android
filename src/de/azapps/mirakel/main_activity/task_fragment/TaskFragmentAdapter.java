@@ -446,7 +446,7 @@ public class TaskFragmentAdapter extends MirakelArrayAdapter<Pair<Integer, Integ
 
 		GradientDrawable bg = (GradientDrawable) holder.taskRowPriority
 				.getBackground();
-		bg.setColor(TaskHelper.getPrioColor(task.getPriority(), context));
+		bg.setColor(TaskHelper.getPrioColor(task.getPriority()));
 		holder.taskRowPriority.setTag(task);
 
 		// Due
@@ -1275,7 +1275,7 @@ public class TaskFragmentAdapter extends MirakelArrayAdapter<Pair<Integer, Integ
 		Task_prio.setText("" + task.getPriority());
 
 		GradientDrawable bg = (GradientDrawable) Task_prio.getBackground();
-		bg.setColor(TaskHelper.getPrioColor(task.getPriority(), context));
+		bg.setColor(TaskHelper.getPrioColor(task.getPriority()));
 
 	}
 

@@ -1,26 +1,28 @@
 package de.azapps.mirakel.helper;
 
-import de.azapps.mirakelandroid.BuildConfig;
 
 public class BuildHelper {
+	public static boolean DEBUG=false;
+	private static boolean PLAYSTORE_RELEASE=true;
 	public static boolean isNightly() {
-		return BuildConfig.DEBUG;
+		return DEBUG;
 	}
 
 	public static boolean isBeta() {
-		return BuildConfig.DEBUG;
+		return DEBUG;
 	}
 
 	public static boolean isRelease() {
-		return !BuildConfig.DEBUG;
+		return !DEBUG;
 	}
 
 	public static boolean isForPlayStore() {
-		return BuildConfig.DONATIONS_GOOGLE;
+
+		return PLAYSTORE_RELEASE;
 	}
 
 	public static boolean isForFDroid() {
-		return BuildConfig.DONATIONS_GOOGLE;
+		return !PLAYSTORE_RELEASE;
 	}
 
 	public static boolean useAutoUpdater() {

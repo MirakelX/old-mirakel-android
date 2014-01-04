@@ -10,7 +10,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.MenuItem;
 import de.azapps.mirakel.helper.BuildHelper;
-import de.azapps.mirakelandroid.BuildConfig;
 import de.azapps.mirakelandroid.R;
 
 public class DonationsActivity extends FragmentActivity {
@@ -51,7 +50,7 @@ public class DonationsActivity extends FragmentActivity {
 		DonationsFragment donationsFragment;
 		if (BuildHelper.isForPlayStore()) {
 			donationsFragment = DonationsFragment.newInstance(
-					BuildConfig.DEBUG,
+					BuildHelper.DEBUG,
 					true,
 					GOOGLE_PUBKEY,
 					GOOGLE_CATALOG,
@@ -60,7 +59,7 @@ public class DonationsActivity extends FragmentActivity {
 					null, null, null, false, FLATTR_PROJECT_URL, FLATTR_URL);
 		} else {
 			donationsFragment = DonationsFragment.newInstance(
-					BuildConfig.DEBUG, false, null, null, null, true,
+					BuildHelper.DEBUG, false, null, null, null, true,
 					PAYPAL_USER, PAYPAL_CURRENCY_CODE,
 					getString(R.string.donation_paypal_item), true,
 					FLATTR_PROJECT_URL, FLATTR_URL);
