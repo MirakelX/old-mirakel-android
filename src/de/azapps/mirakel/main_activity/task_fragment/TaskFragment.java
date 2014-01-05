@@ -13,11 +13,9 @@ package de.azapps.mirakel.main_activity.task_fragment;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.annotation.TargetApi;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;

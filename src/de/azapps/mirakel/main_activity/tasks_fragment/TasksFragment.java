@@ -84,8 +84,6 @@ public class TasksFragment extends Fragment {
 	private ListView			listView;
 	private int					ItemCount;
 	private List<Task>			values;
-	private static final int	TASK_RENAME		= 0, TASK_MOVE = 1,
-			TASK_DESTROY = 2;
 	private int					listId;
 	private boolean				showDone		= true;
 	private ActionMode			mActionMode		= null;

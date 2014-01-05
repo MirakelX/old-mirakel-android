@@ -104,7 +104,14 @@ public class ListFragment extends MirakelFragment {
 
 		if (adapter != null && enableDrag == adapter.isDropEnabled()) {
 			adapter.changeData(values);
-			adapter.notifyDataSetChanged();
+			view.post(new Runnable() {
+				
+				@Override
+				public void run() {
+					adapter.notifyDataSetChanged();				
+				}
+			});
+			
 			return;
 		}
 
