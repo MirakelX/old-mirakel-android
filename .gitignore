@@ -11,6 +11,10 @@
 # generated files
 bin/
 gen/
+build/
+donations_lib/build/
+donations_lib/src/main/bin/
+donations_lib/src/main/gen/
 
 # Local configuration file (sdk path, etc)
 local.properties
@@ -30,6 +34,8 @@ local.properties
 .loadpath
 *.db
 lint.xml
+.gradle/
+*.*~
 # External tool builders
 .externalToolBuilders/
 

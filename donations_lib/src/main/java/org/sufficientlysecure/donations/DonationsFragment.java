@@ -16,36 +16,29 @@
 
 package org.sufficientlysecure.donations;
 
+import android.content.ActivityNotFoundException;
+import android.view.*;
+import android.widget.*;
 import org.sufficientlysecure.donations.google.util.IabHelper;
 import org.sufficientlysecure.donations.google.util.IabResult;
-import org.sufficientlysecure.donations.google.util.Purchase;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.view.ViewStub;
 import android.webkit.WebView;
-import android.webkit.WebView.HitTestResult;
 import android.webkit.WebViewClient;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.Spinner;
-import android.widget.TextView;
-import de.azapps.mirakelandroid.R;
+import android.webkit.WebView.HitTestResult;
+
+import android.content.DialogInterface;
+import android.os.Handler;
+import org.sufficientlysecure.donations.google.util.Purchase;
 
 public class DonationsFragment extends Fragment {
 
@@ -96,7 +89,7 @@ public class DonationsFragment extends Fragment {
     /**
      * Instantiate DonationsFragment.
      *
-     * @param debug               You can use BuildHelper.DEBUG to propagate the debug flag from your app to the Donations library
+     * @param debug               You can use BuildConfig.DEBUG to propagate the debug flag from your app to the Donations library
      * @param googleEnabled       Enabled Google Play donations
      * @param googlePubkey        Your Google Play public key
      * @param googleCatalog       Possible item names that can be purchased from Google Play
@@ -190,8 +183,14 @@ public class DonationsFragment extends Fragment {
             // choose donation amount
             mGoogleSpinner = (Spinner) getActivity().findViewById(
                     R.id.donations__google_android_market_spinner);
-            ArrayAdapter<CharSequence> adapter= new ArrayAdapter<CharSequence>(getActivity(),
+            ArrayAdapter<CharSequence> adapter;
+            if (mDebug) {
+                adapter = new ArrayAdapter<CharSequence>(getActivity(),
+                        android.R.layout.simple_spinner_item, CATALOG_DEBUG);
+            } else {
+                adapter = new ArrayAdapter<CharSequence>(getActivity(),
                         android.R.layout.simple_spinner_item, mGoogleCatalogValues);
+            }
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             mGoogleSpinner.setAdapter(adapter);
 
