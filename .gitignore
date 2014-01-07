@@ -38,6 +38,7 @@ lint.xml
 *.*~
 # External tool builders
 .externalToolBuilders/
+build.gradle
 
 # Locally stored "Eclipse launch configurations"
 *.launch
