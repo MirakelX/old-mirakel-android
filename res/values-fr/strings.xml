@@ -149,7 +149,7 @@ Device: %3$s\n]]>
   <string name="list_change_color">Changer de couleur</string>
   <string name="set_color">Définir la Couleur</string>
   <string name="unset_color">Pas de couleur</string>
-  <string name="add_files">Ajoutez le fichier...</string>
+  <string name="add_files">Ajoutez le fichier&#8230;</string>
   <string name="file_no_activity">Je ne sais pas comment ouvrir ce fichier – Désolé</string>
   <string name="file_select">Sélectionnez un fichier</string>
   <string name="file_vanished">Aucun fichier</string>

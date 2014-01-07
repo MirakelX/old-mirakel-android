@@ -60,7 +60,6 @@ import de.azapps.mirakel.adapter.PagerAdapter;
 import de.azapps.mirakel.helper.BuildHelper;
 import de.azapps.mirakel.helper.Helpers;
 import de.azapps.mirakel.helper.ListDialogHelpers;
-import de.azapps.mirakel.helper.Log;
 import de.azapps.mirakel.helper.MirakelPreferences;
 import de.azapps.mirakel.helper.SharingHelper;
 import de.azapps.mirakel.helper.TaskDialogHelpers;
@@ -82,6 +81,7 @@ import de.azapps.mirakel.static_activities.SplashScreenActivity;
 import de.azapps.mirakel.widget.MainWidgetProvider;
 import de.azapps.mirakelandroid.R;
 import de.azapps.tools.FileUtils;
+import de.azapps.tools.Log;
 
 /**
  * This is our main activity. Here happens nearly everything.

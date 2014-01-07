@@ -73,11 +73,22 @@ import de.azapps.mirakel.sync.SyncAdapter;
 import de.azapps.mirakel.sync.SyncAdapter.SYNC_STATE;
 import de.azapps.mirakelandroid.R;
 import de.azapps.tools.FileUtils;
+import de.azapps.tools.Log;
 import de.azapps.widgets.DateTimeDialog;
 import de.azapps.widgets.DateTimeDialog.OnDateTimeSetListner;
 
 public class TaskDialogHelpers {
-	protected static final String							TAG				= "TaskDialogHelpers";
+	private static AlertDialog	audio_playback_dialog;
+	private static boolean		audio_playback_playing;
+
+	private static AlertDialog		audio_record_alert_dialog;
+
+	private static String			audio_record_filePath;
+
+	private static MediaRecorder	audio_record_mRecorder;
+
+	private static boolean			content;
+
 	private static final DialogInterface.OnClickListener	dialogDoNothing	= new DialogInterface.OnClickListener() {
 
 																				@Override
@@ -86,6 +97,169 @@ public class TaskDialogHelpers {
 
 																				}
 																			};
+
+	private static boolean			done;
+	private static int				listId;
+	private static boolean			newTask;
+	private static boolean			optionEnabled;
+	private static boolean			reminder;
+	private static String			searchString;
+	private static SubtaskAdapter	subtaskAdapter;
+	protected static final String							TAG				= "TaskDialogHelpers";
+
+	private static void cancelRecording() {
+		audio_record_mRecorder.stop();
+		audio_record_mRecorder.release();
+		audio_record_mRecorder = null;
+		try {
+			new File(audio_record_filePath).delete();
+		} catch (Exception e) {}
+	}
+
+	protected static String generateQuery(Task t) {
+		String col = Task.allColumns[0];
+		for (int i = 1; i < Task.allColumns.length; i++) {
+			col += "," + Task.allColumns[i];
+		}
+		String query = "SELECT " + col + " FROM " + Task.TABLE
+				+ " WHERE name LIKE '%" + searchString + "%' AND";
+		query += " NOT _id IN (SELECT parent_id from " + Task.SUBTASK_TABLE
+				+ " where child_id=" + t.getId() + ") AND ";
+		query += "NOT " + DatabaseHelper.ID + "=" + t.getId();
+		query += " AND NOT " + SyncAdapter.SYNC_STATE + "=" + SYNC_STATE.DELETE;
+		if (optionEnabled) {
+			if (!done) {
+				query += " and " + Task.DONE + "=0";
+			}
+			if (content) {
+				query += " and " + Task.CONTENT + " is not null and not "
+						+ Task.CONTENT + " =''";
+			}
+			if (reminder) {
+				query += " and " + Task.REMINDER + " is not null";
+			}
+			if (listId > 0) {
+				query += " and " + Task.LIST_ID + "=" + listId;
+			} else {
+				String where = ((SpecialList) ListMirakel.getList(listId))
+						.getWhereQuery(false);
+				Log.d(TAG, where);
+				if (where != null && !where.trim().equals("")) {
+					query += " and " + where;
+				}
+			}
+		}
+		query += ";";
+		Log.d(TAG, query);
+		return query;
+	}
+
+	public static void handleAudioPlayback(final Activity context, final FileMirakel file) {
+
+		new AlertDialog.Builder(context)
+				.setTitle(R.string.audio_playback_select_title)
+				.setItems(
+						context.getResources().getStringArray(
+								R.array.audio_playback_options),
+						new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								switch (which) {
+									case 0: // Open
+										openFile(context, file);
+										break;
+									case 1: // Loud playback
+										playbackFile(context, file, true);
+										break;
+									default: // Silent playback // For later
+										playbackFile(context, file, false);
+										break;
+								}
+							}
+						}).show();
+
+	}
+
+	public static void handleAudioRecord(final Context context, final Task task, final ExecInterfaceWithTask onSuccess) {
+		audio_record_mRecorder = new MediaRecorder();
+		audio_record_mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+		audio_record_mRecorder
+				.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+		audio_record_filePath = FileUtils.getOutputMediaFile(
+				FileUtils.MEDIA_TYPE_AUDIO).getAbsolutePath();
+		audio_record_mRecorder.setOutputFile(audio_record_filePath);
+		audio_record_mRecorder
+				.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+		try {
+			audio_record_mRecorder.prepare();
+		} catch (IOException e) {
+			Log.e(TAG, "prepare() failed");
+		}
+		audio_record_mRecorder.start();
+		audio_record_alert_dialog = new AlertDialog.Builder(context)
+				.setTitle(R.string.audio_record_title)
+				.setMessage(R.string.audio_record_message)
+				.setPositiveButton(android.R.string.ok,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								Task mTask = task;
+								if (task == null || task.getId() == 0) {
+									mTask = Semantic.createTask(
+											MirakelPreferences
+													.getAudioDefaultTitle(),
+											task==null?MirakelPreferences.getImportDefaultList(true):task.getList(), true, context);
+								}
+								audio_record_mRecorder.stop();
+								audio_record_mRecorder.release();
+								audio_record_mRecorder = null;
+								mTask.addFile(context, audio_record_filePath);
+								onSuccess.exec(mTask);
+							}
+						})
+				.setNegativeButton(android.R.string.cancel,
+						new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								cancelRecording();
+
+							}
+						}).setOnCancelListener(new OnCancelListener() {
+					@Override
+					public void onCancel(DialogInterface dialog) {
+						cancelRecording();
+					}
+				}).show();
+	}
+
+	public static void handleDeleteFile(final List<FileMirakel> selectedItems, Context ctx, final Task t, final TaskFragmentAdapter adapter) {
+		if (selectedItems.size() < 1) return;
+		String files = selectedItems.get(0).getName();
+		for (int i = 1; i < selectedItems.size(); i++) {
+			files += ", " + selectedItems.get(i).getName();
+		}
+		new AlertDialog.Builder(ctx)
+				.setTitle(ctx.getString(R.string.remove_files))
+				.setMessage(
+						ctx.getString(R.string.remove_files_summary, files,
+								t.getName()))
+				.setPositiveButton(android.R.string.ok,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								for (FileMirakel f : selectedItems) {
+									f.destroy();
+								}
+								adapter.setData(t);
+
+							}
+						})
+				.setNegativeButton(android.R.string.cancel, dialogDoNothing)
+				.show();
+
+	}
 
 	public static void handlePriority(final Context ctx, final Task task, final Helpers.ExecInterface onSuccess) {
 
@@ -104,51 +278,6 @@ public class TaskDialogHelpers {
 					}
 				});
 		builder.show();
-	}
-
-	private static void safeSafeTask(Context context, Task task) {
-		try {
-			task.save();
-		} catch (NoSuchListException e) {
-			Toast.makeText(context, R.string.list_vanished, Toast.LENGTH_LONG)
-					.show();
-		}
-	}
-
-	public static void handleReminder(final Activity ctx, final Task task, final ExecInterface onSuccess, boolean dark) {
-		final Calendar reminder = (task.getReminder() == null ? new GregorianCalendar()
-				: task.getReminder());
-
-		final FragmentManager fm = ((MainActivity) ctx)
-				.getSupportFragmentManager();
-		final DateTimeDialog dtDialog = DateTimeDialog.newInstance(
-				new OnDateTimeSetListner() {
-
-					@Override
-					public void onDateTimeSet(int year, int month, int dayOfMonth, int hourOfDay, int minute) {
-						reminder.set(Calendar.YEAR, year);
-						reminder.set(Calendar.MONTH, month);
-						reminder.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-						reminder.set(Calendar.HOUR_OF_DAY, hourOfDay);
-						reminder.set(Calendar.MINUTE, minute);
-						task.setReminder(reminder);
-						safeSafeTask(ctx, task);
-						onSuccess.exec();
-
-					}
-
-					@Override
-					public void onNoTimeSet() {
-						task.setReminder(null);
-						((MainActivity) ctx).saveTask(task);
-						onSuccess.exec();
-
-					}
-				}, reminder.get(Calendar.YEAR), reminder.get(Calendar.MONTH),
-				reminder.get(Calendar.DAY_OF_MONTH),
-				reminder.get(Calendar.HOUR_OF_DAY),
-				reminder.get(Calendar.MINUTE), true, dark);
-		dtDialog.show(fm, "datetimedialog");
 	}
 
 	public static void handleRecurrence(final Activity activity, final Task task, final boolean isDue, final ImageButton image, boolean dark) {
@@ -189,58 +318,81 @@ public class TaskDialogHelpers {
 					}
 
 					@Override
-					public void OnRecurrenceSet(Recurring r) {
-						setRecurence(task, isDue, r.getId(), activity, image);
-
+					public void onNoRecurrenceSet() {
+						setRecurence(task, isDue, -1, activity, image);
 					}
 
 					@Override
-					public void onNoRecurrenceSet() {
-						setRecurence(task, isDue, -1, activity, image);
+					public void OnRecurrenceSet(Recurring r) {
+						setRecurence(task, isDue, r.getId(), activity, image);
+
 					}
 
 				}, r, isDue, dark, isExact);
 		rp.show(fm, "reccurence");
 
 	}
+	public static void handleReminder(final Activity ctx, final Task task, final ExecInterface onSuccess, boolean dark) {
+		final Calendar reminder = task.getReminder() == null ? new GregorianCalendar()
+				: task.getReminder();
 
-	public static void handleDeleteFile(final List<FileMirakel> selectedItems, Context ctx, final Task t, final TaskFragmentAdapter adapter) {
-		if (selectedItems.size() < 1) {
-			return;
-		}
-		String files = selectedItems.get(0).getName();
-		for (int i = 1; i < selectedItems.size(); i++) {
-			files += ", " + selectedItems.get(i).getName();
+		final FragmentManager fm = ((MainActivity) ctx)
+				.getSupportFragmentManager();
+		final DateTimeDialog dtDialog = DateTimeDialog.newInstance(
+				new OnDateTimeSetListner() {
+
+					@Override
+					public void onDateTimeSet(int year, int month, int dayOfMonth, int hourOfDay, int minute) {
+						reminder.set(Calendar.YEAR, year);
+						reminder.set(Calendar.MONTH, month);
+						reminder.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+						reminder.set(Calendar.HOUR_OF_DAY, hourOfDay);
+						reminder.set(Calendar.MINUTE, minute);
+						task.setReminder(reminder);
+						safeSafeTask(ctx, task);
+						onSuccess.exec();
+
+					}
+
+					@Override
+					public void onNoTimeSet() {
+						task.setReminder(null);
+						((MainActivity) ctx).saveTask(task);
+						onSuccess.exec();
+
+					}
+				}, reminder.get(Calendar.YEAR), reminder.get(Calendar.MONTH),
+				reminder.get(Calendar.DAY_OF_MONTH),
+				reminder.get(Calendar.HOUR_OF_DAY),
+				reminder.get(Calendar.MINUTE), true, dark);
+		dtDialog.show(fm, "datetimedialog");
+	}
+	public static void handleRemoveSubtask(final List<Task> subtasks, Context ctx, final TaskFragmentAdapter adapter, final Task task) {
+		if (subtasks.size() == 0) return;
+		String names = subtasks.get(0).getName();
+		for (int i = 1; i < subtasks.size(); i++) {
+			names += ", " + subtasks.get(i).getName();
 		}
 		new AlertDialog.Builder(ctx)
-				.setTitle(ctx.getString(R.string.remove_files))
+				.setTitle(ctx.getString(R.string.remove_subtask))
 				.setMessage(
-						ctx.getString(R.string.remove_files_summary, files,
-								t.getName()))
+						ctx.getString(R.string.remove_files_summary, names,
+								task.getName()))
 				.setPositiveButton(android.R.string.ok,
 						new DialogInterface.OnClickListener() {
+
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
-								for (FileMirakel f : selectedItems) {
-									f.destroy();
+								for (Task s : subtasks) {
+									task.deleteSubtask(s);
 								}
-								adapter.setData(t);
-
+								adapter.setData(task);
 							}
 						})
 				.setNegativeButton(android.R.string.cancel, dialogDoNothing)
 				.show();
 
 	}
-
-	private static String			searchString;
-	private static boolean			done;
-	private static boolean			content;
-	private static boolean			reminder;
-	private static int				listId;
-	private static boolean			optionEnabled;
-	private static boolean			newTask;
-	private static SubtaskAdapter	subtaskAdapter;
 
 	public static void handleSubtask(final Context ctx, final Task task, final TaskFragmentAdapter adapter, final boolean asSubtask) {
 		final List<Pair<Long, String>> names = Task.getTaskNames();
@@ -252,6 +404,7 @@ public class TaskDialogHelpers {
 				R.layout.select_subtask, null, false);
 		final ListView lv = (ListView) v.findViewById(R.id.subtask_listview);
 		new Thread(new Runnable() {
+			@Override
 			public void run() {
 				Looper.prepare();
 				subtaskAdapter = new SubtaskAdapter(ctx, 0, Task.all(), task,
@@ -277,9 +430,8 @@ public class TaskDialogHelpers {
 		search.addTextChangedListener(new TextWatcher() {
 
 			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				searchString = s.toString();
-				updateListView(subtaskAdapter, task, lv);
+			public void afterTextChanged(Editable s) {
+				// Nothing
 
 			}
 
@@ -290,8 +442,9 @@ public class TaskDialogHelpers {
 			}
 
 			@Override
-			public void afterTextChanged(Editable s) {
-				// Nothing
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				searchString = s.toString();
+				updateListView(subtaskAdapter, task, lv);
 
 			}
 		});
@@ -477,6 +630,7 @@ public class TaskDialogHelpers {
 				.show();
 
 		newTaskEdit.setOnEditorActionListener(new OnEditorActionListener() {
+			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_SEND) {
 					newSubtask(v.getText().toString(), task, ctx);
@@ -503,182 +657,6 @@ public class TaskDialogHelpers {
 		return t;
 	}
 
-	protected static String generateQuery(Task t) {
-		String col = Task.allColumns[0];
-		for (int i = 1; i < Task.allColumns.length; i++) {
-			col += "," + Task.allColumns[i];
-		}
-		String query = "SELECT " + col + " FROM " + Task.TABLE
-				+ " WHERE name LIKE '%" + searchString + "%' AND";
-		query += " NOT _id IN (SELECT parent_id from " + Task.SUBTASK_TABLE
-				+ " where child_id=" + t.getId() + ") AND ";
-		query += "NOT " + DatabaseHelper.ID + "=" + t.getId();
-		query += " AND NOT " + SyncAdapter.SYNC_STATE + "=" + SYNC_STATE.DELETE;
-		if (optionEnabled) {
-			if (!done) {
-				query += " and " + Task.DONE + "=0";
-			}
-			if (content) {
-				query += " and " + Task.CONTENT + " is not null and not "
-						+ Task.CONTENT + " =''";
-			}
-			if (reminder) {
-				query += " and " + Task.REMINDER + " is not null";
-			}
-			if (listId > 0) {
-				query += " and " + Task.LIST_ID + "=" + listId;
-			} else {
-				String where = ((SpecialList) ListMirakel.getList(listId))
-						.getWhereQuery(false);
-				Log.d(TAG, where);
-				if (where != null && !where.trim().equals(""))
-					query += " and " + where;
-			}
-		}
-		query += ";";
-		Log.d(TAG, query);
-		return query;
-	}
-
-	public static void handleRemoveSubtask(final List<Task> subtasks, Context ctx, final TaskFragmentAdapter adapter, final Task task) {
-		if (subtasks.size() == 0) return;
-		String names = subtasks.get(0).getName();
-		for (int i = 1; i < subtasks.size(); i++) {
-			names += ", " + subtasks.get(i).getName();
-		}
-		new AlertDialog.Builder(ctx)
-				.setTitle(ctx.getString(R.string.remove_subtask))
-				.setMessage(
-						ctx.getString(R.string.remove_files_summary, names,
-								task.getName()))
-				.setPositiveButton(android.R.string.ok,
-						new DialogInterface.OnClickListener() {
-
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								for (Task s : subtasks) {
-									task.deleteSubtask(s);
-								}
-								adapter.setData(task);
-							}
-						})
-				.setNegativeButton(android.R.string.cancel, dialogDoNothing)
-				.show();
-
-	}
-
-	private static void updateListView(final SubtaskAdapter a, final Task t, final ListView lv) {
-		if (t == null || a == null || lv == null) return;
-		new Thread(new Runnable() {
-			public void run() {
-				List<Task> tasks = Task.rawQuery(generateQuery(t));
-				if (tasks == null) return;
-
-				a.setData(tasks);
-				lv.post(new Runnable() {
-
-					@Override
-					public void run() {
-						a.notifyDataSetChanged();
-
-					}
-				});
-
-			}
-		}).start();
-
-	}
-
-	private static void setRecurence(final Task task, final boolean isDue, int id, Context ctx, ImageButton image) {
-		if (isDue) {
-			Recurring.destroyTemporary(task.getRecurrenceId());
-			task.setRecurrence(id);
-		} else {
-			Recurring.destroyTemporary(task.getRecurringReminderId());
-			task.setRecurringReminder(id);
-		}
-		TaskFragmentAdapter.setRecurringImage(image, ctx, id);
-		task.safeSave();
-	}
-
-	private static MediaRecorder	audio_record_mRecorder;
-	private static AlertDialog		audio_record_alert_dialog;
-	private static String			audio_record_filePath;
-
-	public static void stopRecording() {
-		if (audio_record_mRecorder != null) {
-			try {
-				cancelRecording();
-				audio_record_alert_dialog.dismiss();
-			} catch (Exception e) {
-
-			}
-
-		}
-	}
-
-	private static void cancelRecording() {
-		audio_record_mRecorder.stop();
-		audio_record_mRecorder.release();
-		audio_record_mRecorder = null;
-		try {
-			new File(audio_record_filePath).delete();
-		} catch (Exception e) {}
-	}
-
-	public static void handleAudioRecord(final Context context, final Task task, final ExecInterfaceWithTask onSuccess) {
-		audio_record_mRecorder = new MediaRecorder();
-		audio_record_mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-		audio_record_mRecorder
-				.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-		audio_record_filePath = FileUtils.getOutputMediaFile(
-				FileUtils.MEDIA_TYPE_AUDIO).getAbsolutePath();
-		audio_record_mRecorder.setOutputFile(audio_record_filePath);
-		audio_record_mRecorder
-				.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-		try {
-			audio_record_mRecorder.prepare();
-		} catch (IOException e) {
-			Log.e(TAG, "prepare() failed");
-		}
-		audio_record_mRecorder.start();
-		audio_record_alert_dialog = new AlertDialog.Builder(context)
-				.setTitle(R.string.audio_record_title)
-				.setMessage(R.string.audio_record_message)
-				.setPositiveButton(android.R.string.ok,
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								Task mTask = task;
-								if (task == null || task.getId() == 0) {
-									mTask = Semantic.createTask(
-											MirakelPreferences
-													.getAudioDefaultTitle(),
-											task.getList(), true, context);
-								}
-								audio_record_mRecorder.stop();
-								audio_record_mRecorder.release();
-								audio_record_mRecorder = null;
-								mTask.addFile(context, audio_record_filePath);
-								onSuccess.exec(mTask);
-							}
-						})
-				.setNegativeButton(android.R.string.cancel,
-						new DialogInterface.OnClickListener() {
-
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								cancelRecording();
-
-							}
-						}).setOnCancelListener(new OnCancelListener() {
-					@Override
-					public void onCancel(DialogInterface dialog) {
-						cancelRecording();
-					}
-				}).show();
-	}
-
 	public static void openFile(Context context, FileMirakel file) {
 		String mimetype = FileUtils.getMimeType(file.getPath());
 		Intent i2 = new Intent();
@@ -693,9 +671,6 @@ public class TaskDialogHelpers {
 		}
 	}
 
-	private static boolean		audio_playback_playing;
-	private static AlertDialog	audio_playback_dialog;
-
 	public static void playbackFile(final Activity context, FileMirakel file, boolean loud) {
 		final MediaPlayer mPlayer = new MediaPlayer();
 
@@ -709,8 +684,9 @@ public class TaskDialogHelpers {
 
 		try {
 			mPlayer.reset();
-			if (!loud)
+			if (!loud) {
 				mPlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+			}
 			mPlayer.setDataSource(file.getPath());
 			mPlayer.prepare();
 			mPlayer.start();
@@ -771,30 +747,58 @@ public class TaskDialogHelpers {
 		audio_playback_dialog.show();
 	}
 
-	public static void handleAudioPlayback(final Activity context, final FileMirakel file) {
+	private static void safeSafeTask(Context context, Task task) {
+		try {
+			task.save();
+		} catch (NoSuchListException e) {
+			Toast.makeText(context, R.string.list_vanished, Toast.LENGTH_LONG)
+					.show();
+		}
+	}
+	private static void setRecurence(final Task task, final boolean isDue, int id, Context ctx, ImageButton image) {
+		if (isDue) {
+			Recurring.destroyTemporary(task.getRecurrenceId());
+			task.setRecurrence(id);
+		} else {
+			Recurring.destroyTemporary(task.getRecurringReminderId());
+			task.setRecurringReminder(id);
+		}
+		TaskFragmentAdapter.setRecurringImage(image, ctx, id);
+		task.safeSave();
+	}
 
-		new AlertDialog.Builder(context)
-				.setTitle(R.string.audio_playback_select_title)
-				.setItems(
-						context.getResources().getStringArray(
-								R.array.audio_playback_options),
-						new DialogInterface.OnClickListener() {
+	public static void stopRecording() {
+		if (audio_record_mRecorder != null) {
+			try {
+				cancelRecording();
+				audio_record_alert_dialog.dismiss();
+			} catch (Exception e) {
 
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								switch (which) {
-									case 0: // Open
-										openFile(context, file);
-										break;
-									case 1: // Loud playback
-										playbackFile(context, file, true);
-										break;
-									default: // Silent playback // For later
-										playbackFile(context, file, false);
-										break;
-								}
-							}
-						}).show();
+			}
+
+		}
+	}
+
+	private static void updateListView(final SubtaskAdapter a, final Task t, final ListView lv) {
+		if (t == null || a == null || lv == null) return;
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				List<Task> tasks = Task.rawQuery(generateQuery(t));
+				if (tasks == null) return;
+
+				a.setData(tasks);
+				lv.post(new Runnable() {
+
+					@Override
+					public void run() {
+						a.notifyDataSetChanged();
+
+					}
+				});
+
+			}
+		}).start();
 
 	}
 }

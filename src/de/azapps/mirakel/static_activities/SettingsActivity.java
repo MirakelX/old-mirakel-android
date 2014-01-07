@@ -29,7 +29,6 @@ import android.view.MenuItem;
 import android.widget.ListAdapter;
 import android.widget.Toast;
 import de.azapps.mirakel.adapter.SettingsAdapter;
-import de.azapps.mirakel.helper.Log;
 import de.azapps.mirakel.helper.MirakelPreferences;
 import de.azapps.mirakel.helper.export_import.AnyDoImport;
 import de.azapps.mirakel.helper.export_import.ExportImport;
@@ -37,6 +36,7 @@ import de.azapps.mirakel.helper.export_import.WunderlistImport;
 import de.azapps.mirakel.settings.taskfragment.TaskFragmentSettingsFragment;
 import de.azapps.mirakelandroid.R;
 import de.azapps.tools.FileUtils;
+import de.azapps.tools.Log;
 
 public class SettingsActivity extends PreferenceActivity {
 

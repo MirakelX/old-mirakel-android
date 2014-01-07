@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="help_about">
+    <string name="help_about" tools:ignore="UnusedResources">
 <![CDATA[
 Mirakel is easy to use (We hope so). You have three main screens:
 
@@ -12,9 +12,9 @@ Mirakel is easy to use (We hope so). You have three main screens:
 You can switch between the screens by swiping to the right or the left. To open the Lists-Screen you can swipe from the left edge of the device or tap the Mirakel-logo in the Action Bar.
 ]]>
     </string>
-    <string name="help_advanced_title">Advanced Features</string>
-    <string name="help_special_lists_title">Meta lists</string>
-    <string name="help_special_lists">
+    <string name="help_advanced_title" tools:ignore="UnusedResources">Advanced Features</string>
+    <string name="help_special_lists_title" tools:ignore="UnusedResources">Meta lists</string>
+    <string name="help_special_lists" tools:ignore="UnusedResources">
 <![CDATA[
 The Meta lists are lists, where you can not store tasks, but you can define, which tasks should be shown if you open this list. To **configure** this open `Settings→Manage meta lists`. There you can create new lists or change the properties of the old ones.
 
@@ -28,8 +28,8 @@ For example, you want to create a list `Next two weeks`, where you want to show 
 5. You\'re ready. But you can configure a lot more things here.
 ]]>
     </string>
-    <string name="help_semantic_title">Task templates</string>
-    <string name="help_semantic">
+    <string name="help_semantic_title" tools:ignore="UnusedResources">Task templates</string>
+    <string name="help_semantic" tools:ignore="UnusedResources">
 <![CDATA[
 The task templates can speed up your daily use of Mirakel. For example you can create a new Task called `Today plan project` and Mirakel create then a Task `plan project` with the current date as the due date.
 
@@ -53,8 +53,8 @@ You want to create a condition `Mirakel` to put the task in the list `NA: Mirake
 6. Tap `Set List` and select the list `NA: Mirakel` (or the list you want)
 ]]>
     </string>
-    <string name="help_subtasks_title">Subtasks</string>
-    <string name="help_subtasks">
+    <string name="help_subtasks_title" tools:ignore="UnusedResources">Subtasks</string>
+    <string name="help_subtasks" tools:ignore="UnusedResources">
 <![CDATA[
 Subtasks are a nice way to better organize your tasks. You can create for example a new Task `shopping` and create subtasks for every item you want to buy.
 
@@ -65,13 +65,13 @@ Subtasks are a nice way to better organize your tasks. You can create for exampl
 * If you mark a parent task as `done` all subtasks will be marked as `done`
 ]]>
     </string>
-    <string name="help_sync_title">Sync</string>
-    <string name="help_sync">
+    <string name="help_sync_title" tools:ignore="UnusedResources">Sync</string>
+    <string name="help_sync" tools:ignore="UnusedResources">
 <![CDATA[
 ]]>
     </string>
-    <string name="help_sync_taskwarrior_title">Taskwarrior sync</string>
-    <string name="help_sync_taskwarrior">
+    <string name="help_sync_taskwarrior_title" tools:ignore="UnusedResources">Taskwarrior sync</string>
+    <string name="help_sync_taskwarrior" tools:ignore="UnusedResources">
 <![CDATA[
 You can sync your tasks with [Taskwarrior](http://taskwarrior.org/projects/show/taskwarrior).
 
@@ -82,15 +82,15 @@ This is the **preferred** (and best tested) way of syncing your tasks. If you wa
 
 ]]>
     </string>
-    <string name="help_sync_caldav_title">CalDAV sync</string>
-    <string name="help_sync_caldav">
+    <string name="help_sync_caldav_title" tools:ignore="UnusedResources">CalDAV sync</string>
+    <string name="help_sync_caldav" tools:ignore="UnusedResources">
 <![CDATA[
 #### CalDAV-Sync
 For the CalDAV Sync you need an app which supports the synchronisation with Mirakel. We use [DAVdroid](https://play.google.com/store/apps/details?id=at.bitfire.davdroid) ([F-Droid](https://f-droid.org/repository/browse/?fdid=at.bitfire.davdroid)).
 Currently you have to install our modified version of DAVdroid: http://mirakel.azapps.de/davdroid.apk
     ]]>
     </string>
-    <string name="play_store_description">
+    <string name="play_store_description" tools:ignore="UnusedResources">
 <![CDATA[
 Easy task management for professionals! 
 
@@ -124,15 +124,15 @@ https://github.com/azapps/mirakel-android/
 Mirakel is free Software (licensed under the GPLv3). You can find the sourcecode at: http://mirakel.azapps.de
     ]]>
     </string>
-    <string name="list_friends">Friends</string>
-    <string name="list_home">At Home</string>
-    <string name="list_work">At work</string>
-    <string name="meet_alice">Meet Alice</string>
-    <string name="invitations">Send invitations</string>
-    <string name="invitations_content">For the great party</string>
-    <string name="review">Organize meeting</string>
-    <string name="review_content">With all colleges</string>
-    <string name="wash_dishes">Wash the dishes</string>
-    <string name="presentation">Finalize presentation</string>
+    <string name="list_friends" tools:ignore="UnusedResources">Friends</string>
+    <string name="list_home" tools:ignore="UnusedResources">At Home</string>
+    <string name="list_work" tools:ignore="UnusedResources">At work</string>
+    <string name="meet_alice" tools:ignore="UnusedResources">Meet Alice</string>
+    <string name="invitations" tools:ignore="UnusedResources">Send invitations</string>
+    <string name="invitations_content" tools:ignore="UnusedResources">For the great party</string>
+    <string name="review" tools:ignore="UnusedResources">Organize meeting</string>
+    <string name="review_content" tools:ignore="UnusedResources">With all colleges</string>
+    <string name="wash_dishes" tools:ignore="UnusedResources">Wash the dishes</string>
+    <string name="presentation" tools:ignore="UnusedResources">Finalize presentation</string>
 
 </resources>

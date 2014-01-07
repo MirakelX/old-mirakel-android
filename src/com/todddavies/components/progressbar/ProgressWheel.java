@@ -1,5 +1,6 @@
 package com.todddavies.components.progressbar;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -61,6 +62,7 @@ public class ProgressWheel extends View {
 	private int spinSpeed = 2;
 	//The number of milliseconds to wait inbetween each draw
 	private int delayMillis = 0;
+	@SuppressLint("HandlerLeak")
 	private Handler spinHandler = new Handler() {
 		/**
 		 * This is the code that will increment the progress variable

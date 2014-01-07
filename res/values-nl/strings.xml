@@ -159,8 +159,8 @@ Device: %3$s\n]]>
   <string name="photo_default_title">Bekijk deze foto</string>
   <string name="audio_default_title">Luister naar dat!</string>
   <string name="edit">Wijzig</string>
-  <string name="audio_record_title">Audio opname...</string>
-  <string name="audio_record_message">Opname...</string>
+  <string name="audio_record_title">Audio opname&#8230;</string>
+  <string name="audio_record_message">Opname&#8230;</string>
   <string name="audio_playback_title">
 Audio afspelen…</string>
   <string name="audio_playback_select_title">Wat wilt u doen?</string>

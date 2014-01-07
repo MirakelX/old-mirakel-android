@@ -5,17 +5,6 @@
     android:layout_width="@dimen/date_picker_component_width"
     style="?android:attr/buttonBarStyle"
     android:layout_height="wrap_content">
-
-    <Button
-        android:textSize="@dimen/done_label_size"
-        android:textColor="@color/done_text_color"
-        android:id="@id/done"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:minHeight="48dip"
-        android:layout_weight="1"
-        style="?android:attr/buttonBarButtonStyle"
-        android:text="@android:string/ok"/>
      <Button
         android:textSize="@dimen/done_label_size"
         android:textColor="@color/done_text_color"
@@ -26,4 +15,14 @@
         android:minHeight="48dip"
         android:layout_weight="1"
         android:text="@string/no_date"/>
+     <Button
+        android:textSize="@dimen/done_label_size"
+        android:textColor="@color/done_text_color"
+        android:id="@id/done"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:minHeight="48dip"
+        android:layout_weight="1"
+        style="?android:attr/buttonBarButtonStyle"
+        android:text="@android:string/ok"/>
 </LinearLayout>

@@ -44,6 +44,7 @@ import de.azapps.mirakel.model.list.ListMirakel;
 import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakel.static_activities.SplashScreenActivity;
 import de.azapps.mirakelandroid.R;
+import de.azapps.tools.Log;
 
 public class Helpers {
 	private static String	TAG	= "Helpers";

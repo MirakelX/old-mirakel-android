@@ -16,42 +16,10 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.azapps.mirakel.helper;
+package de.azapps.mirakel;
 
-import de.azapps.mirakel.Mirakel;
-import de.azapps.mirakelandroid.BuildConfig;
+public class Constants {
 
+	public static final boolean	IS_PLAYSTORE	= false;
 
-public class BuildHelper {
-	// public static boolean DEBUG=false;
-	// private static boolean PLAYSTORE_RELEASE=false;
-	public static boolean isBeta() {
-		return !BuildConfig.DEBUG;
-	}
-
-	public static boolean isDebug(){
-		return BuildConfig.DEBUG;
-	}
-
-	public static boolean isForFDroid() {
-		//	return !PLAYSTORE_RELEASE;
-		return !Mirakel.IS_PLAYSTORE;
-	}
-
-	public static boolean isForPlayStore() {
-		//	return PLAYSTORE_RELEASE;
-		return Mirakel.IS_PLAYSTORE;
-	}
-
-	public static boolean isNightly() {
-		return !BuildConfig.DEBUG;
-	}
-
-	public static boolean isRelease() {
-		return BuildConfig.DEBUG;
-	}
-
-	public static boolean useAutoUpdater() {
-		return !(isForPlayStore() || isForFDroid());
-	}
 }

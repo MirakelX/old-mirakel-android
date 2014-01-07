@@ -27,13 +27,14 @@
     android:paddingLeft="@dimen/task_padding"
     android:paddingRight="@dimen/task_padding"
     android:paddingStart="@dimen/task_padding"
-    android:paddingTop="7.5dp" >
+    android:paddingTop="7.5dp" xmlns:tools="http://schemas.android.com/tools">
 
     <ImageView
         android:id="@+id/file_image"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:adjustViewBounds="true" />
+        android:adjustViewBounds="true"
+        tools:ignore="ContentDescription" />
 
     <LinearLayout
         android:layout_width="match_parent"

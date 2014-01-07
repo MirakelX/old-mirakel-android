@@ -73,6 +73,7 @@ import de.azapps.mirakel.sync.mirakel.MirakelSync;
 import de.azapps.mirakel.sync.taskwarrior.TaskWarriorSync;
 import de.azapps.mirakel.widget.MainWidgetSettingsFragment;
 import de.azapps.mirakelandroid.R;
+import de.azapps.tools.Log;
 
 @SuppressLint("SimpleDateFormat")
 public class PreferencesHelper {
@@ -127,7 +128,6 @@ public class PreferencesHelper {
 					public boolean onPreferenceChange(Preference preference, Object newValue) {
 						WidgetHelper.setList(context, widgetId,
 								Integer.parseInt((String) newValue));
-						@SuppressWarnings("hiding")
 						String list = ListMirakel.getList(
 								Integer.parseInt((String) newValue)).getName();
 						widgetListPreference.setSummary(activity.getString(
@@ -703,8 +703,7 @@ public class PreferencesHelper {
 								final List<CharSequence> items = new ArrayList<CharSequence>();
 								final List<Integer> list_ids = new ArrayList<Integer>();
 								int currentItem = 0;
-								for (@SuppressWarnings("hiding")
-								ListMirakel list : ListMirakel.all()) {
+								for (ListMirakel list : ListMirakel.all()) {
 									if (list.getId() > 0) {
 										items.add(list.getName());
 										list_ids.add(list.getId());
@@ -762,7 +761,7 @@ public class PreferencesHelper {
 									.setPositiveButton(android.R.string.ok,
 											new OnClickListener() {
 												@Override
-												public void onClick(DialogInterface dialogInterface, @SuppressWarnings("hiding") int i) {
+												public void onClick(DialogInterface dialogInterface, int i) {
 													Task.deleteDoneTasks();
 													Toast.makeText(
 															activity,
@@ -777,7 +776,7 @@ public class PreferencesHelper {
 									.setNegativeButton(android.R.string.cancel,
 											new OnClickListener() {
 												@Override
-												public void onClick(DialogInterface dialogInterface, @SuppressWarnings("hiding") int i) {}
+												public void onClick(DialogInterface dialogInterface, int i) {}
 											}).show();
 							return true;
 						}
@@ -879,8 +878,7 @@ public class PreferencesHelper {
 																			R.string.undo_number_summary,
 																			val));
 													if (old_val > val) {
-														for (@SuppressWarnings("hiding")
-														int i = val; i < max; i++) {
+														for (int i = val; i < max; i++) {
 															editor.putString(
 																	UndoHistory.UNDO
 																			+ i,

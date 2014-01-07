@@ -126,7 +126,7 @@
                     -->
                 </LinearLayout>
 
-                <com.android.calendar.recurrencepicker.LinearLayoutWithMaxWidth
+                <LinearLayout
                     android:id="@+id/weekGroup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -151,9 +151,9 @@
                     <com.android.calendar.recurrencepicker.WeekButton style="@style/RecurrenceDayOfWeekStyle" />
 
                     <com.android.calendar.recurrencepicker.WeekButton style="@style/RecurrenceDayOfWeekStyle" />
-                </com.android.calendar.recurrencepicker.LinearLayoutWithMaxWidth>
+                </LinearLayout>
 
-                <com.android.calendar.recurrencepicker.LinearLayoutWithMaxWidth
+                <LinearLayout
                     android:id="@+id/weekGroup2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -174,7 +174,7 @@
                     <com.android.calendar.recurrencepicker.WeekButton
                         style="@style/RecurrenceDayOfWeekStyle"
                         android:visibility="invisible" />
-                </com.android.calendar.recurrencepicker.LinearLayoutWithMaxWidth>
+                </LinearLayout>
 
                 <RadioGroup
                     android:id="@+id/monthGroup"

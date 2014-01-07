@@ -45,8 +45,6 @@ import com.google.gson.JsonParser;
 import de.azapps.mirakel.Mirakel;
 import de.azapps.mirakel.Mirakel.NoSuchListException;
 import de.azapps.mirakel.helper.DateTimeHelper;
-import de.azapps.mirakel.helper.Log;
-import de.azapps.mirakel.helper.MirakelPreferences;
 import de.azapps.mirakel.helper.UndoHistory;
 import de.azapps.mirakel.model.DatabaseHelper;
 import de.azapps.mirakel.model.account.AccountMirakel;
@@ -57,6 +55,7 @@ import de.azapps.mirakel.reminders.ReminderAlarm;
 import de.azapps.mirakel.sync.SyncAdapter;
 import de.azapps.mirakel.sync.SyncAdapter.SYNC_STATE;
 import de.azapps.mirakelandroid.R;
+import de.azapps.tools.Log;
 
 public class Task extends TaskBase {
 

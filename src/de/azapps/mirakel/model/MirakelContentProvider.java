@@ -42,7 +42,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import de.azapps.mirakel.helper.DateTimeHelper;
-import de.azapps.mirakel.helper.Log;
 import de.azapps.mirakel.model.account.AccountMirakel;
 import de.azapps.mirakel.model.list.ListMirakel;
 import de.azapps.mirakel.model.list.SpecialList;
@@ -50,6 +49,7 @@ import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakel.sync.SyncAdapter;
 import de.azapps.mirakel.sync.SyncAdapter.SYNC_STATE;
 import de.azapps.mirakelandroid.R;
+import de.azapps.tools.Log;
 
 public class MirakelContentProvider extends ContentProvider implements OnAccountsUpdateListener {
 	// public static final String PROVIDER_NAME = Mirakel.AUTHORITY_TYP;

@@ -23,7 +23,6 @@ import com.google.gson.JsonSyntaxException;
 
 import de.azapps.mirakel.Mirakel;
 import de.azapps.mirakel.Mirakel.NoSuchListException;
-import de.azapps.mirakel.helper.Log;
 import de.azapps.mirakel.model.list.ListMirakel;
 import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakel.sync.DataDownloadCommand;
@@ -31,6 +30,7 @@ import de.azapps.mirakel.sync.Network;
 import de.azapps.mirakel.sync.SyncAdapter;
 import de.azapps.mirakel.sync.SyncAdapter.SYNC_STATE;
 import de.azapps.mirakelandroid.R;
+import de.azapps.tools.Log;
 
 public class MirakelSync {
 	private static final String TAG = "MirakelSync";

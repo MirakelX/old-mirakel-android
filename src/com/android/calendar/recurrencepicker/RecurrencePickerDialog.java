@@ -41,7 +41,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -162,14 +161,7 @@ public class RecurrencePickerDialog extends DialogFragment implements OnCheckedC
 				.inflate(R.layout.recurrencepicker, container);
 		mRecurenceSelection = (Spinner) view.findViewById(R.id.freqSpinner);
 		Resources res = ctx.getResources();
-		boolean isNotTwoRows;
-		try {
-			isNotTwoRows = res.getConfiguration().screenWidthDp > MIN_SCREEN_WIDTH_FOR_SINGLE_ROW_WEEK;
-		} catch (NoSuchFieldError e) {
-			isNotTwoRows = pxToDp(((WindowManager) ctx
-					.getSystemService(Context.WINDOW_SERVICE))
-					.getDefaultDisplay().getWidth()) > MIN_SCREEN_WIDTH_FOR_SINGLE_ROW_WEEK;
-		}
+		boolean isNotTwoRows = res.getConfiguration().screenWidthDp > MIN_SCREEN_WIDTH_FOR_SINGLE_ROW_WEEK;
 		ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(
 				ctx, android.R.layout.simple_spinner_item, items);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

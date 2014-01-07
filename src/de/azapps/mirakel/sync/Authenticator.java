@@ -43,8 +43,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import de.azapps.mirakel.helper.Log;
 import de.azapps.mirakel.model.account.AccountMirakel;
+import de.azapps.tools.Log;
 
 /**
  * This class is an implementation of AbstractAccountAuthenticator for

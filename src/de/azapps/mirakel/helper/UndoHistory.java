@@ -28,6 +28,7 @@ import de.azapps.mirakel.Mirakel;
 import de.azapps.mirakel.Mirakel.NoSuchListException;
 import de.azapps.mirakel.model.list.ListMirakel;
 import de.azapps.mirakel.model.task.Task;
+import de.azapps.tools.Log;
 
 public class UndoHistory {
 	private static final short TASK = 0;

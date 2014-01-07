@@ -37,17 +37,10 @@
             android:layout_width="65dip"
             android:layout_height="70dip"
             android:layout_gravity="center" >
-
-            <LinearLayout
+            <ProgressBar
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center" >
-
-                <ProgressBar
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical" />
-            </LinearLayout>
+                android:layout_gravity="center_vertical" />
         </FrameLayout>
 
         <TextView

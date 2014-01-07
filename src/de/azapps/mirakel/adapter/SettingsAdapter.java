@@ -20,7 +20,6 @@ package de.azapps.mirakel.adapter;
 
 import java.util.List;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.preference.PreferenceActivity.Header;
 import android.view.LayoutInflater;
@@ -32,12 +31,9 @@ import android.widget.TextView;
 import de.azapps.mirakelandroid.R;
 
 public class SettingsAdapter extends ArrayAdapter<Header> {
-
-	@SuppressWarnings("unused")
-	private static final String TAG = "SettingsAdapter";
+//	private static final String TAG = "SettingsAdapter";
 	private LayoutInflater mInflater;
-	@SuppressWarnings("unused")
-	private Context ctx;
+//	private Context ctx;
 
 	public SettingsAdapter(Context context, List<Header> objects) {
 		super(context, 0, objects);

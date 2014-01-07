@@ -35,7 +35,7 @@ import javax.net.ssl.TrustManagerFactory;
 
 import android.os.Build;
 import android.util.Base64;
-import de.azapps.mirakel.helper.Log;
+import de.azapps.tools.Log;
 
 public class TLSClient {
 

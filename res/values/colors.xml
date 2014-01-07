@@ -29,7 +29,6 @@
     <color name="White">#FFFFFF</color>
     <color name="highlighted_text_holo_dark">#6633b5e5</color>
     <color name="highlighted_text_holo_light">#6633b5e5</color>
-    <color name="holo_blue_dark">#ff0099cc</color>
     <color name="holo_blue_light">#ff33b5e5</color>
     <color name="holo_orange_dark">#ffff8800</color>
     <color name="holo_red_dark">#ffcc0000</color>

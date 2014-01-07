@@ -781,7 +781,8 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener {
     /**
      * Announce the currently-selected time when launched.
      */
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
         if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             // Clear the event's current text so that only the current time will be spoken.

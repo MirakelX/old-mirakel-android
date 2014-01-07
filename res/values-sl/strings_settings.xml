@@ -31,7 +31,7 @@ Dodati je treba račun v tak program in usklajevanje bi moralo samodejno delovat
   <string name="sync_taskwarrior_how_to">Kako nastaviti lasten strežnik</string>
   <string name="sync_taskwarrior_own_server">ali pa enostavno uporabite lasten strežnik</string>
   <string name="sync_taskwarrior_url_error">Naslov URL ni pravilen. Ali je prebrana prava koda QR?</string>
-  <string name="sync_taskwarrior_configuring">Nastavljanje usklajevanja ...</string>
+  <string name="sync_taskwarrior_configuring">Nastavljanje usklajevanja &#8230;</string>
   <string name="sync_taskwarrior_about">Če že imate račun strežnika taskwarrior:</string>
   <string name="sync_taskwarrior_register">Lahko vpišete nov račun na našem strežniku:</string>
   <string name="sync_taskwarrior_register_button">Vpis</string>
@@ -97,7 +97,7 @@ Dodati je treba račun v tak program in usklajevanje bi moralo samodejno delovat
   <string name="any_do_this_file">Uvozi iz %s?\nČe želite podatke uvoziti ročno, izberite datoteko</string>
   <string name="any_do_how_to">Najprej naredite varnostno kopijo podatkov Any.Do. To storite v programu Any.Do v meniju Nastavitve → Varnostna kopija → Ustvari varnostno kopijo. Ko to storite, odprite spet program Mirakel in pritisnite gumb V redu.\n Ali pa seveda, izberite datoteko sami.</string>
   <string name="select_file">Izbor datoteke</string>
-  <string name="wait">Počakajte ...</string>
+  <string name="wait">Počakajte &#8230;</string>
   <string name="import_wunderlist_click">Uvozi iz programa Wunderlist</string>
   <string name="import_wunderlist_title">Izbor datoteke Wunderlist</string>
   <string name="import_wunderlist_howto">Kako uvoziti iz programa Wunderlist</string>
@@ -147,7 +147,7 @@ Dodati je treba račun v tak program in usklajevanje bi moralo samodejno delovat
   <string name="preferences_colorize">Barve</string>
   <string name="preferences_colorize_tasks">Obarvaj naloge</string>
   <string name="preferences_colorize_tasks_everywhere">Ali naj se obarvajo naloge vseh seznamov</string>
-  <string name="preferences_colorize_tasks_everywhere_summary">... ali le naloge na meta-seznamih?</string>
+  <string name="preferences_colorize_tasks_everywhere_summary">&#8230; ali le naloge na meta-seznamih?</string>
   <string name="settings_semantics_title">Nastavitev predloge naloge</string>
   <string name="settings_semantics_condition">Pogoj</string>
   <string name="settings_semantics_actions">Dejanja</string>

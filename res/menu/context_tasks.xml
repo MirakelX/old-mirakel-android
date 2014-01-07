@@ -2,14 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="missingTitle" >
-        <item
+    <item
         android:id="@+id/menu_delete"
-        android:showAsAction="always"
+        android:showAsAction="ifRoom"
         android:icon="@android:drawable/ic_menu_delete"
         android:title="@string/menu_delete_task"/>
     <item
         android:id="@+id/menu_move"
-        android:showAsAction="always"
+        android:showAsAction="ifRoom"
         android:icon="@android:drawable/ic_menu_set_as"
         android:title="@string/menu_move_task"/>
     <item

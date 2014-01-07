@@ -31,9 +31,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Pair;
 import android.util.SparseBooleanArray;
 import de.azapps.mirakel.helper.DateTimeHelper;
-import de.azapps.mirakel.helper.Log;
 import de.azapps.mirakel.model.DatabaseHelper;
 import de.azapps.mirakel.model.task.Task;
+import de.azapps.tools.Log;
 
 public class Recurring extends RecurringBase {
 	public final static String		TABLE		= "recurring";

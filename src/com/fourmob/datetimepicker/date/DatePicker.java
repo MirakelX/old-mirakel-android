@@ -31,9 +31,9 @@ import com.fourmob.datetimepicker.Utils;
 import com.fourmob.datetimepicker.date.SimpleMonthAdapter.CalendarDay;
 import com.nineoldandroids.animation.ObjectAnimator;
 
-import de.azapps.mirakel.helper.Log;
 import de.azapps.mirakel.helper.MirakelPreferences;
 import de.azapps.mirakelandroid.R;
+import de.azapps.tools.Log;
 
 public class DatePicker extends LinearLayout implements View.OnClickListener,
 		DatePickerController {
@@ -239,11 +239,6 @@ public class DatePicker extends LinearLayout implements View.OnClickListener,
 	}
 
 	private void initLayout() {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			View v = layout.findViewById(R.id.datepicker_dialog);
-			v.setBackgroundColor(ctx.getResources().getColor(
-					mDark ? android.R.color.black : android.R.color.white));
-		}
 		this.mDayOfWeekView = ((TextView) layout
 				.findViewById(R.id.date_picker_header));
 		this.mMonthAndDayView = ((LinearLayout) layout

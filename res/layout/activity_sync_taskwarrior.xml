@@ -15,6 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        style="?android:attr/buttonBarStyle"
         android:weightSum="1.0" >
 
         <Button
@@ -22,6 +23,7 @@
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight=".5"
+            style="?android:attr/buttonBarButtonStyle" 
             android:text="@string/sync_taskwarrior_scan_qr" />
 
         <Button
@@ -29,6 +31,7 @@
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight=".5"
+            style="?android:attr/buttonBarButtonStyle" 
             android:text="@string/sync_taskwarrior_select_file" />
     </LinearLayout>
 

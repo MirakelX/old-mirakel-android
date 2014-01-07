@@ -35,7 +35,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import de.azapps.mirakel.Mirakel;
-import de.azapps.mirakel.helper.Log;
 import de.azapps.mirakel.helper.MirakelPreferences;
 import de.azapps.mirakel.helper.UndoHistory;
 import de.azapps.mirakel.model.DatabaseHelper;
@@ -44,6 +43,7 @@ import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakel.sync.SyncAdapter;
 import de.azapps.mirakel.sync.SyncAdapter.SYNC_STATE;
 import de.azapps.mirakelandroid.R;
+import de.azapps.tools.Log;
 
 /**
  * @author az
@@ -275,9 +275,9 @@ public class ListMirakel extends ListBase {
 	 * @param context
 	 *        The Application-Context
 	 */
-	public static void init(@SuppressWarnings("hiding") Context context) {
-		ListMirakel.context = context;
-		dbHelper = new DatabaseHelper(context);
+	public static void init(Context ctx) {
+		ListMirakel.context = ctx;
+		dbHelper = new DatabaseHelper(ctx);
 		database = dbHelper.getWritableDatabase();
 	}
 

@@ -60,7 +60,6 @@ import de.azapps.mirakel.Mirakel.NoSuchListException;
 import de.azapps.mirakel.helper.Helpers;
 import de.azapps.mirakel.helper.Helpers.ExecInterface;
 import de.azapps.mirakel.helper.Helpers.ExecInterfaceWithTask;
-import de.azapps.mirakel.helper.Log;
 import de.azapps.mirakel.helper.MirakelPreferences;
 import de.azapps.mirakel.helper.TaskDialogHelpers;
 import de.azapps.mirakel.main_activity.MainActivity;
@@ -71,6 +70,7 @@ import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakel.reminders.ReminderAlarm;
 import de.azapps.mirakelandroid.R;
 import de.azapps.tools.FileUtils;
+import de.azapps.tools.Log;
 
 public class TasksFragment extends Fragment {
 	private static final String	TAG				= "TasksFragment";

@@ -18,20 +18,18 @@
  ******************************************************************************/
 package de.azapps.mirakel.settings.special_list;
 
-import android.annotation.TargetApi;
 import android.app.ActionBar;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.view.Gravity;
 import android.widget.ImageButton;
 import de.azapps.mirakel.Mirakel;
 import de.azapps.mirakel.Mirakel.NoSuchListException;
-import de.azapps.mirakel.helper.Log;
 import de.azapps.mirakel.helper.MirakelPreferences;
 import de.azapps.mirakel.model.list.SpecialList;
 import de.azapps.mirakel.settings.ListSettings;
 import de.azapps.mirakelandroid.R;
+import de.azapps.tools.Log;
 
 public class SpecialListsSettingsFragment extends PreferenceFragment {
 	private static final String TAG = "SpecialListsSettingsFragment";

@@ -143,7 +143,7 @@
   <string name="preferences_colorize">Cores</string>
   <string name="preferences_colorize_tasks">Colorir tarefas</string>
   <string name="preferences_colorize_tasks_everywhere">Colorir tarefas globalmente</string>
-  <string name="preferences_colorize_tasks_everywhere_summary">...ou apenas nas meta-listas?</string>
+  <string name="preferences_colorize_tasks_everywhere_summary">&#8230;ou apenas nas meta-listas?</string>
   <string name="settings_semantics_title">Configurar modelos de tarefa</string>
   <string name="settings_semantics_condition">Condição</string>
   <string name="settings_semantics_actions">Ações</string>

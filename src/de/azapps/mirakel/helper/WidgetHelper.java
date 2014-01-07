@@ -28,7 +28,6 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.Toast;

@@ -29,7 +29,8 @@
     <ImageButton
         android:id="@+id/tasks_row_priority"
         android:layout_width="16dp"
-        android:layout_height="16dp" />
+        android:layout_height="16dp"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/tasks_row_due"

@@ -29,11 +29,11 @@
   <string name="task_delete_content">Ali ste prepričani, da želite izbrisati %s?</string>
   <string name="task_menu_sorting">Razvrsti naloge</string>
   <string name="task_sorting_title">Razvrsti naloge po:</string>
-  <string name="task_empty">Ni izbrane naloge ...</string>
+  <string name="task_empty">Ni izbrane naloge &#8230;</string>
   <string name="set_date">Nastavi datum</string>
   <string name="set_time">Nastavi čas</string>
   <string name="action_undo">Razveljavi zadnjo spremembo</string>
-  <string name="add_subtasks">Dodaj podrejeno nalogo ...</string>
+  <string name="add_subtasks">Dodaj podrejeno nalogo &#8230;</string>
   <string name="subtask_list_name">Podrejena naloga</string>
   <string name="remove_files">Odstrani datoteke iz naloge</string>
   <string name="remove_files_summary">Ali želite odstraniti %1$s iz %2$s?</string>
@@ -82,8 +82,8 @@
   <string name="reminder_notification_later">Kasneje</string>
   <string name="reminder_notification_done_confirm">Naloga je označena kot „končana“</string>
   <string name="reminder_notification_later_confirm">Opomnik bo prikazan čez %d minut</string>
-  <string name="list_vanished">Ops! Nalog je izginila! To je lahko napaka programa ...</string>
-  <string name="task_vanished">Ops! Seznam nalog je izginil! To je lahko napaka programa ...</string>
+  <string name="list_vanished">Ops! Nalog je izginila! To je lahko napaka programa &#8230;</string>
+  <string name="task_vanished">Ops! Seznam nalog je izginil! To je lahko napaka programa &#8230;</string>
   <string name="message_try_later">Poskusi uskladiti kasneje</string>
   <string name="message_access_denied">Dostop je zavrnjen! \nAli je uporabljena prava datoteka nastavitev?</string>
   <string name="message_create_socket">Ni mogoče ustvariti vodila!\nAli je omrežna povezava omogočena?</string>
@@ -101,11 +101,11 @@
   <string name="login_activity_loginfail_text_both">Uporabniško ime ali geslo ni veljavno. Zahtevana je prijava v račun Mirakel. Poskusite znova.</string>
   <string name="login_activity_loginfail_text_pwmissing">Vnesite geslo za ta račun.</string>
   <string name="login_activity_newaccount_text">Prijava v račun %s. </string>
-  <string name="ui_activity_authenticating">Overjanje ...</string>
+  <string name="ui_activity_authenticating">Overjanje &#8230;</string>
   <string name="changelog_full_title">Zadnje spremembe</string>
   <string name="changelog_title">Kaj je novega</string>
   <string name="changelog_ok_button">V redu</string>
-  <string name="changelog_show_full">več ...</string>
+  <string name="changelog_show_full">več &#8230;</string>
   <string name="share_using">Souporaba z</string>
   <string name="share_task">Souporabi</string>
   <string name="share_task_title_with_date">%1$s (%2$s)</string>
@@ -126,12 +126,12 @@ Različica SDK: %2$d\n
 Naprava: %3$s\n]]>
     </string>
   <string name="contact_no_client">Ni nameščenega odjemalca elektronske pošte</string>
-  <string name="contact_chooser">Pošlji sporočilo ...</string>
+  <string name="contact_chooser">Pošlji sporočilo &#8230;</string>
   <string name="backup_import_error">Prišlo je do napake med uvažanjem podatkovne zbirke</string>
   <string name="backup_import_ok">Uvoz je uspešno končan. Program Mirakel je treba znova zagnati.</string>
   <string name="backup_export_error">Prišlo je do napake med izvažanjem podatkovne zbirke</string>
   <string name="backup_export_ok">Izvoženo v %s</string>
-  <string name="add_content">Dodaj vsebino ...</string>
+  <string name="add_content">Dodaj vsebino &#8230;</string>
   <string name="task_has_content">Naloga z vsebino</string>
   <string name="permission_group_desc">Dovoljenje za dostop do programa Mirakel</string>
   <string name="permission_group_lbl">Dovoljenja programa</string>
@@ -152,7 +152,7 @@ Naprava: %3$s\n]]>
   <string name="list_change_color">Spremeni barvo</string>
   <string name="set_color">Nastavi barvo</string>
   <string name="unset_color">Brez barve</string>
-  <string name="add_files">Dodaj datoteko ...</string>
+  <string name="add_files">Dodaj datoteko &#8230;</string>
   <string name="file_no_activity">Odpiranje te vrste datoteke ni podprto</string>
   <string name="file_select">Izbor datoteke</string>
   <string name="file_vanished">Ni takšne datoteke</string>
@@ -160,9 +160,9 @@ Naprava: %3$s\n]]>
   <string name="photo_default_title">Seznam izbranih fotografij</string>
   <string name="audio_default_title">Poslušaj to!</string>
   <string name="edit">Uredi</string>
-  <string name="audio_record_title">Zvočno snemanje ...</string>
-  <string name="audio_record_message">Snemanje ...</string>
-  <string name="audio_playback_title">Predvajanje posnetka ...</string>
+  <string name="audio_record_title">Zvočno snemanje &#8230;</string>
+  <string name="audio_record_message">Snemanje &#8230;</string>
+  <string name="audio_playback_title">Predvajanje posnetka &#8230;</string>
   <string name="audio_playback_select_title">Kaj želite storiti?</string>
   <string name="audio_playback_pause">Premor</string>
   <string name="audio_playback_play">Predvajaj</string>

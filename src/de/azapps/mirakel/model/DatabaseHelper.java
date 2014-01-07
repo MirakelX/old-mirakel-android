@@ -29,7 +29,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import de.azapps.mirakel.helper.Helpers;
-import de.azapps.mirakel.helper.Log;
 import de.azapps.mirakel.helper.MirakelPreferences;
 import de.azapps.mirakel.helper.export_import.ExportImport;
 import de.azapps.mirakel.main_activity.MainActivity;
@@ -46,6 +45,7 @@ import de.azapps.mirakel.sync.SyncAdapter.SYNC_STATE;
 import de.azapps.mirakel.sync.mirakel.MirakelSync;
 import de.azapps.mirakel.sync.taskwarrior.TaskWarriorSync;
 import de.azapps.mirakelandroid.R;
+import de.azapps.tools.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -95,7 +95,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		// use a database with a higher version.
 	}
 
-	@SuppressWarnings({ "incomplete-switch", "fallthrough" })
+	@SuppressWarnings({ "fallthrough" })
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		Log.e(DatabaseHelper.class.getName(),

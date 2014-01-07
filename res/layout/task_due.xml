@@ -21,7 +21,7 @@
     android:id="@+id/due_wrapper"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="horizontal" >
+    android:orientation="horizontal" xmlns:tools="http://schemas.android.com/tools">
 
     <TextView
         android:id="@+id/task_due"
@@ -42,6 +42,7 @@
         android:layout_height="match_parent"
         android:layout_marginLeft="5dp"
         android:layout_marginStart="5dp"
-        android:background="@android:drawable/ic_menu_mylocation" />
+        android:background="@android:drawable/ic_menu_mylocation"
+        tools:ignore="ContentDescription" />
 
 </LinearLayout>

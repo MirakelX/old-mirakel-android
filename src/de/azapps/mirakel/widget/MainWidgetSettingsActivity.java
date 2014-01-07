@@ -23,9 +23,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.widget.FrameLayout;
-import de.azapps.mirakel.helper.Log;
 import de.azapps.mirakel.helper.MirakelPreferences;
 import de.azapps.mirakelandroid.R;
+import de.azapps.tools.Log;
 
 public class MainWidgetSettingsActivity extends PreferenceActivity {
 	@SuppressWarnings("unused")

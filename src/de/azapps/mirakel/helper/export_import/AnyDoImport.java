@@ -45,12 +45,12 @@ import com.google.gson.JsonSyntaxException;
 
 import de.azapps.mirakel.Mirakel.NoSuchListException;
 import de.azapps.mirakel.helper.Helpers;
-import de.azapps.mirakel.helper.Log;
 import de.azapps.mirakel.model.list.ListMirakel;
 import de.azapps.mirakel.model.recurring.Recurring;
 import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakel.static_activities.SettingsActivity;
 import de.azapps.mirakelandroid.R;
+import de.azapps.tools.Log;
 
 public class AnyDoImport {
 	private static final String TAG = "AnyDoImport";
@@ -111,6 +111,81 @@ public class AnyDoImport {
 			}
 		}
 		return true;
+	}
+
+	public static void handleImportAnyDo(final Activity activity) {
+		File dir = new File(Environment.getExternalStorageDirectory()
+				+ "/data/anydo/backups");
+		if (dir.isDirectory()) {
+			File lastBackup = null;
+			for (File f : dir.listFiles()) {
+				if (lastBackup == null) {
+					lastBackup = f;
+				} else if (f.getAbsolutePath().compareTo(
+						lastBackup.getAbsolutePath()) > 0) {
+					lastBackup = f;
+				}
+			}
+			final File backupFile = lastBackup;
+			new AlertDialog.Builder(activity)
+			.setTitle(activity.getString(R.string.import_any_do_click))
+			.setMessage(
+					activity.getString(R.string.any_do_this_file,backupFile==null?"":
+						backupFile.getAbsolutePath()))
+						.setPositiveButton(activity.getString(android.R.string.ok),
+								new OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								exec(activity, backupFile == null ? ""
+											: backupFile.getAbsolutePath());
+								android.os.Process
+								.killProcess(android.os.Process
+										.myPid());
+							}
+						})
+						.setNegativeButton(
+								activity.getString(R.string.select_file),
+								new OnClickListener() {
+
+									@Override
+									public void onClick(DialogInterface dialog,
+											int which) {
+										Helpers.showFileChooser(
+												SettingsActivity.FILE_ANY_DO,
+												activity.getString(R.string.any_do_import_title),
+												activity);
+									}
+								}).show();
+		} else {
+			new AlertDialog.Builder(activity)
+			.setTitle(activity.getString(R.string.import_any_do_click))
+			.setMessage(activity.getString(R.string.any_do_how_to))
+			.setPositiveButton(activity.getString(android.R.string.ok),
+					new OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog,
+						int which) {
+					handleImportAnyDo(activity);
+				}
+			})
+			.setNegativeButton(
+					activity.getString(R.string.select_file),
+					new OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog,
+								int which) {
+							Helpers.showFileChooser(
+									SettingsActivity.FILE_ANY_DO,
+									activity.getString(R.string.any_do_import_title),
+									activity);
+						}
+					}).show();
+			// TODO show dialog with tutorial
+		}
 	}
 
 	private static SparseIntArray parseList(JsonObject jsonList,
@@ -202,80 +277,6 @@ public class AnyDoImport {
 			Log.wtf(TAG, "list did vanish");
 		}
 		return contents;
-	}
-
-	public static void handleImportAnyDo(final Activity activity) {
-		File dir = new File(Environment.getExternalStorageDirectory()
-				+ "/data/anydo/backups");
-		if (dir.isDirectory()) {
-			File lastBackup = null;
-			for (File f : dir.listFiles()) {
-				if (lastBackup == null) {
-					lastBackup = f;
-				} else if (f.getAbsolutePath().compareTo(
-						lastBackup.getAbsolutePath()) > 0) {
-					lastBackup = f;
-				}
-			}
-			final File backupFile = lastBackup;
-			new AlertDialog.Builder(activity)
-					.setTitle(activity.getString(R.string.import_any_do_click))
-					.setMessage(
-							activity.getString(R.string.any_do_this_file,
-									backupFile.getAbsolutePath()))
-					.setPositiveButton(activity.getString(android.R.string.ok),
-							new OnClickListener() {
-
-								@Override
-								public void onClick(DialogInterface dialog,
-										int which) {
-									exec(activity, backupFile.getAbsolutePath());
-									android.os.Process
-											.killProcess(android.os.Process
-													.myPid());
-								}
-							})
-					.setNegativeButton(
-							activity.getString(R.string.select_file),
-							new OnClickListener() {
-
-								@Override
-								public void onClick(DialogInterface dialog,
-										int which) {
-									Helpers.showFileChooser(
-											SettingsActivity.FILE_ANY_DO,
-											activity.getString(R.string.any_do_import_title),
-											activity);
-								}
-							}).show();
-		} else {
-			new AlertDialog.Builder(activity)
-					.setTitle(activity.getString(R.string.import_any_do_click))
-					.setMessage(activity.getString(R.string.any_do_how_to))
-					.setPositiveButton(activity.getString(android.R.string.ok),
-							new OnClickListener() {
-
-								@Override
-								public void onClick(DialogInterface dialog,
-										int which) {
-									handleImportAnyDo(activity);
-								}
-							})
-					.setNegativeButton(
-							activity.getString(R.string.select_file),
-							new OnClickListener() {
-
-								@Override
-								public void onClick(DialogInterface dialog,
-										int which) {
-									Helpers.showFileChooser(
-											SettingsActivity.FILE_ANY_DO,
-											activity.getString(R.string.any_do_import_title),
-											activity);
-								}
-							}).show();
-			// TODO show dialog with tutorial
-		}
 	}
 
 }

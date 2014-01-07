@@ -5,7 +5,7 @@
     <item
         android:id="@+id/menu_delete"
         android:title="@string/menu_delete_list"
-        android:showAsAction="always"
+        android:showAsAction="ifRoom"
         android:icon="@android:drawable/ic_menu_delete"/>
     
     <!-- TODO need better icon -->
@@ -13,23 +13,23 @@
         android:id="@+id/menu_color"
         android:icon="@drawable/pencil"
         android:title="@string/menu_color"
-        android:showAsAction="always"/>
+        android:showAsAction="ifRoom"/>
     
     <item
         android:title="@string/share_list"
         android:id="@+id/share_list_from_lists"
-        android:showAsAction="always"
+        android:showAsAction="ifRoom"
         android:icon="@android:drawable/ic_menu_share"/>
     <item
         android:title="@string/menu_edit_list"
         android:id="@+id/edit_list"
-        android:showAsAction="always"
+        android:showAsAction="ifRoom"
         android:icon="@android:drawable/ic_menu_edit"/>
     
     <item
         android:title="@string/menu_edit_listaccount"
         android:id="@+id/edit_listaccount"
-        android:showAsAction="always"
+        android:showAsAction="ifRoom"
         android:icon="@android:drawable/ic_menu_info_details"/>
 
 </menu>
