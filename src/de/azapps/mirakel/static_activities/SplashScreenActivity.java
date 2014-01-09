@@ -18,9 +18,13 @@
  ******************************************************************************/
 package de.azapps.mirakel.static_activities;
 
+import java.util.Locale;
+
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import de.azapps.mirakel.helper.Helpers;
 import de.azapps.mirakel.helper.MirakelPreferences;
 import de.azapps.mirakel.main_activity.MainActivity;
 import de.azapps.mirakel.model.list.ListMirakel;
@@ -31,6 +35,17 @@ import de.azapps.mirakelandroid.R;
 
 public class SplashScreenActivity extends Activity {
 	public static final String	EXIT	= "de.azapps.mirakel.EXIT";
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		finish();
+	}
+
+	@Override
+	public void onConfigurationChanged(final Configuration newConfig) {
+		Locale.setDefault(Helpers.getLocal(this));
+		super.onConfigurationChanged(newConfig);
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +64,9 @@ public class SplashScreenActivity extends Activity {
 			return;
 		}
 		boolean darkTheme = MirakelPreferences.isDark();
-		if (!darkTheme) setTheme(R.style.Theme_SplashScreen);
+		if (!darkTheme) {
+			setTheme(R.style.Theme_SplashScreen);
+		}
 
 		// Intents
 		if (MirakelPreferences.isStartupAllLists()) {
@@ -72,10 +89,5 @@ public class SplashScreenActivity extends Activity {
 			startActivityForResult(intent, 1);
 		}
 
-	}
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		finish();
 	}
 }

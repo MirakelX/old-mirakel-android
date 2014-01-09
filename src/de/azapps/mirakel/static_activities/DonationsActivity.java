@@ -18,9 +18,12 @@
  ******************************************************************************/
 package de.azapps.mirakel.static_activities;
 
+import java.util.Locale;
+
 import org.sufficientlysecure.donations.DonationsFragment;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -28,6 +31,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.MenuItem;
 import de.azapps.mirakel.helper.BuildHelper;
+import de.azapps.mirakel.helper.Helpers;
 import de.azapps.mirakelandroid.R;
 
 public class DonationsActivity extends FragmentActivity {
@@ -76,6 +80,12 @@ public class DonationsActivity extends FragmentActivity {
 			((DonationsFragment) fragment).onActivityResult(requestCode,
 					resultCode, data);
 		}
+	}
+
+	@Override
+	public void onConfigurationChanged(final Configuration newConfig) {
+		Locale.setDefault(Helpers.getLocal(this));
+		super.onConfigurationChanged(newConfig);
 	}
 
 	/**

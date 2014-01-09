@@ -18,24 +18,53 @@
  ******************************************************************************/
 package de.azapps.mirakel.widget;
 
+import java.util.Locale;
+
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.widget.FrameLayout;
+import de.azapps.mirakel.helper.Helpers;
 import de.azapps.mirakel.helper.MirakelPreferences;
 import de.azapps.mirakelandroid.R;
 import de.azapps.tools.Log;
 
 public class MainWidgetSettingsActivity extends PreferenceActivity {
+	private static int			mAppWidgetId	= AppWidgetManager.INVALID_APPWIDGET_ID;
+
 	@SuppressWarnings("unused")
 	private static final String	TAG				= "MainWidgetSettingsActivity";
 
-	private static int			mAppWidgetId	= AppWidgetManager.INVALID_APPWIDGET_ID;
+	@Override
+	protected boolean isValidFragment(String fragmentName) {
+
+		return fragmentName.equals(MainWidgetSettingsFragment.class.getCanonicalName());
+	}
+
+	@Override
+	public void onBackPressed() {
+		/*
+		 * Show Homescreen
+		 */
+		Intent startMain = new Intent(Intent.ACTION_MAIN);
+		startMain.addCategory(Intent.CATEGORY_HOME);
+		startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		startActivity(startMain);
+	}
+
+	@Override
+	public void onConfigurationChanged(final Configuration newConfig) {
+		Locale.setDefault(Helpers.getLocal(this));
+		super.onConfigurationChanged(newConfig);
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		if (MirakelPreferences.isDark()) setTheme(R.style.AppBaseThemeDARK);
+		if (MirakelPreferences.isDark()) {
+			setTheme(R.style.AppBaseThemeDARK);
+		}
 		super.onCreate(savedInstanceState);
 		mAppWidgetId = getIntent().getIntExtra(
 				MainWidgetProvider.EXTRA_WIDGET_ID, 0);
@@ -43,10 +72,11 @@ public class MainWidgetSettingsActivity extends PreferenceActivity {
 		((FrameLayout) findViewById(android.R.id.content)).removeAllViews();
 		MainWidgetSettingsFragment fragment = new MainWidgetSettingsFragment();
 		getFragmentManager().beginTransaction()
-				.replace(android.R.id.content, fragment).commit();
+		.replace(android.R.id.content, fragment).commit();
 		fragment.setup(mAppWidgetId);
 	}
 
+	@Override
 	protected void onPause() {
 		super.onPause();
 		Log.e("WIDGET", "updated");
@@ -62,17 +92,6 @@ public class MainWidgetSettingsActivity extends PreferenceActivity {
 		sendBroadcast(intent);
 		// Finish this activity
 		finish();
-	}
-
-	@Override
-	public void onBackPressed() {
-		/*
-		 * Show Homescreen
-		 */
-		Intent startMain = new Intent(Intent.ACTION_MAIN);
-		startMain.addCategory(Intent.CATEGORY_HOME);
-		startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		startActivity(startMain);
 	}
 
 }

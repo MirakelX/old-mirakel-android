@@ -1,11 +1,13 @@
 package de.azapps.mirakel.static_activities;
 
+import java.util.Locale;
+
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
 import de.azapps.mirakel.helper.Helpers;
 import de.azapps.mirakel.helper.MirakelPreferences;
@@ -39,10 +41,18 @@ public class CreditsActivity extends Activity {
 			{ "Dutch", "Toon van Gerwen" }		};
 
 	@Override
+	public void onConfigurationChanged(final Configuration newConfig) {
+		Locale.setDefault(Helpers.getLocal(this));
+		super.onConfigurationChanged(newConfig);
+	}
+
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		if (MirakelPreferences.isDark()) setTheme(R.style.AppBaseThemeDARK);
+		if (MirakelPreferences.isDark()) {
+			setTheme(R.style.AppBaseThemeDARK);
+		}
 		setContentView(R.layout.activity_credits);
 		TextView creditTextHead = (TextView) findViewById(R.id.credits_text_head);
 		creditTextHead.setText(Html
@@ -52,7 +62,7 @@ public class CreditsActivity extends Activity {
 
 		// Set Libraries
 		String libs = "";
-		for (String[] library : libraries) {
+		for (String[] library : this.libraries) {
 			libs += "<a href=\"" + library[2] + "\"><b>" + library[0]
 					+ "</b></a> (" + library[1] + ")<br />";
 		}
@@ -61,7 +71,7 @@ public class CreditsActivity extends Activity {
 		creditTextLibs.setMovementMethod(LinkMovementMethod.getInstance());
 		// Set translations
 		String trans = "";
-		for (String[] translation : translations) {
+		for (String[] translation : this.translations) {
 			trans += "<b>" + translation[0] + ": </b>" + translation[1]
 					+ "<br/>";
 		}
@@ -74,26 +84,28 @@ public class CreditsActivity extends Activity {
 		creditTextLicense.setMovementMethod(LinkMovementMethod.getInstance());
 	}
 
+	public void onOpenGithubClick() {
+		Helpers.openURL(this, "https://github.com/azapps/mirakel-android");
+	}
+
+	public void onOpenGooglePlusClick() {
+		Helpers.openURL(this,
+				"https://plus.google.com/u/0/communities/110640831388790835840");
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				finish();
 				return true;
+			default:
+				break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
-	public void onOpenGooglePlusClick(View v) {
-		Helpers.openURL(this,
-				"https://plus.google.com/u/0/communities/110640831388790835840");
-	}
-
-	public void onOpenGithubClick(View v) {
-		Helpers.openURL(this, "https://github.com/azapps/mirakel-android");
-	}
-
-	public void sendFeedback(View v) {
+	public void sendFeedback() {
 		Helpers.contact(this);
 	}
 
