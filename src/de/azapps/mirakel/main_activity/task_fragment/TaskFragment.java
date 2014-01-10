@@ -51,10 +51,28 @@ public class TaskFragment extends Fragment {
 	public TaskFragmentAdapter	adapter;
 	private ActionMode			mActionMode	= null;
 
-	public void closeActionMode() {
-		if (mActionMode != null) mActionMode.finish();
-		if (adapter != null) adapter.closeActionMode();
+	public void cancelEditing() {
+		if (this.adapter != null) {
+			this.adapter.cancelEditing();
+		}
 	}
+
+	public void closeActionMode() {
+		if (this.mActionMode != null) {
+			this.mActionMode.finish();
+		}
+		if (this.adapter != null) {
+			this.adapter.closeActionMode();
+		}
+	}
+
+	public boolean isEditContent() {
+		if (this.adapter!=null)
+			return this.adapter.isEditContent();
+		return false;
+	}
+
+
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -62,27 +80,27 @@ public class TaskFragment extends Fragment {
 		final MainActivity main = (MainActivity) getActivity();
 		View view = inflater.inflate(R.layout.task_fragment, container, false);
 		ListView listView = (ListView) view.findViewById(R.id.taskFragment);
-		adapter = new TaskFragmentAdapter(main, R.layout.task_head_line,
+		this.adapter = new TaskFragmentAdapter(main, R.layout.task_head_line,
 				main.getCurrentTask());
-		listView.setAdapter(adapter);
+		listView.setAdapter(this.adapter);
 		listView.setItemsCanFocus(true);
 		listView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long id) {
-				int type = adapter.getData().get(position).first;
+				int type = TaskFragment.this.adapter.getData().get(position).first;
 				if (type == TYPE.FILE) {
 					if (main.getCurrentTask() == null) return;
 					FileMirakel file = main.getCurrentTask().getFiles()
-							.get(adapter.getData().get(position).second);
+							.get(TaskFragment.this.adapter.getData().get(position).second);
 					if (file.getPath().endsWith(".mp3")) {
 						TaskDialogHelpers.handleAudioPlayback(main, file);
 						return;
 					}
 					TaskDialogHelpers.openFile(main, file);
 				} else if (type == TYPE.SUBTASK) {
-					Task t = adapter.getTask().getSubtasks()
-							.get(adapter.getData().get(position).second);
-					main.setGoBackTo(adapter.getTask());
+					Task t = TaskFragment.this.adapter.getTask().getSubtasks()
+							.get(TaskFragment.this.adapter.getData().get(position).second);
+					main.setGoBackTo(TaskFragment.this.adapter.getTask());
 					if (t.getList().getId() != main.getCurrentList().getId()) {
 						main.setSkipSwipe();
 						main.setCurrentList(t.getList(), null, false, false);
@@ -94,48 +112,22 @@ public class TaskFragment extends Fragment {
 		});
 
 		listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-		if (adapter != null) {
-			adapter.resetSelected();
+		if (this.adapter != null) {
+			this.adapter.resetSelected();
 		}
 		listView.setHapticFeedbackEnabled(true);
 		listView.setMultiChoiceModeListener(new MultiChoiceModeListener() {
-
-			@Override
-			public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-				if (adapter.getSelectedCount() > 0) {
-					menu.findItem(R.id.edit_task)
-							.setVisible(
-									adapter.getSelectedCount() == 1
-											&& (adapter.getSelected().get(0).first == TYPE.SUBTASK));
-					menu.findItem(R.id.done_task).setVisible(
-							adapter.getSelected().get(0).first == TYPE.SUBTASK);
-				}
-				return false;
-			}
-
-			@Override
-			public void onDestroyActionMode(ActionMode mode) {
-				adapter.resetSelected();
-			}
-
-			@Override
-			public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-				MenuInflater menuInflater = mode.getMenuInflater();
-				menuInflater.inflate(R.menu.context_task, menu);
-				mActionMode = mode;
-				return true;
-			}
 
 			@Override
 			public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
 
 				switch (item.getItemId()) {
 					case R.id.menu_delete:
-						List<Pair<Integer, Integer>> selected = adapter
-								.getSelected();
-						if (adapter.getSelectedCount() > 0
-								&& adapter.getSelected().get(0).first == TYPE.FILE) {
-							List<FileMirakel> files = adapter.getTask()
+						List<Pair<Integer, Integer>> selected = TaskFragment.this.adapter
+						.getSelected();
+						if (TaskFragment.this.adapter.getSelectedCount() > 0
+								&& TaskFragment.this.adapter.getSelected().get(0).first == TYPE.FILE) {
+							List<FileMirakel> files = TaskFragment.this.adapter.getTask()
 									.getFiles();
 							List<FileMirakel> selectedItems = new ArrayList<FileMirakel>();
 							for (Pair<Integer, Integer> p : selected) {
@@ -144,11 +136,11 @@ public class TaskFragment extends Fragment {
 								}
 							}
 							TaskDialogHelpers.handleDeleteFile(selectedItems,
-									main, adapter.getTask(), adapter);
+									main, TaskFragment.this.adapter.getTask(), TaskFragment.this.adapter);
 							break;
-						} else if (adapter.getSelectedCount() > 0
-								&& adapter.getSelected().get(0).first == TYPE.SUBTASK) {
-							List<Task> subtasks = adapter.getTask()
+						} else if (TaskFragment.this.adapter.getSelectedCount() > 0
+								&& TaskFragment.this.adapter.getSelected().get(0).first == TYPE.SUBTASK) {
+							List<Task> subtasks = TaskFragment.this.adapter.getTask()
 									.getSubtasks();
 							List<Task> selectedItems = new ArrayList<Task>();
 							for (Pair<Integer, Integer> p : selected) {
@@ -157,21 +149,21 @@ public class TaskFragment extends Fragment {
 								}
 							}
 							TaskDialogHelpers.handleRemoveSubtask(
-									selectedItems, main, adapter,
-									adapter.getTask());
+									selectedItems, main, TaskFragment.this.adapter,
+									TaskFragment.this.adapter.getTask());
 						} else {
 							Log.e(TAG, "How did you get selected this?");
 						}
 						break;
 					case R.id.edit_task:
-						if (adapter.getSelectedCount() == 1) {
-							adapter.setData(adapter.getTask().getSubtasks()
-									.get(adapter.getSelected().get(0).second));
+						if (TaskFragment.this.adapter.getSelectedCount() == 1) {
+							TaskFragment.this.adapter.setData(TaskFragment.this.adapter.getTask().getSubtasks()
+									.get(TaskFragment.this.adapter.getSelected().get(0).second));
 						}
 						break;
 					case R.id.done_task:
-						List<Task> subtasks = adapter.getTask().getSubtasks();
-						for (Pair<Integer, Integer> s : adapter.getSelected()) {
+						List<Task> subtasks = TaskFragment.this.adapter.getTask().getSubtasks();
+						for (Pair<Integer, Integer> s : TaskFragment.this.adapter.getSelected()) {
 							Task t = subtasks.get(s.second);
 							t.setDone(true);
 							try {
@@ -189,19 +181,32 @@ public class TaskFragment extends Fragment {
 			}
 
 			@Override
+			public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+				MenuInflater menuInflater = mode.getMenuInflater();
+				menuInflater.inflate(R.menu.context_task, menu);
+				TaskFragment.this.mActionMode = mode;
+				return true;
+			}
+
+			@Override
+			public void onDestroyActionMode(ActionMode mode) {
+				TaskFragment.this.adapter.resetSelected();
+			}
+
+			@Override
 			public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
 				Log.d(TAG, "item " + position + " selected");
-				Integer type = adapter.getData().get(position).first;
-				int count = adapter.getSelectedCount();
-				if ((type == TYPE.FILE && (count == 0 || (adapter.getSelected()
-						.get(0).first == TYPE.FILE)))
-						|| (type == TYPE.SUBTASK && (count == 0 || adapter
-								.getSelected().get(0).first == TYPE.SUBTASK))) {
-					adapter.setSelected(position, checked);
-					adapter.notifyDataSetChanged();
+				Integer type = TaskFragment.this.adapter.getData().get(position).first;
+				int count = TaskFragment.this.adapter.getSelectedCount();
+				if (type == TYPE.FILE && (count == 0 || TaskFragment.this.adapter.getSelected()
+						.get(0).first == TYPE.FILE)
+						|| type == TYPE.SUBTASK && (count == 0 || TaskFragment.this.adapter
+						.getSelected().get(0).first == TYPE.SUBTASK)) {
+					TaskFragment.this.adapter.setSelected(position, checked);
+					TaskFragment.this.adapter.notifyDataSetChanged();
 					mode.invalidate();
 				}
-				count = adapter.getSelectedCount();
+				count = TaskFragment.this.adapter.getSelectedCount();
 				if (count == 0) {
 					mode.finish();// No CAB
 					return;
@@ -215,24 +220,37 @@ public class TaskFragment extends Fragment {
 				}
 
 			}
+
+			@Override
+			public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+				if (TaskFragment.this.adapter.getSelectedCount() > 0) {
+					menu.findItem(R.id.edit_task)
+					.setVisible(
+							TaskFragment.this.adapter.getSelectedCount() == 1
+							&& TaskFragment.this.adapter.getSelected().get(0).first == TYPE.SUBTASK);
+					menu.findItem(R.id.done_task).setVisible(
+							TaskFragment.this.adapter.getSelected().get(0).first == TYPE.SUBTASK);
+				}
+				return false;
+			}
 		});
 
 		if (MirakelPreferences.useBtnCamera()
 				&& Helpers.isIntentAvailable(main,
 						MediaStore.ACTION_IMAGE_CAPTURE)) {
-			adapter.setaudioButtonClick(new View.OnClickListener() {
+			this.adapter.setaudioButtonClick(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					TaskDialogHelpers.handleAudioRecord(getActivity(),
 							main.getCurrentTask(), new ExecInterfaceWithTask() {
-								@Override
-								public void exec(Task t) {
-									update(t);
-								}
-							});
+						@Override
+						public void exec(Task t) {
+							update(t);
+						}
+					});
 				}
 			});
-			adapter.setcameraButtonClick(new View.OnClickListener() {
+			this.adapter.setcameraButtonClick(new View.OnClickListener() {
 
 				@Override
 				public void onClick(View v) {
@@ -261,13 +279,18 @@ public class TaskFragment extends Fragment {
 		return view;
 	}
 
-	public void update(Task task) {
-		if (adapter != null) adapter.setData(task);
+	public void showKeyboardForContent() {
+		if (this.adapter != null) {
+			this.adapter.showKeyboardForContent();
+		}
 
 	}
 
-	public void cancelEditing() {
-		if (adapter != null) adapter.cancelEditing();
+	public void update(Task task) {
+		if (this.adapter != null) {
+			this.adapter.setData(task);
+		}
+
 	}
 
 }

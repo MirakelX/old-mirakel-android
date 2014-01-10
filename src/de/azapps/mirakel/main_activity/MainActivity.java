@@ -820,6 +820,9 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 			getTasksFragment().setActivity(this);
 			this.mDrawerToggle.onConfigurationChanged(newConfig);
 		}
+		if (getTaskFragment().isEditContent()) {
+			getTaskFragment().showKeyboardForContent();
+		}
 	}
 
 	@SuppressLint("NewApi")

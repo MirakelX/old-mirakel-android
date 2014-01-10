@@ -90,34 +90,50 @@ import de.azapps.mirakel.reminders.ReminderAlarm;
 import de.azapps.mirakelandroid.R;
 import de.azapps.tools.Log;
 
-public class TaskFragmentAdapter extends MirakelArrayAdapter<Pair<Integer, Integer>> {// TYPE,INDEX
-	private static final String		TAG							= "TaskFragmentAdapter";
-	private Task					task;
-	protected boolean				mIgnoreTimeSet;
-	private LayoutInflater			inflater;
-	private TaskFragmentAdapter		adapter;
-	private List<Task>				subtasks;
-	private List<FileMirakel>		files;
-	private boolean					editContent;
-	protected Handler				mHandler;
-	protected ActionMode			mActionMode;
-	private static final int		SUBTITLE_SUBTASKS			= 0,
-			SUBTITLE_FILES = 1, SUBTITLE_PROGRESS = 2;
-	private static final Integer	inactive_color				= android.R.color.darker_gray;
-	private View.OnClickListener	cameraButtonClick			= null;
-	private View.OnClickListener	audioButtonClick			= null;
-	private static int				minDueNextToReminderSize	= 800;
-
+public class TaskFragmentAdapter extends MirakelArrayAdapter<Pair<Integer, Integer>> implements OnFocusChangeListener {// TYPE,INDEX
+	static class ContentHolder {
+		View			divider;
+		ImageButton		editContent;
+		TextView		taskContent;
+		EditText		taskContentEdit;
+		ViewSwitcher	taskContentSwitcher;
+	}
+	static class DueHolder {
+		ImageButton	reccurence;
+		TextView	taskDue;
+	}
+	static class FileHolder {
+		ImageView	fileImage;
+		TextView	fileName;
+		TextView	filePath;
+	}
+	static class HeaderHolder {
+		ViewSwitcher	switcher;
+		CheckBox		taskDone;
+		TextView		taskName;
+		TextView		taskPrio;
+		EditText		txt;
+	}
+	static class ReminderHolder {
+		ImageButton	recurringButton;
+		TextView	taskReminder;
+	}
+	static class SubtitleHolder {
+		ImageButton	audioButton;
+		ImageButton	button;
+		ImageButton	cameraButton;
+		View		divider;
+		TextView	title;
+	}
+	static class TaskHolder {
+		CheckBox		taskRowDone;
+		RelativeLayout	taskRowDoneWrapper;
+		TextView		taskRowDue, taskRowList;
+		ImageView		taskRowHasContent;
+		TextView		taskRowName;
+		TextView		taskRowPriority;
+	}
 	public static class TYPE {
-		public final static int	HEADER		= 0;
-		public final static int	FILE		= 1;
-		public final static int	DUE			= 2;
-		public final static int	REMINDER	= 3;
-		public final static int	CONTENT		= 4;
-		public final static int	SUBTITLE	= 5;
-		public final static int	SUBTASK		= 6;
-		public final static int	PROGRESS	= 7;
-
 		public static class NoSuchItemException extends Exception {
 			private static final long	serialVersionUID	= 4952441280983309615L;
 
@@ -125,6 +141,15 @@ public class TaskFragmentAdapter extends MirakelArrayAdapter<Pair<Integer, Integ
 				super();
 			}
 		}
+		public final static int	CONTENT		= 4;
+		public final static int	DUE			= 2;
+		public final static int	FILE		= 1;
+		public final static int	HEADER		= 0;
+		public final static int	PROGRESS	= 7;
+		public final static int	REMINDER	= 3;
+		public final static int	SUBTASK		= 6;
+
+		public final static int	SUBTITLE	= 5;
 
 		public static String getName(int item) throws NoSuchItemException {
 			switch (item) {
@@ -169,6 +194,160 @@ public class TaskFragmentAdapter extends MirakelArrayAdapter<Pair<Integer, Integ
 
 		}
 	}
+	private static final Integer	inactive_color				= android.R.color.darker_gray;
+	private static int				minDueNextToReminderSize	= 800;
+	private static final int		SUBTITLE_SUBTASKS			= 0,
+			SUBTITLE_FILES = 1, SUBTITLE_PROGRESS = 2;
+	private static final String		TAG							= "TaskFragmentAdapter";
+	private static List<Pair<Integer, Integer>> generateData(Task task) {
+		// From config
+		List<Integer> items = MirakelPreferences.getTaskFragmentLayout();
+
+		List<Pair<Integer, Integer>> data = new ArrayList<Pair<Integer, Integer>>();
+		for (Integer item : items) {
+			switch (item) {
+				case TYPE.SUBTASK:
+					data.add(new Pair<Integer, Integer>(TYPE.SUBTITLE,
+							SUBTITLE_SUBTASKS));
+					int subtaskCount = task == null ? 0 : task
+							.getSubtaskCount();
+					for (int i = 0; i < subtaskCount; i++) {
+						data.add(new Pair<Integer, Integer>(TYPE.SUBTASK, i));
+					}
+					break;
+				case TYPE.FILE:
+					data.add(new Pair<Integer, Integer>(TYPE.SUBTITLE,
+							SUBTITLE_FILES));
+					int fileCount = FileMirakel.getFileCount(task);
+					for (int i = 0; i < fileCount; i++) {
+						data.add(new Pair<Integer, Integer>(TYPE.FILE, i));
+					}
+					break;
+				case TYPE.PROGRESS:
+					data.add(new Pair<Integer, Integer>(TYPE.SUBTITLE,
+							SUBTITLE_PROGRESS));
+					data.add(new Pair<Integer, Integer>(TYPE.PROGRESS, 0));
+					break;
+				default:
+					data.add(new Pair<Integer, Integer>(item, 0));
+			}
+		}
+		return data;
+	}
+	@SuppressWarnings("deprecation")
+	@SuppressLint("NewApi")
+	public static void setRecurringImage(ImageButton image, Context ctx, int id) {
+		Drawable d = ctx.getResources().getDrawable(
+				id == -1 ? android.R.drawable.ic_menu_mylocation
+						: android.R.drawable.ic_menu_rotate);
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+			image.setBackgroundDrawable(d);
+		} else {
+			image.setBackground(d);
+		}
+	}
+	private TaskFragmentAdapter		adapter;
+
+	private View.OnClickListener	audioButtonClick			= null;
+
+	private View.OnClickListener	cameraButtonClick			= null;
+
+	private ContentHolder	contentHolder;
+
+	protected int				cursorPos;
+
+	private boolean					editContent;
+
+	private List<FileMirakel>		files;
+
+	private HeaderHolder	headerHolder;
+
+	private LayoutInflater			inflater;
+
+	protected boolean	lastWasShowKeyboard;
+	protected ActionMode			mActionMode;
+
+	private final ActionMode.Callback	mActionModeCallback	= new ActionMode.Callback() {
+
+		// Called when the user selects a
+		// contextual
+		// menu item
+		@Override
+		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+			switch (item
+					.getItemId()) {
+						case R.id.save:
+							TaskFragmentAdapter.this.editContent = !TaskFragmentAdapter.this.editContent;
+							saveContent();
+							notifyDataSetChanged();
+							break;
+						case R.id.cancel:
+							TaskFragmentAdapter.this.editContent = !TaskFragmentAdapter.this.editContent;
+							notifyDataSetChanged();
+							mode.finish();
+							break;
+						default:
+							Log.d(TAG,
+									"unkown menubutton");
+							break;
+			}
+			return true;
+		}
+
+		// Called when the action mode is
+		// created;
+		// startActionMode() was called
+		@Override
+		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+			// Inflate a menu resource
+			// providing
+			// context menu items
+			MenuInflater menuInflater = mode
+					.getMenuInflater();
+			menuInflater
+			.inflate(
+					R.menu.save,
+					menu);
+			return true;
+		}
+
+		// Called when the user exits the
+		// action
+		// mode
+		@Override
+		public void onDestroyActionMode(ActionMode mode) {
+			TaskFragmentAdapter.this.mActionMode = null;
+			TaskFragmentAdapter.this.editContent = false;
+			notifyDataSetChanged();
+		}
+
+		// Called each time the action mode
+		// is
+		// shown. Always called after
+		// onCreateActionMode, but
+		// may be called multiple times if
+		// the mode
+		// is invalidated.
+		@Override
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+			return false; // Return false if
+			// nothing
+			// is done
+		}
+
+	};
+
+	protected Handler				mHandler;
+
+	protected boolean				mIgnoreTimeSet;
+
+	Bitmap	preview;
+
+	private boolean	recordeContent;
+
+	private List<Task>				subtasks;
+	private Task					task;
+	private String				taskEditText;
 
 	public TaskFragmentAdapter(Context c) {
 		// Do not call!!
@@ -178,51 +357,60 @@ public class TaskFragmentAdapter extends MirakelArrayAdapter<Pair<Integer, Integ
 	public TaskFragmentAdapter(Context context, int textViewResourceId, Task t) {
 		super(context, textViewResourceId, generateData(t));
 		this.task = t;
-		if (task == null) task = Task.getDummy(context);
-		subtasks = task.getSubtasks();
-		files = task.getFiles();
+		if (this.task == null) {
+			this.task = Task.getDummy(context);
+		}
+		this.subtasks = this.task.getSubtasks();
+		this.files = this.task.getFiles();
 		this.inflater = ((Activity) context).getLayoutInflater();
 		this.adapter = this;
-		editContent = false;
+		this.editContent = false;
 
 	}
 
-	@Override
-	public int getViewTypeCount() {
-		return 8;
-	}
-
-	@Override
-	public int getItemViewType(int position) {
-		return data.get(position).first;
-	}
-
-	public void setEditContent(boolean edit) {
-		editContent = edit;
-		notifyDataSetChanged();
-		if (mActionMode != null && edit == false) {
-			mActionMode.finish();
+	public void cancelEditing() {
+		// TaskName
+		if (this.headerHolder != null) {
+			InputMethodManager imm = (InputMethodManager) this.context
+					.getSystemService(Context.INPUT_METHOD_SERVICE);
+			this.headerHolder.taskName.setText(this.task.getName());
+			this.headerHolder.txt.setText(this.task.getName());
+			this.headerHolder.txt.setOnFocusChangeListener(null);
+			imm.hideSoftInputFromWindow(this.headerHolder.txt.getWindowToken(), 0);
+			this.headerHolder.switcher.showPrevious();
 		}
+
 	}
 
 	public void closeActionMode() {
-		if (mActionMode != null) {
-			mActionMode.finish();
+		if (this.mActionMode != null) {
+			this.mActionMode.finish();
 		}
 
+	}
+
+	public List<Pair<Integer, Integer>> getData() {
+		return this.data;
+	}
+	@Override
+	public int getItemViewType(int position) {
+		return this.data.get(position).first;
+	}
+	public Task getTask() {
+		return this.task;
 	}
 
 	@SuppressLint("NewApi")
 	@SuppressWarnings("deprecation")
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		View row = new View(context);
-		if (position >= data.size()) {
+		View row = new View(this.context);
+		if (position >= this.data.size()) {
 			Log.w(TAG, "position > data");
 			return row;
 		}
 		int width;
-		Display display = ((Activity) context).getWindowManager()
+		Display display = ((Activity) this.context).getWindowManager()
 				.getDefaultDisplay();
 		try {
 			Point size = new Point();
@@ -237,7 +425,7 @@ public class TaskFragmentAdapter extends MirakelArrayAdapter<Pair<Integer, Integ
 				row = setupDue(parent, convertView, width, position);
 				break;
 			case TYPE.FILE:
-				row = setupFile(parent, files.get(data.get(position).second),
+				row = setupFile(parent, this.files.get(this.data.get(position).second),
 						convertView, position);
 				break;
 			case TYPE.HEADER:
@@ -245,52 +433,53 @@ public class TaskFragmentAdapter extends MirakelArrayAdapter<Pair<Integer, Integ
 				break;
 			case TYPE.REMINDER:
 				if (width < minDueNextToReminderSize
-						|| (position > 1
-								&& data.get(position - 1).first != TYPE.DUE
-								&& position < data.size() && data
-								.get(position + 1).first != TYPE.DUE))
+						|| position > 1
+						&& this.data.get(position - 1).first != TYPE.DUE
+						&& position < this.data.size() && this.data
+						.get(position + 1).first != TYPE.DUE) {
 					row = setupReminder(parent, convertView);
+				}
 				break;
 			case TYPE.SUBTASK:
-				if (data.get(position).second >= subtasks.size()) {
-					setData(task);
+				if (this.data.get(position).second >= this.subtasks.size()) {
+					setData(this.task);
 					break;
 				}
 				row = setupSubtask(parent, convertView,
-						subtasks.get(data.get(position).second), position);
+						this.subtasks.get(this.data.get(position).second), position);
 				break;
 			case TYPE.SUBTITLE:
 				String title = null;
 				OnClickListener action = null;
 				boolean pencilButton = false;
 				boolean cameraButton = false;
-				switch (data.get(position).second) {
+				switch (this.data.get(position).second) {
 					case SUBTITLE_SUBTASKS:
-						title = context.getString(R.string.add_subtasks);
+						title = this.context.getString(R.string.add_subtasks);
 						action = new OnClickListener() {
 							@Override
 							public void onClick(View v) {
-								TaskDialogHelpers.handleSubtask(context, task,
-										adapter, false);
+								TaskDialogHelpers.handleSubtask(TaskFragmentAdapter.this.context, TaskFragmentAdapter.this.task,
+										TaskFragmentAdapter.this.adapter, false);
 							}
 						};
 						break;
 					case SUBTITLE_FILES:
 						cameraButton = true;
-						title = context.getString(R.string.add_files);
+						title = this.context.getString(R.string.add_files);
 						action = new OnClickListener() {
 							@Override
 							public void onClick(View v) {
 								Helpers.showFileChooser(
 										MainActivity.RESULT_ADD_FILE,
-										context.getString(R.string.file_select),
-										(Activity) context);
+										TaskFragmentAdapter.this.context.getString(R.string.file_select),
+										(Activity) TaskFragmentAdapter.this.context);
 							}
 						};
 						break;
 					case SUBTITLE_PROGRESS:
-						title = context
-								.getString(R.string.task_fragment_progress);
+						title = this.context
+						.getString(R.string.task_fragment_progress);
 						break;
 					default:
 						Log.w(TAG, "unknown subtitle");
@@ -314,22 +503,94 @@ public class TaskFragmentAdapter extends MirakelArrayAdapter<Pair<Integer, Integ
 		return row;
 	}
 
-	private void saveContent() {
-		if (!editContent) {// End Edit, save content
-			if (mActionMode != null) {
-				mActionMode.finish();
+	@Override
+	public int getViewTypeCount() {
+		return 8;
+	}
+
+
+	private void handleKeyboard(boolean hasFocus) {
+		InputMethodManager imm = (InputMethodManager) TaskFragmentAdapter.this.context
+				.getSystemService(Context.INPUT_METHOD_SERVICE);
+		if (hasFocus) {
+			if (!TaskFragmentAdapter.this.lastWasShowKeyboard) {
+				TaskFragmentAdapter.this.lastWasShowKeyboard = true;
+				imm.showSoftInput(
+						TaskFragmentAdapter.this.contentHolder.taskContentEdit,
+						InputMethodManager.SHOW_IMPLICIT);
+				Log.w(TAG, "handle keyboard show");
 			}
-			EditText txt = (EditText) ((MainActivity) context)
+
+		} else {
+			if (TaskFragmentAdapter.this.lastWasShowKeyboard) {
+				TaskFragmentAdapter.this.lastWasShowKeyboard = false;
+				imm.showSoftInput(
+						TaskFragmentAdapter.this.contentHolder.taskContentEdit,
+						InputMethodManager.HIDE_IMPLICIT_ONLY);
+				Log.wtf(TAG, "handle keyboard hidde");
+			}
+
+		}
+
+	}
+
+	public boolean isEditContent() {
+		return this.editContent;
+	}
+
+	private void markSelected(int position, final View row) {
+		if (this.selected.get(position)) {
+			row.setBackgroundColor(this.context.getResources().getColor(
+					this.darkTheme ? R.color.highlighted_text_holo_dark
+							: R.color.highlighted_text_holo_light));
+		} else {
+			row.setBackgroundColor(this.context.getResources().getColor(
+					android.R.color.transparent));
+		}
+	}
+
+	@Override
+	public void onFocusChange(View v, final boolean hasFocus) {
+		Log.i(TAG, "hasFocus: " + hasFocus);
+		Log.i(TAG, "editContent: "
+				+ TaskFragmentAdapter.this.editContent);
+		if (TaskFragmentAdapter.this.editContent == hasFocus) {
+			handleKeyboard(hasFocus);
+			if (!hasFocus
+					&& TaskFragmentAdapter.this.contentHolder.taskContentSwitcher
+					.getCurrentView().getId() != R.id.switcher_content) {
+				TaskFragmentAdapter.this.contentHolder.taskContentSwitcher
+				.showNext();
+			}
+			TaskFragmentAdapter.this.contentHolder.editContent
+			.postDelayed(new Runnable() {
+
+				@Override
+				public void run() {
+					handleKeyboard(hasFocus);
+				}
+			}, 10);
+		} else {
+			this.cursorPos++;
+		}
+	}
+
+	private void saveContent() {
+		if (!this.editContent) {// End Edit, save content
+			if (this.mActionMode != null) {
+				this.mActionMode.finish();
+			}
+			EditText txt = (EditText) ((MainActivity) this.context)
 					.findViewById(R.id.task_content_edit);
 			if (txt != null) {
-				((InputMethodManager) context
-						.getSystemService(Context.INPUT_METHOD_SERVICE))
-						.showSoftInput(txt,
-								InputMethodManager.HIDE_IMPLICIT_ONLY);
-				if (!txt.getText().toString().trim().equals(task.getContent())) {
-					task.setContent(txt.getText().toString().trim());
+				// ((InputMethodManager) this.context
+				// .getSystemService(Context.INPUT_METHOD_SERVICE))
+				// .showSoftInput(txt,
+				// InputMethodManager.HIDE_IMPLICIT_ONLY);
+				if (!txt.getText().toString().trim().equals(this.task.getContent())) {
+					this.task.setContent(txt.getText().toString().trim());
 					try {
-						task.save();
+						this.task.save();
 					} catch (NoSuchListException e) {
 						Log.w(TAG, "List did vanish");
 					}
@@ -342,672 +603,215 @@ public class TaskFragmentAdapter extends MirakelArrayAdapter<Pair<Integer, Integ
 		}
 	}
 
-	static class TaskHolder {
-		CheckBox		taskRowDone;
-		RelativeLayout	taskRowDoneWrapper;
-		TextView		taskRowName;
-		TextView		taskRowPriority;
-		TextView		taskRowDue, taskRowList;
-		ImageView		taskRowHasContent;
+	public void setaudioButtonClick(OnClickListener audioButtonClick) {
+		this.audioButtonClick = audioButtonClick;
 	}
 
-	private View setupSubtask(ViewGroup parent, View convertView, Task task, int position) {
-		final View row = (convertView == null || convertView.getId() != R.id.tasks_row) ? inflater
-				.inflate(R.layout.tasks_row, parent, false) : convertView;
-		final TaskHolder holder;
+	public void setcameraButtonClick(OnClickListener cameraButtonClick) {
+		this.cameraButtonClick = cameraButtonClick;
+	}
 
-		if (convertView == null) {
-			// Initialize the View
-			holder = new TaskHolder();
-			holder.taskRowDone = (CheckBox) row
-					.findViewById(R.id.tasks_row_done);
-			holder.taskRowDoneWrapper = (RelativeLayout) row
-					.findViewById(R.id.tasks_row_done_wrapper);
-			holder.taskRowName = (TextView) row
-					.findViewById(R.id.tasks_row_name);
-			holder.taskRowPriority = (TextView) row
-					.findViewById(R.id.tasks_row_priority);
-			holder.taskRowDue = (TextView) row.findViewById(R.id.tasks_row_due);
-			holder.taskRowHasContent = (ImageView) row
-					.findViewById(R.id.tasks_row_has_content);
-			holder.taskRowList = (TextView) row
-					.findViewById(R.id.tasks_row_list_name);
-
-			holder.taskRowDoneWrapper.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					Task taskLocal = (Task) v.getTag();
-					taskLocal.toggleDone();
-					((MainActivity) context).saveTask(taskLocal);
-					ReminderAlarm.updateAlarms(context);
-					holder.taskRowDone.setChecked(taskLocal.isDone());
-					updateName(taskLocal, row, holder);
-				}
-			});
-
-			holder.taskRowPriority.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(final View v) {
-					final Task taskLocal = (Task) v.getTag();
-					TaskDialogHelpers.handlePriority(context, taskLocal,
-							new ExecInterface() {
-								@Override
-								public void exec() {
-									TaskFragmentAdapter.this.task = Task
-											.get(TaskFragmentAdapter.this.task
-													.getId());
-									adapter.notifyDataSetChanged();
-								}
-							});
-
-				}
-			});
-
-			row.setTag(holder);
+	private void setContentCursorPosition(final ContentHolder holder) {
+		holder.taskContentEdit.setText(this.taskEditText);
+		if (this.cursorPos == 0
+				|| this.cursorPos > holder.taskContentEdit.getText().length()) {
+			holder.taskContentEdit.setSelection(holder.taskContentEdit
+					.getText().length());
 		} else {
-			holder = (TaskHolder) row.getTag();
+			holder.taskContentEdit.setSelection(this.cursorPos);
 		}
-		if (task == null) return row;
+	}
 
-		// Done
-		holder.taskRowDone.setChecked(task.isDone());
-		holder.taskRowDone.setTag(task);
-		holder.taskRowDoneWrapper.setTag(task);
-		holder.taskRowDone.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Task taskLocal = (Task) v.getTag();
-				taskLocal.toggleDone();
-				((MainActivity) context).saveTask(taskLocal);
-				ReminderAlarm.updateAlarms(context);
-				holder.taskRowDone.setChecked(taskLocal.isDone());
-				updateName(taskLocal, row, holder);
-			}
-		});
-		if (task.getContent().length() != 0) {
-			holder.taskRowHasContent.setVisibility(View.VISIBLE);
-		} else {
-			holder.taskRowHasContent.setVisibility(View.INVISIBLE);
+
+	public void setData(Task t) {
+		if (t == null) {
+			Log.wtf(TAG, "task null");
+			return;
 		}
-		if (task.getList() != null) {
-			holder.taskRowList.setVisibility(View.VISIBLE);
-			holder.taskRowList.setText(task.getList().getName());
-		} else {
-			holder.taskRowList.setVisibility(View.GONE);
+		List<Pair<Integer, Integer>> generateData = generateData(t);
+		super.changeData(generateData);
+		this.task = t;
+		this.subtasks = this.task.getSubtasks();
+		this.files = this.task.getFiles();
+		notifyDataSetInvalidated();
+	}
+
+	public void setEditContent(boolean edit) {
+		this.editContent = edit;
+		notifyDataSetChanged();
+		if (this.mActionMode != null && edit == false) {
+			this.mActionMode.finish();
 		}
+	}
 
-		// Name
-		holder.taskRowName.setText(task.getName());
+	protected void setPrio(TextView Task_prio, Task task) {
+		Task_prio.setText("" + task.getPriority());
 
-		updateName(task, row, holder);
-
-		// Priority
-		holder.taskRowPriority.setText("" + task.getPriority());
-
-		GradientDrawable bg = (GradientDrawable) holder.taskRowPriority
-				.getBackground();
+		GradientDrawable bg = (GradientDrawable) Task_prio.getBackground();
 		bg.setColor(TaskHelper.getPrioColor(task.getPriority()));
-		holder.taskRowPriority.setTag(task);
-
-		// Due
-		if (task.getDue() != null) {
-			holder.taskRowDue.setVisibility(View.VISIBLE);
-			holder.taskRowDue.setText(DateTimeHelper.formatDate(context,
-					task.getDue()));
-			holder.taskRowDue.setTextColor(row.getResources().getColor(
-					TaskHelper.getTaskDueColor(task.getDue(), task.isDone())));
-		} else {
-			holder.taskRowDue.setVisibility(View.GONE);
-		}
-		if (selected.get(position)) {
-			row.setBackgroundColor(context.getResources().getColor(
-					darkTheme ? R.color.highlighted_text_holo_dark
-							: R.color.highlighted_text_holo_light));
-		} else if (MirakelPreferences.colorizeTasks()) {
-			if (MirakelPreferences.colorizeSubTasks()) {
-				int w = row.getWidth() == 0 ? parent.getWidth() : row
-						.getWidth();
-				Helpers.setListColorBackground(task.getList(), row, darkTheme,
-						w);
-			} else {
-				row.setBackgroundColor(context.getResources().getColor(
-						android.R.color.transparent));
-			}
-		} else {
-			row.setBackgroundColor(context.getResources().getColor(
-					android.R.color.transparent));
-		}
-		return row;
-	}
-
-	private void updateName(Task taskLocal, View row, final TaskHolder holder) {
-		if (taskLocal.isDone()) {
-			holder.taskRowName.setTextColor(row.getResources().getColor(
-					R.color.Grey));
-		} else {
-			holder.taskRowName.setTextColor(row.getResources().getColor(
-					darkTheme ? android.R.color.primary_text_dark
-							: android.R.color.primary_text_light));
-		}
-	}
-
-	static class FileHolder {
-		ImageView	fileImage;
-		TextView	fileName;
-		TextView	filePath;
-	}
-
-	Bitmap	preview;
-
-	private View setupFile(ViewGroup parent, final FileMirakel file, View convertView, int position) {
-		final View row = convertView == null ? inflater.inflate(
-				R.layout.files_row, parent, false) : convertView;
-		final FileHolder holder;
-		if (convertView == null) {
-			holder = new FileHolder();
-			holder.fileImage = (ImageView) row.findViewById(R.id.file_image);
-			holder.fileName = (TextView) row.findViewById(R.id.file_name);
-			holder.filePath = (TextView) row.findViewById(R.id.file_path);
-			row.setTag(holder);
-		} else {
-			holder = (FileHolder) row.getTag();
-		}
-		new Thread(new Runnable() {
-			public void run() {
-				preview = file.getPreview();
-				if (file.getPath().endsWith(".mp3")) {
-					int resource_id = MirakelPreferences.isDark() ? R.drawable.ic_action_play_dark
-							: R.drawable.ic_action_play;
-					preview = BitmapFactory.decodeResource(
-							context.getResources(), resource_id);
-				}
-				if (preview != null) {
-					holder.fileImage.post(new Runnable() {
-						@Override
-						public void run() {
-							holder.fileImage.setImageBitmap(preview);
-
-						}
-					});
-				} else {
-
-					holder.fileImage.post(new Runnable() {
-						@Override
-						public void run() {
-							LayoutParams params = (LayoutParams) holder.fileImage
-									.getLayoutParams();
-							params.height = 0;
-							holder.fileImage.setLayoutParams(params);
-
-						}
-					});
-				}
-			}
-		}).start();
-		if (file.getPath().endsWith(".mp3")
-				&& file.getName().startsWith("AUD_")) {
-			holder.fileName.setText(R.string.audio_record_file);
-		} else if (file.getName().endsWith(".jpg")) {
-			holder.fileName.setText(R.string.image_file);
-		} else {
-			holder.fileName.setText(file.getName());
-		}
-		holder.filePath.setText(file.getPath());
-		if (!file.getFile().exists()) {
-			holder.filePath.setText(R.string.file_vanished);
-		} else {
-			holder.filePath.setText(file.getPath());
-		}
-		markSelected(position, row);
-
-		return row;
-	}
-
-	private void markSelected(int position, final View row) {
-		if (selected.get(position)) {
-			row.setBackgroundColor(context.getResources().getColor(
-					darkTheme ? R.color.highlighted_text_holo_dark
-							: R.color.highlighted_text_holo_light));
-		} else {
-			row.setBackgroundColor(context.getResources().getColor(
-					android.R.color.transparent));
-		}
-	}
-
-	static class SubtitleHolder {
-		TextView	title;
-		ImageButton	button;
-		ImageButton	audioButton;
-		ImageButton	cameraButton;
-		View		divider;
-	}
-
-	private View setupSubtitle(ViewGroup parent, String title, boolean pencilButton, boolean cameraButton, OnClickListener action, View convertView) {
-		if (title == null) return new View(context);
-
-		final View subtitle = convertView == null ? inflater.inflate(
-				R.layout.task_subtitle, parent, false) : convertView;
-
-		final SubtitleHolder holder;
-		if (convertView == null) {
-			holder = new SubtitleHolder();
-			holder.title = ((TextView) subtitle
-					.findViewById(R.id.task_subtitle));
-			holder.button = ((ImageButton) subtitle
-					.findViewById(R.id.task_subtitle_button));
-			holder.audioButton = ((ImageButton) subtitle
-					.findViewById(R.id.task_subtitle_audio_button));
-			holder.cameraButton = ((ImageButton) subtitle
-					.findViewById(R.id.task_subtitle_camera_button));
-			holder.divider = subtitle.findViewById(R.id.item_separator);
-			subtitle.setTag(holder);
-		} else {
-			holder = (SubtitleHolder) subtitle.getTag();
-		}
-		holder.title.setText(title);
-		if (action != null) {
-			holder.button.setOnClickListener(action);
-			holder.button.setVisibility(View.VISIBLE);
-		} else {
-			holder.button.setVisibility(View.GONE);
-		}
-
-		if (cameraButton) {
-
-			holder.cameraButton.setVisibility(View.VISIBLE);
-			holder.audioButton.setVisibility(View.VISIBLE);
-			if (cameraButtonClick != null)
-				holder.cameraButton.setOnClickListener(cameraButtonClick);
-			if (audioButtonClick != null)
-				holder.audioButton.setOnClickListener(audioButtonClick);
-		} else {
-			holder.cameraButton.setVisibility(View.INVISIBLE);
-			holder.audioButton.setVisibility(View.INVISIBLE);
-		}
-		if (pencilButton) {
-			if (editContent) {
-				holder.button.setImageDrawable(context.getResources()
-						.getDrawable(android.R.drawable.ic_menu_save));
-			} else {
-				holder.button.setImageDrawable(context.getResources()
-						.getDrawable(android.R.drawable.ic_menu_edit));
-			}
-		} else {
-			holder.button.setImageDrawable(context.getResources().getDrawable(
-					android.R.drawable.ic_menu_add));
-		}
-		holder.divider.setBackgroundColor(context.getResources().getColor(
-				inactive_color));
-		holder.title.setTextColor(context.getResources().getColor(
-				inactive_color));
-		return subtitle;
-	}
-
-	static class ContentHolder {
-		TextView		taskContent;
-		EditText		taskContentEdit;
-		ViewSwitcher	taskContentSwitcher;
-		ImageButton		editContent;
-		View			divider;
-	}
-
-	private ActionMode.Callback	mActionModeCallback	= new ActionMode.Callback() {
-
-														// Called when the action mode is created;
-														// startActionMode() was called
-														@Override
-														public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-															// Inflate a menu resource providing
-															// context menu items
-															MenuInflater menuInflater = mode
-																	.getMenuInflater();
-															menuInflater
-																	.inflate(
-																			R.menu.save,
-																			menu);
-															return true;
-														}
-
-														// Called each time the action mode is
-														// shown. Always called after
-														// onCreateActionMode, but
-														// may be called multiple times if the mode
-														// is invalidated.
-														@Override
-														public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-															return false; // Return false if nothing
-																			// is done
-														}
-
-														// Called when the user selects a contextual
-														// menu item
-														@Override
-														public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-															switch (item
-																	.getItemId()) {
-																case R.id.save:
-																	editContent = !editContent;
-																	saveContent();
-																	notifyDataSetChanged();
-																	break;
-																case R.id.cancel:
-																	editContent = !editContent;
-																	notifyDataSetChanged();
-																	mode.finish();
-																	break;
-																default:
-																	Log.d(TAG,
-																			"unkown menubutton");
-																	break;
-															}
-															return true;
-														}
-
-														// Called when the user exits the action
-														// mode
-														@Override
-														public void onDestroyActionMode(ActionMode mode) {
-															mActionMode = null;
-														}
-
-													};
-	private String				taskEditText;
-	protected int				cursorPos;
-
-	private View setupProgress(ViewGroup parent, View convertView) {
-		final View view = convertView == null ? inflater.inflate(
-				R.layout.task_progress, parent, false) : convertView;
-		final SeekBar progress = (SeekBar) view
-				.findViewById(R.id.task_progress_seekbar);
-		progress.setProgress(task.getProgress());
-		progress.setMax(100);
-		progress.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-
-			@Override
-			public void onStopTrackingTouch(SeekBar seekBar) {
-				task.setProgress(seekBar.getProgress());
-				((MainActivity) context).saveTask(task);
-
-			}
-
-			@Override
-			public void onStartTrackingTouch(SeekBar seekBar) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void onProgressChanged(SeekBar seekBar, int progressLocal, boolean fromUser) {}
-		});
-		return view;
 
 	}
 
 	private View setupContent(ViewGroup parent, View convertView) {
-		final View content = convertView == null ? inflater.inflate(
+		final View content = convertView == null ? this.inflater.inflate(
 				R.layout.task_content, parent, false) : convertView;
-		final ContentHolder holder;
-		if (convertView == null) {
-			holder = new ContentHolder();
-			holder.taskContent = (TextView) content
-					.findViewById(R.id.task_content);
-			holder.taskContentSwitcher = (ViewSwitcher) content
-					.findViewById(R.id.switcher_content);
-			holder.taskContentEdit = (EditText) content
-					.findViewById(R.id.task_content_edit);
-			holder.taskContentEdit
-					.setOnFocusChangeListener(new OnFocusChangeListener() {
+				if (convertView == null) {
+					Log.d(TAG, "create");
+					this.contentHolder = new ContentHolder();
+					this.contentHolder.taskContent = (TextView) content
+							.findViewById(R.id.task_content);
+					this.contentHolder.taskContentSwitcher = (ViewSwitcher) content
+							.findViewById(R.id.switcher_content);
+					this.contentHolder.taskContentEdit = (EditText) content
+							.findViewById(R.id.task_content_edit);
+					this.contentHolder.taskContentEdit.setOnFocusChangeListener(this);
+					this.contentHolder.taskContentEdit.addTextChangedListener(new TextWatcher() {
 
 						@Override
-						public void onFocusChange(View v, boolean hasFocus) {
-							if (hasFocus) {
-								((MainActivity) context)
-										.getWindow()
-										.setSoftInputMode(
-												WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-							} else {
-								((MainActivity) context)
-										.getWindow()
-										.setSoftInputMode(
-												WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+						public void afterTextChanged(Editable s) {
+							TaskFragmentAdapter.this.taskEditText = TaskFragmentAdapter.this.contentHolder.taskContentEdit.getText().toString();
+
+						}
+
+						@Override
+						public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+							if (TaskFragmentAdapter.this.editContent
+									&& TaskFragmentAdapter.this.recordeContent) {
+								TaskFragmentAdapter.this.cursorPos = TaskFragmentAdapter.this.contentHolder.taskContentEdit.getSelectionEnd();
 							}
 
 						}
+
+						@Override
+						public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+						}
 					});
-			holder.taskContentEdit.addTextChangedListener(new TextWatcher() {
-
-				@Override
-				public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-				}
-
-				@Override
-				public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-					if (editContent) {
-						cursorPos = holder.taskContentEdit.getSelectionEnd();
-					}
-
-				}
-
-				@Override
-				public void afterTextChanged(Editable s) {
-					taskEditText = holder.taskContentEdit.getText().toString();
-
-				}
-			});
-			holder.editContent = (ImageButton) content
-					.findViewById(R.id.edit_content);
-			holder.editContent.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					editContent = !editContent;
-					saveContent();
-					notifyDataSetChanged();
-				}
-			});
-			holder.divider = content.findViewById(R.id.item_separator);
-			content.setTag(holder);
-		} else {
-			holder = (ContentHolder) content.getTag();
-		}
-		while (holder.taskContentSwitcher.getCurrentView().getId() != (editContent ? R.id.task_content_edit
-				: R.id.task_content)) {
-			holder.taskContentSwitcher.showNext();
-		}
-		if (editContent) {
-			holder.editContent.setImageDrawable(context.getResources()
-					.getDrawable(android.R.drawable.ic_menu_save));
-			holder.divider.setBackgroundColor(context.getResources().getColor(
-					inactive_color));
-			editContent = false;// do not record Textchanges
-
-			setContentCursorPosition(holder);
-
-			Linkify.addLinks(holder.taskContentEdit, Linkify.WEB_URLS);
-			holder.taskContentEdit.requestFocus();
-			InputMethodManager imm = ((InputMethodManager) context
-					.getSystemService(Context.INPUT_METHOD_SERVICE));
-			imm.showSoftInput(holder.taskContentEdit,
-					InputMethodManager.SHOW_IMPLICIT);
-			holder.taskContentEdit.setSelected(true);
-			if (mActionMode == null) {
-				mActionMode = ((Activity) context)
-						.startActionMode(mActionModeCallback);
-				View doneButton;
-				int doneButtonId = Resources.getSystem().getIdentifier(
-						"action_mode_close_button", "id", "android");
-				doneButton = ((Activity) context)
-						.findViewById(doneButtonId);
-				if (doneButton != null) {
-					doneButton.setOnClickListener(new View.OnClickListener() {
-
+					this.contentHolder.editContent = (ImageButton) content
+							.findViewById(R.id.edit_content);
+					this.contentHolder.editContent.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View v) {
+							Log.d(TAG, "click");
+							TaskFragmentAdapter.this.editContent = !TaskFragmentAdapter.this.editContent;
 							saveContent();
-							editContent = false;
 							notifyDataSetChanged();
-							if (mActionMode != null) {
-								mActionMode.finish();
-							}
 						}
 					});
-
+					this.contentHolder.divider = content.findViewById(R.id.item_separator);
+					content.setTag(this.contentHolder);
+				} else {
+					this.contentHolder = (ContentHolder) content.getTag();
 				}
-			}
-			editContent = true;
-		} else {
-			// Task content
-			holder.editContent.setImageDrawable(context.getResources()
-					.getDrawable(android.R.drawable.ic_menu_edit));
-			if (task.getContent().length() > 0) {
-				holder.taskContent.setText(task.getContent());
-				taskEditText = task.getContent();
-				cursorPos = taskEditText.length();
-				Linkify.addLinks(holder.taskContent, Linkify.WEB_URLS);
-				holder.divider.setBackgroundColor(context.getResources()
-						.getColor(inactive_color));
-				holder.taskContent.setTextColor(context.getResources()
-						.getColor(
-								darkTheme ? android.R.color.white
-										: android.R.color.black));
-			} else {
-				holder.taskContent.setText(R.string.add_content);
-				holder.divider.setBackgroundColor(context.getResources()
-						.getColor(inactive_color));
-				holder.taskContent.setTextColor(context.getResources()
-						.getColor(inactive_color));
-				taskEditText = "";
-				if (!editContent) cursorPos = 0;
-			}
-			InputMethodManager imm = (InputMethodManager) context
-					.getSystemService(Context.INPUT_METHOD_SERVICE);
-			imm.hideSoftInputFromWindow(
-					holder.taskContentEdit.getWindowToken(), 0);
-		}
-		return content;
-	}
+				while (this.contentHolder.taskContentSwitcher.getCurrentView().getId() != (this.editContent ? R.id.task_content_edit
+						: R.id.task_content)) {
+					this.contentHolder.taskContentSwitcher.showNext();
+				}
 
-	private void setContentCursorPosition(final ContentHolder holder) {
-		holder.taskContentEdit.setText(taskEditText);
-		if (cursorPos == 0
-				|| cursorPos > holder.taskContentEdit.getText().length()) {
-			holder.taskContentEdit.setSelection(holder.taskContentEdit
-					.getText().length());
-		} else {
-			holder.taskContentEdit.setSelection(cursorPos);
-		}
-	}
+				if (this.editContent) {
+					((MainActivity) TaskFragmentAdapter.this.context)
+					.getWindow()
+					.setSoftInputMode(
+							WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+					this.contentHolder.editContent.setImageDrawable(this.context.getResources()
+							.getDrawable(android.R.drawable.ic_menu_save));
+					this.contentHolder.divider.setBackgroundColor(this.context.getResources().getColor(
+							inactive_color));
+					this.recordeContent = false;
 
-	static class ReminderHolder {
-		TextView	taskReminder;
-		ImageButton	recurringButton;
-	}
+					setContentCursorPosition(this.contentHolder);
 
-	private View setupReminder(ViewGroup parent, View convertView) {
-		final View reminder = convertView == null
-				|| convertView.getId() != R.id.reminder_wrapper ? inflater
-				.inflate(R.layout.task_reminder, parent, false) : convertView;
-		setupReminderView(convertView, reminder);
-		return reminder;
-	}
+					Linkify.addLinks(this.contentHolder.taskContentEdit, Linkify.WEB_URLS);
+					this.contentHolder.taskContentEdit.requestFocus();
 
-	@SuppressLint("NewApi")
-	private void setupReminderView(View convertView, final View reminder) {
-		if (reminder == null) {
-			Log.wtf(TAG, "reminder=null");
-			return;
-		}
-		final ReminderHolder holder;
-		if (convertView == null || convertView.getTag() == null) {
-			holder = new ReminderHolder();
-			holder.taskReminder = (TextView) reminder
-					.findViewById(R.id.task_reminder);
-			holder.taskReminder.setOnClickListener(new View.OnClickListener() {
+					InputMethodManager imm = (InputMethodManager) this.context
+							.getSystemService(Context.INPUT_METHOD_SERVICE);
+					imm.showSoftInput(this.contentHolder.taskContentEdit,
+							InputMethodManager.SHOW_IMPLICIT);
+					this.contentHolder.taskContentEdit.setSelected(true);
+					if (this.mActionMode == null) {
+						this.mActionMode = ((Activity) this.context)
+								.startActionMode(this.mActionModeCallback);
 
-				@Override
-				public void onClick(View v) {
-					TaskDialogHelpers.handleReminder((Activity) context, task,
-							new ExecInterface() {
+						View doneButton;
+						int doneButtonId = Resources.getSystem().getIdentifier(
+								"action_mode_close_button", "id", "android");
+						doneButton = ((Activity) this.context)
+								.findViewById(doneButtonId);
+						if (doneButton != null) {
+							doneButton.setOnClickListener(new View.OnClickListener() {
 
 								@Override
-								public void exec() {
+								public void onClick(View v) {
+									saveContent();
+									TaskFragmentAdapter.this.editContent = false;
 									notifyDataSetChanged();
-									ReminderAlarm.updateAlarms(context);
-
+									if (TaskFragmentAdapter.this.mActionMode != null) {
+										TaskFragmentAdapter.this.mActionMode.finish();
+									}
 								}
-							}, darkTheme);
+							});
+
+						}
+					}
+					this.recordeContent = true;
+				} else {
+					// Task content
+					((MainActivity) TaskFragmentAdapter.this.context).getWindow()
+					.setSoftInputMode(
+							WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+					this.contentHolder.editContent.setImageDrawable(this.context.getResources()
+							.getDrawable(android.R.drawable.ic_menu_edit));
+					if (this.task.getContent().length() > 0) {
+						this.contentHolder.taskContent.setText(this.task.getContent());
+						this.taskEditText = this.task.getContent();
+						this.cursorPos = this.taskEditText.length();
+						Linkify.addLinks(this.contentHolder.taskContent, Linkify.WEB_URLS);
+						this.contentHolder.divider.setBackgroundColor(this.context.getResources()
+								.getColor(inactive_color));
+						this.contentHolder.taskContent.setTextColor(this.context.getResources()
+								.getColor(
+										this.darkTheme ? android.R.color.white
+												: android.R.color.black));
+					} else {
+						this.contentHolder.taskContent.setText(R.string.add_content);
+						this.contentHolder.divider.setBackgroundColor(this.context.getResources()
+								.getColor(inactive_color));
+						this.contentHolder.taskContent.setTextColor(this.context.getResources()
+								.getColor(inactive_color));
+						this.taskEditText = "";
+						if (!this.editContent) {
+							this.cursorPos = 0;
+						}
+					}
+					InputMethodManager imm = (InputMethodManager) this.context
+							.getSystemService(Context.INPUT_METHOD_SERVICE);
+					imm.hideSoftInputFromWindow(
+							this.contentHolder.taskContentEdit.getWindowToken(), 0);
 				}
-			});
-			holder.recurringButton = (ImageButton) reminder
-					.findViewById(R.id.reccuring_reminder);
-			holder.recurringButton.setOnClickListener(new OnClickListener() {
-
-				@Override
-				public void onClick(View v) {
-					TaskDialogHelpers.handleRecurrence((Activity) context,
-							task, false, holder.recurringButton, darkTheme);
-
-				}
-			});
-			reminder.setTag(holder);
-		} else {
-			holder = (ReminderHolder) reminder.getTag();
-		}
-		// Task Reminder
-		Drawable reminder_img = context.getResources().getDrawable(
-				android.R.drawable.ic_menu_recent_history);
-		reminder_img.setBounds(0, 1, 42, 42);
-		Configuration config = context.getResources().getConfiguration();
-		setRecurringImage(holder.recurringButton, context,
-				task.getRecurringReminderId());
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1
-				&& config.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
-			holder.taskReminder.setCompoundDrawables(null, null, reminder_img,
-					null);
-		} else {
-			holder.taskReminder.setCompoundDrawables(reminder_img, null, null,
-					null);
-		}
-
-		if (task.getReminder() == null) {
-			holder.taskReminder
-					.setText(context.getString(R.string.no_reminder));
-			holder.taskReminder.setTextColor(context.getResources().getColor(
-					inactive_color));
-		} else {
-			holder.taskReminder.setText(DateTimeHelper.formatDate(
-					task.getReminder(),
-					context.getString(R.string.humanDateTimeFormat)));
-			holder.taskReminder.setTextColor(context.getResources().getColor(
-					inactive_color));
-		}
-	}
-
-	static class DueHolder {
-		TextView	taskDue;
-		ImageButton	reccurence;
+				return content;
 	}
 
 	private View setupDue(ViewGroup parent, View convertView, int width, int pos) {
 		if (width < minDueNextToReminderSize) {
-			final View due = (convertView == null || convertView.getId() != R.id.due_wrapper) ? inflater
+			final View due = convertView == null || convertView.getId() != R.id.due_wrapper ? this.inflater
 					.inflate(R.layout.task_due, parent, false) : convertView;
-			setupDueView(convertView, due);
-			return due;
+					setupDueView(convertView, due);
+					return due;
 		}
-		View due_reminder = (convertView == null || convertView.getId() != R.id.wrapper_reminder_due) ? inflater
+		View due_reminder = convertView == null || convertView.getId() != R.id.wrapper_reminder_due ? this.inflater
 				.inflate(R.layout.due_reminder_row, parent, false)
 				: convertView;
-		View due = due_reminder.findViewById(R.id.wrapper_due);
-		View reminder = due_reminder.findViewById(R.id.wrapper_reminder);
-		setupDueView(due, due);
-		if (pos < data.size() && data.get(pos + 1).first == TYPE.REMINDER
-				|| (pos > 1 && data.get(pos - 1).first == TYPE.REMINDER)) {
-			setupReminderView(reminder, reminder);
-		} else {
-			reminder.setVisibility(View.GONE);
-		}
-		return due_reminder;
+				View due = due_reminder.findViewById(R.id.wrapper_due);
+				View reminder = due_reminder.findViewById(R.id.wrapper_reminder);
+				setupDueView(due, due);
+				if (pos < this.data.size() && this.data.get(pos + 1).first == TYPE.REMINDER
+						|| pos > 1 && this.data.get(pos - 1).first == TYPE.REMINDER) {
+					setupReminderView(reminder, reminder);
+				} else {
+					reminder.setVisibility(View.GONE);
+				}
+				return due_reminder;
 	}
 
 	@SuppressLint("NewApi")
@@ -1026,18 +830,18 @@ public class TaskFragmentAdapter extends MirakelArrayAdapter<Pair<Integer, Integ
 
 				@Override
 				public void onClick(View v) {
-					TaskDialogHelpers.handleRecurrence((Activity) context,
-							task, true, holder.reccurence, darkTheme);
+					TaskDialogHelpers.handleRecurrence((Activity) TaskFragmentAdapter.this.context,
+							TaskFragmentAdapter.this.task, true, holder.reccurence, TaskFragmentAdapter.this.darkTheme);
 				}
 			});
 			holder.taskDue.setOnClickListener(new View.OnClickListener() {
 
 				@Override
 				public void onClick(View v) {
-					mIgnoreTimeSet = false;
-					final Calendar dueLocal = (task.getDue() == null ? new GregorianCalendar()
-							: task.getDue());
-					final FragmentManager fm = ((MainActivity) context)
+					TaskFragmentAdapter.this.mIgnoreTimeSet = false;
+					final Calendar dueLocal = TaskFragmentAdapter.this.task.getDue() == null ? new GregorianCalendar()
+					: TaskFragmentAdapter.this.task.getDue();
+					final FragmentManager fm = ((MainActivity) TaskFragmentAdapter.this.context)
 							.getSupportFragmentManager();
 					final DatePickerDialog datePickerDialog = DatePickerDialog
 							.newInstance(
@@ -1045,35 +849,35 @@ public class TaskFragmentAdapter extends MirakelArrayAdapter<Pair<Integer, Integ
 
 										@Override
 										public void onDateSet(DatePicker dp, int year, int month, int day) {
-											if (mIgnoreTimeSet) return;
-											task.setDue(new GregorianCalendar(
+											if (TaskFragmentAdapter.this.mIgnoreTimeSet) return;
+											TaskFragmentAdapter.this.task.setDue(new GregorianCalendar(
 													year, month, day));
-											((MainActivity) context)
-													.saveTask(task);
+											((MainActivity) TaskFragmentAdapter.this.context)
+											.saveTask(TaskFragmentAdapter.this.task);
 											holder.taskDue
-													.setText(new SimpleDateFormat(
-															context.getString(R.string.dateFormat),
-															Locale.getDefault())
-															.format(task
-																	.getDue()
-																	.getTime()));
+											.setText(new SimpleDateFormat(
+													TaskFragmentAdapter.this.context.getString(R.string.dateFormat),
+													Locale.getDefault())
+											.format(TaskFragmentAdapter.this.task
+													.getDue()
+													.getTime()));
 
 										}
 
 										@Override
 										public void onNoDateSet() {
-											task.setDue(null);
-											((MainActivity) context)
-													.saveTask(task);
+											TaskFragmentAdapter.this.task.setDue(null);
+											((MainActivity) TaskFragmentAdapter.this.context)
+											.saveTask(TaskFragmentAdapter.this.task);
 											holder.taskDue
-													.setText(context
-															.getString(R.string.no_date));
+											.setText(TaskFragmentAdapter.this.context
+													.getString(R.string.no_date));
 
 										}
 									}, dueLocal.get(Calendar.YEAR), dueLocal
-											.get(Calendar.MONTH), dueLocal
-											.get(Calendar.DAY_OF_MONTH), false,
-									darkTheme, true);
+									.get(Calendar.MONTH), dueLocal
+									.get(Calendar.DAY_OF_MONTH), false,
+									TaskFragmentAdapter.this.darkTheme, true);
 					// datePickerDialog.setYearRange(2005, 2036);// must be <
 					// 2037
 					datePickerDialog.show(fm, "datepicker");
@@ -1084,275 +888,568 @@ public class TaskFragmentAdapter extends MirakelArrayAdapter<Pair<Integer, Integ
 			holder = (DueHolder) due.getTag();
 		}
 		// Task due
-		Drawable dueImg = context.getResources().getDrawable(
+		Drawable dueImg = this.context.getResources().getDrawable(
 				android.R.drawable.ic_menu_today);
 		dueImg.setBounds(0, 1, 42, 42);
-		Configuration config = context.getResources().getConfiguration();
-		setRecurringImage(holder.reccurence, context, task.getRecurrenceId());
+		Configuration config = this.context.getResources().getConfiguration();
+		setRecurringImage(holder.reccurence, this.context, this.task.getRecurrenceId());
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1
 				&& config.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
 			holder.taskDue.setCompoundDrawables(null, null, dueImg, null);
 		} else {
 			holder.taskDue.setCompoundDrawables(dueImg, null, null, null);
 		}
-		setupRecurrenceDrawable(holder.reccurence, task.getRecurring());
-		if (task.getDue() == null) {
-			holder.taskDue.setText(context.getString(R.string.no_date));
-			holder.taskDue.setTextColor(context.getResources().getColor(
+		setupRecurrenceDrawable(holder.reccurence, this.task.getRecurring());
+		if (this.task.getDue() == null) {
+			holder.taskDue.setText(this.context.getString(R.string.no_date));
+			holder.taskDue.setTextColor(this.context.getResources().getColor(
 					inactive_color));
 		} else {
-			holder.taskDue.setText(DateTimeHelper.formatDate(context,
-					task.getDue()));
-			holder.taskDue.setTextColor(context.getResources().getColor(
-					TaskHelper.getTaskDueColor(task.getDue(), task.isDone())));
+			holder.taskDue.setText(DateTimeHelper.formatDate(this.context,
+					this.task.getDue()));
+			holder.taskDue.setTextColor(this.context.getResources().getColor(
+					TaskHelper.getTaskDueColor(this.task.getDue(), this.task.isDone())));
 		}
+	}
+
+	private View setupFile(ViewGroup parent, final FileMirakel file, View convertView, int position) {
+		final View row = convertView == null ? this.inflater.inflate(
+				R.layout.files_row, parent, false) : convertView;
+				final FileHolder holder;
+				if (convertView == null) {
+					holder = new FileHolder();
+					holder.fileImage = (ImageView) row.findViewById(R.id.file_image);
+					holder.fileName = (TextView) row.findViewById(R.id.file_name);
+					holder.filePath = (TextView) row.findViewById(R.id.file_path);
+					row.setTag(holder);
+				} else {
+					holder = (FileHolder) row.getTag();
+				}
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						TaskFragmentAdapter.this.preview = file.getPreview();
+						if (file.getPath().endsWith(".mp3")) {
+							int resource_id = MirakelPreferences.isDark() ? R.drawable.ic_action_play_dark
+									: R.drawable.ic_action_play;
+							TaskFragmentAdapter.this.preview = BitmapFactory.decodeResource(
+									TaskFragmentAdapter.this.context.getResources(), resource_id);
+						}
+						if (TaskFragmentAdapter.this.preview != null) {
+							holder.fileImage.post(new Runnable() {
+								@Override
+								public void run() {
+									holder.fileImage.setImageBitmap(TaskFragmentAdapter.this.preview);
+
+								}
+							});
+						} else {
+
+							holder.fileImage.post(new Runnable() {
+								@Override
+								public void run() {
+									LayoutParams params = (LayoutParams) holder.fileImage
+											.getLayoutParams();
+									params.height = 0;
+									holder.fileImage.setLayoutParams(params);
+
+								}
+							});
+						}
+					}
+				}).start();
+				if (file.getPath().endsWith(".mp3")
+						&& file.getName().startsWith("AUD_")) {
+					holder.fileName.setText(R.string.audio_record_file);
+				} else if (file.getName().endsWith(".jpg")) {
+					holder.fileName.setText(R.string.image_file);
+				} else {
+					holder.fileName.setText(file.getName());
+				}
+				holder.filePath.setText(file.getPath());
+				if (!file.getFile().exists()) {
+					holder.filePath.setText(R.string.file_vanished);
+				} else {
+					holder.filePath.setText(file.getPath());
+				}
+				markSelected(position, row);
+
+				return row;
+	}
+
+	private View setupHeader(View convertView) {
+		// Task Name
+		final View header = convertView == null ? this.inflater.inflate(
+				R.layout.task_head_line, null, false) : convertView;
+				if (convertView == null) {
+					this.headerHolder = new HeaderHolder();
+					this.headerHolder.taskName = (TextView) header
+							.findViewById(R.id.task_name);
+					this.headerHolder.taskDone = (CheckBox) header
+							.findViewById(R.id.task_done);
+					this.headerHolder.taskPrio = (TextView) header
+							.findViewById(R.id.task_prio);
+					this.headerHolder.switcher = (ViewSwitcher) header
+							.findViewById(R.id.switch_name);
+					this.headerHolder.txt = (EditText) header.findViewById(R.id.edit_name);
+					this.headerHolder.taskName
+					.setOnClickListener(new View.OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							if (MirakelPreferences.isTablet()) {
+								((EditText) ((MainActivity) TaskFragmentAdapter.this.context)
+										.findViewById(R.id.tasks_new))
+										.setOnFocusChangeListener(null);
+							}
+							TaskFragmentAdapter.this.headerHolder.switcher.showNext(); // or switcher.showPrevious();
+							CharSequence name = TaskFragmentAdapter.this.headerHolder.taskName.getText();
+							TaskFragmentAdapter.this.headerHolder.txt.setText(name);
+							TaskFragmentAdapter.this.headerHolder.txt
+							.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+								@Override
+								public void onFocusChange(View view, boolean hasFocus) {
+									InputMethodManager imm = (InputMethodManager) TaskFragmentAdapter.this.context
+											.getSystemService(Context.INPUT_METHOD_SERVICE);
+									if (hasFocus) {
+										imm.showSoftInput(
+												TaskFragmentAdapter.this.headerHolder.txt,
+												InputMethodManager.SHOW_IMPLICIT);
+										Log.w(TAG,
+												"handle keyboard show");
+									} else {
+										imm.showSoftInput(
+												TaskFragmentAdapter.this.headerHolder.txt,
+												InputMethodManager.HIDE_IMPLICIT_ONLY);
+										Log.wtf(TAG,
+												"handle keyboard hidde");
+									}
+
+								}
+							});
+							TaskFragmentAdapter.this.headerHolder.txt.requestFocus();
+							TaskFragmentAdapter.this.headerHolder.txt
+							.setOnEditorActionListener(new OnEditorActionListener() {
+								@Override
+								public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
+									if (actionId == EditorInfo.IME_ACTION_DONE) {
+										EditText txt = (EditText) header
+												.findViewById(R.id.edit_name);
+										InputMethodManager imm = (InputMethodManager) TaskFragmentAdapter.this.context
+												.getSystemService(Context.INPUT_METHOD_SERVICE);
+										TaskFragmentAdapter.this.task.setName(txt.getText()
+												.toString());
+										((MainActivity) TaskFragmentAdapter.this.context)
+										.saveTask(TaskFragmentAdapter.this.task);
+										TaskFragmentAdapter.this.headerHolder.taskName
+										.setText(TaskFragmentAdapter.this.task.getName());
+										txt.setOnFocusChangeListener(null);
+										imm.hideSoftInputFromWindow(
+												txt.getWindowToken(), 0);
+										TaskFragmentAdapter.this.headerHolder.switcher
+										.showPrevious();
+
+										return true;
+									}
+									return false;
+								}
+
+							});
+							TaskFragmentAdapter.this.headerHolder.txt.setSelection(name.length());
+						}
+					});
+					this.headerHolder.taskPrio.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							TaskDialogHelpers.handlePriority(TaskFragmentAdapter.this.context, TaskFragmentAdapter.this.task,
+									new ExecInterface() {
+								@Override
+								public void exec() {
+									((MainActivity) TaskFragmentAdapter.this.context)
+									.updatesForTask(TaskFragmentAdapter.this.task);
+									setPrio(TaskFragmentAdapter.this.headerHolder.taskPrio, TaskFragmentAdapter.this.task);
+
+								}
+							});
+						}
+					});
+					header.setTag(this.headerHolder);
+				} else {
+					this.headerHolder = (HeaderHolder) header.getTag();
+					this.headerHolder.taskDone.setOnCheckedChangeListener(null);
+				}
+
+				String tname = this.task.getName();
+				this.headerHolder.taskName.setText(tname == null ? "" : tname);
+				if (MirakelPreferences.isTablet()) {
+					this.headerHolder.taskName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 30);
+				}
+
+				if (this.headerHolder.switcher.getCurrentView().getId() == R.id.edit_name
+						&& !this.task.getName()
+						.equals(this.headerHolder.txt.getText().toString())) {
+					this.headerHolder.switcher.showPrevious();
+				}
+
+				// Task done
+				this.headerHolder.taskDone.setChecked(this.task.isDone());
+				this.headerHolder.taskDone
+				.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+					@Override
+					public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+						TaskFragmentAdapter.this.task.setDone(isChecked);
+						((MainActivity) TaskFragmentAdapter.this.context).saveTask(TaskFragmentAdapter.this.task);
+						ReminderAlarm.updateAlarms(TaskFragmentAdapter.this.context);
+						((MainActivity) TaskFragmentAdapter.this.context).getListFragment().update();
+					}
+				});
+
+				// Task priority
+				setPrio(this.headerHolder.taskPrio, this.task);
+				return header;
+	}
+
+	private View setupProgress(ViewGroup parent, View convertView) {
+		final View view = convertView == null ? this.inflater.inflate(
+				R.layout.task_progress, parent, false) : convertView;
+				final SeekBar progress = (SeekBar) view
+						.findViewById(R.id.task_progress_seekbar);
+				progress.setProgress(this.task.getProgress());
+				progress.setMax(100);
+				progress.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+
+					@Override
+					public void onProgressChanged(SeekBar seekBar, int progressLocal, boolean fromUser) {}
+
+					@Override
+					public void onStartTrackingTouch(SeekBar seekBar) {
+						// TODO Auto-generated method stub
+
+					}
+
+					@Override
+					public void onStopTrackingTouch(SeekBar seekBar) {
+						TaskFragmentAdapter.this.task.setProgress(seekBar.getProgress());
+						((MainActivity) TaskFragmentAdapter.this.context).saveTask(TaskFragmentAdapter.this.task);
+
+					}
+				});
+				return view;
+
 	}
 
 	@SuppressLint("NewApi")
 	private void setupRecurrenceDrawable(ImageButton reccurence, Recurring recurring) {
 		if (Build.VERSION.SDK_INT < 16) return;
 		if (recurring == null || recurring.getId() == -1) {
-			reccurence.setBackground(context.getResources().getDrawable(
+			reccurence.setBackground(this.context.getResources().getDrawable(
 					android.R.drawable.ic_menu_mylocation));
 		} else {
-			reccurence.setBackground(context.getResources().getDrawable(
+			reccurence.setBackground(this.context.getResources().getDrawable(
 					android.R.drawable.ic_menu_rotate));
 		}
 
 	}
 
-	static class HeaderHolder {
-		TextView		taskName;
-		CheckBox		taskDone;
-		TextView		taskPrio;
-		ViewSwitcher	switcher;
-		EditText		txt;
+	private View setupReminder(ViewGroup parent, View convertView) {
+		final View reminder = convertView == null
+				|| convertView.getId() != R.id.reminder_wrapper ? this.inflater
+						.inflate(R.layout.task_reminder, parent, false) : convertView;
+						setupReminderView(convertView, reminder);
+						return reminder;
 	}
 
-	private HeaderHolder	headerHolder;
-
-	public void cancelEditing() {
-		// TaskName
-		if (headerHolder != null) {
-			InputMethodManager imm = (InputMethodManager) context
-					.getSystemService(Context.INPUT_METHOD_SERVICE);
-			headerHolder.taskName.setText(task.getName());
-			headerHolder.txt.setText(task.getName());
-			headerHolder.txt.setOnFocusChangeListener(null);
-			imm.hideSoftInputFromWindow(headerHolder.txt.getWindowToken(), 0);
-			headerHolder.switcher.showPrevious();
-		}
-
-	}
-
-	private View setupHeader(View convertView) {
-		// Task Name
-		final View header = convertView == null ? inflater.inflate(
-				R.layout.task_head_line, null, false) : convertView;
-		if (convertView == null) {
-			headerHolder = new HeaderHolder();
-			headerHolder.taskName = (TextView) header
-					.findViewById(R.id.task_name);
-			headerHolder.taskDone = (CheckBox) header
-					.findViewById(R.id.task_done);
-			headerHolder.taskPrio = (TextView) header
-					.findViewById(R.id.task_prio);
-			headerHolder.switcher = (ViewSwitcher) header
-					.findViewById(R.id.switch_name);
-			headerHolder.txt = (EditText) header.findViewById(R.id.edit_name);
-			headerHolder.taskName
-					.setOnClickListener(new View.OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							if (MirakelPreferences.isTablet()) {
-								((EditText) ((MainActivity) context)
-										.findViewById(R.id.tasks_new))
-										.setOnFocusChangeListener(null);
-							}
-							headerHolder.switcher.showNext(); // or switcher.showPrevious();
-							CharSequence name = headerHolder.taskName.getText();
-							headerHolder.txt.setText(name);
-							headerHolder.txt
-									.setOnFocusChangeListener(new OnFocusChangeListener() {
-
-										@Override
-										public void onFocusChange(View view, boolean hasFocus) {
-											InputMethodManager imm = (InputMethodManager) context
-													.getSystemService(Context.INPUT_METHOD_SERVICE);
-											if (hasFocus) {
-												imm.showSoftInput(
-														headerHolder.txt,
-														InputMethodManager.SHOW_IMPLICIT);
-											} else {
-												imm.showSoftInput(
-														headerHolder.txt,
-														InputMethodManager.HIDE_IMPLICIT_ONLY);
-											}
-
-										}
-									});
-							headerHolder.txt.requestFocus();
-							headerHolder.txt
-									.setOnEditorActionListener(new OnEditorActionListener() {
-										public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
-											if (actionId == EditorInfo.IME_ACTION_DONE) {
-												EditText txt = (EditText) header
-														.findViewById(R.id.edit_name);
-												InputMethodManager imm = (InputMethodManager) context
-														.getSystemService(Context.INPUT_METHOD_SERVICE);
-												task.setName(txt.getText()
-														.toString());
-												((MainActivity) context)
-														.saveTask(task);
-												headerHolder.taskName
-														.setText(task.getName());
-												txt.setOnFocusChangeListener(null);
-												imm.hideSoftInputFromWindow(
-														txt.getWindowToken(), 0);
-												headerHolder.switcher
-														.showPrevious();
-
-												return true;
-											}
-											return false;
-										}
-
-									});
-							headerHolder.txt.setSelection(name.length());
-						}
-					});
-			headerHolder.taskPrio.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					TaskDialogHelpers.handlePriority(context, task,
-							new ExecInterface() {
-								@Override
-								public void exec() {
-									((MainActivity) context)
-											.updatesForTask(task);
-									setPrio(headerHolder.taskPrio, task);
-
-								}
-							});
-				}
-			});
-			header.setTag(headerHolder);
-		} else {
-			headerHolder = (HeaderHolder) header.getTag();
-			headerHolder.taskDone.setOnCheckedChangeListener(null);
-		}
-
-		String tname = task.getName();
-		headerHolder.taskName.setText(tname == null ? "" : tname);
-		if (MirakelPreferences.isTablet())
-			headerHolder.taskName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 30);
-
-		if (headerHolder.switcher.getCurrentView().getId() == R.id.edit_name
-				&& !task.getName()
-						.equals(headerHolder.txt.getText().toString())) {
-			headerHolder.switcher.showPrevious();
-		}
-
-		// Task done
-		headerHolder.taskDone.setChecked(task.isDone());
-		headerHolder.taskDone
-				.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-					@Override
-					public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-						task.setDone(isChecked);
-						((MainActivity) context).saveTask(task);
-						ReminderAlarm.updateAlarms(context);
-						((MainActivity) context).getListFragment().update();
-					}
-				});
-
-		// Task priority
-		setPrio(headerHolder.taskPrio, task);
-		return header;
-	}
-
-	protected void setPrio(TextView Task_prio, Task task) {
-		Task_prio.setText("" + task.getPriority());
-
-		GradientDrawable bg = (GradientDrawable) Task_prio.getBackground();
-		bg.setColor(TaskHelper.getPrioColor(task.getPriority()));
-
-	}
-
-	public void setData(Task t) {
-		if (t == null) {
-			Log.wtf(TAG, "task null");
+	@SuppressLint("NewApi")
+	private void setupReminderView(View convertView, final View reminder) {
+		if (reminder == null) {
+			Log.wtf(TAG, "reminder=null");
 			return;
 		}
-		List<Pair<Integer, Integer>> generateData = generateData(t);
-		super.changeData(generateData);
-		task = t;
-		subtasks = task.getSubtasks();
-		files = task.getFiles();
-		notifyDataSetInvalidated();
-	}
+		final ReminderHolder holder;
+		if (convertView == null || convertView.getTag() == null) {
+			holder = new ReminderHolder();
+			holder.taskReminder = (TextView) reminder
+					.findViewById(R.id.task_reminder);
+			holder.taskReminder.setOnClickListener(new View.OnClickListener() {
 
-	public List<Pair<Integer, Integer>> getData() {
-		return data;
-	}
+				@Override
+				public void onClick(View v) {
+					TaskDialogHelpers.handleReminder((Activity) TaskFragmentAdapter.this.context, TaskFragmentAdapter.this.task,
+							new ExecInterface() {
 
-	public Task getTask() {
-		return task;
-	}
+						@Override
+						public void exec() {
+							notifyDataSetChanged();
+							ReminderAlarm.updateAlarms(TaskFragmentAdapter.this.context);
 
-	private static List<Pair<Integer, Integer>> generateData(Task task) {
-		// From config
-		List<Integer> items = MirakelPreferences.getTaskFragmentLayout();
+						}
+					}, TaskFragmentAdapter.this.darkTheme);
+				}
+			});
+			holder.recurringButton = (ImageButton) reminder
+					.findViewById(R.id.reccuring_reminder);
+			holder.recurringButton.setOnClickListener(new OnClickListener() {
 
-		List<Pair<Integer, Integer>> data = new ArrayList<Pair<Integer, Integer>>();
-		for (Integer item : items) {
-			switch (item) {
-				case TYPE.SUBTASK:
-					data.add(new Pair<Integer, Integer>(TYPE.SUBTITLE,
-							SUBTITLE_SUBTASKS));
-					int subtaskCount = task == null ? 0 : task
-							.getSubtaskCount();
-					for (int i = 0; i < subtaskCount; i++) {
-						data.add(new Pair<Integer, Integer>(TYPE.SUBTASK, i));
-					}
-					break;
-				case TYPE.FILE:
-					data.add(new Pair<Integer, Integer>(TYPE.SUBTITLE,
-							SUBTITLE_FILES));
-					int fileCount = FileMirakel.getFileCount(task);
-					for (int i = 0; i < fileCount; i++)
-						data.add(new Pair<Integer, Integer>(TYPE.FILE, i));
-					break;
-				case TYPE.PROGRESS:
-					data.add(new Pair<Integer, Integer>(TYPE.SUBTITLE,
-							SUBTITLE_PROGRESS));
-					data.add(new Pair<Integer, Integer>(TYPE.PROGRESS, 0));
-					break;
-				default:
-					data.add(new Pair<Integer, Integer>(item, 0));
-			}
-		}
-		return data;
-	}
+				@Override
+				public void onClick(View v) {
+					TaskDialogHelpers.handleRecurrence((Activity) TaskFragmentAdapter.this.context,
+							TaskFragmentAdapter.this.task, false, holder.recurringButton, TaskFragmentAdapter.this.darkTheme);
 
-	public void setcameraButtonClick(OnClickListener cameraButtonClick) {
-		this.cameraButtonClick = cameraButtonClick;
-	}
-
-	public void setaudioButtonClick(OnClickListener audioButtonClick) {
-		this.audioButtonClick = audioButtonClick;
-	}
-
-	@SuppressWarnings("deprecation")
-	@SuppressLint("NewApi")
-	public static void setRecurringImage(ImageButton image, Context ctx, int id) {
-		Drawable d = ctx.getResources().getDrawable(
-				id == -1 ? android.R.drawable.ic_menu_mylocation
-						: android.R.drawable.ic_menu_rotate);
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-			image.setBackgroundDrawable(d);
+				}
+			});
+			reminder.setTag(holder);
 		} else {
-			image.setBackground(d);
+			holder = (ReminderHolder) reminder.getTag();
+		}
+		// Task Reminder
+		Drawable reminder_img = this.context.getResources().getDrawable(
+				android.R.drawable.ic_menu_recent_history);
+		reminder_img.setBounds(0, 1, 42, 42);
+		Configuration config = this.context.getResources().getConfiguration();
+		setRecurringImage(holder.recurringButton, this.context,
+				this.task.getRecurringReminderId());
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1
+				&& config.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
+			holder.taskReminder.setCompoundDrawables(null, null, reminder_img,
+					null);
+		} else {
+			holder.taskReminder.setCompoundDrawables(reminder_img, null, null,
+					null);
+		}
+
+		if (this.task.getReminder() == null) {
+			holder.taskReminder
+			.setText(this.context.getString(R.string.no_reminder));
+			holder.taskReminder.setTextColor(this.context.getResources().getColor(
+					inactive_color));
+		} else {
+			holder.taskReminder.setText(DateTimeHelper.formatDate(
+					this.task.getReminder(),
+					this.context.getString(R.string.humanDateTimeFormat)));
+			holder.taskReminder.setTextColor(this.context.getResources().getColor(
+					inactive_color));
+		}
+	}
+
+	private View setupSubtask(ViewGroup parent, View convertView, Task task, int position) {
+		final View row = convertView == null || convertView.getId() != R.id.tasks_row ? this.inflater
+				.inflate(R.layout.tasks_row, parent, false) : convertView;
+				final TaskHolder holder;
+
+				if (convertView == null) {
+					// Initialize the View
+					holder = new TaskHolder();
+					holder.taskRowDone = (CheckBox) row
+							.findViewById(R.id.tasks_row_done);
+					holder.taskRowDoneWrapper = (RelativeLayout) row
+							.findViewById(R.id.tasks_row_done_wrapper);
+					holder.taskRowName = (TextView) row
+							.findViewById(R.id.tasks_row_name);
+					holder.taskRowPriority = (TextView) row
+							.findViewById(R.id.tasks_row_priority);
+					holder.taskRowDue = (TextView) row.findViewById(R.id.tasks_row_due);
+					holder.taskRowHasContent = (ImageView) row
+							.findViewById(R.id.tasks_row_has_content);
+					holder.taskRowList = (TextView) row
+							.findViewById(R.id.tasks_row_list_name);
+
+					holder.taskRowDoneWrapper.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							Task taskLocal = (Task) v.getTag();
+							taskLocal.toggleDone();
+							((MainActivity) TaskFragmentAdapter.this.context).saveTask(taskLocal);
+							ReminderAlarm.updateAlarms(TaskFragmentAdapter.this.context);
+							holder.taskRowDone.setChecked(taskLocal.isDone());
+							updateName(taskLocal, row, holder);
+						}
+					});
+
+					holder.taskRowPriority.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(final View v) {
+							final Task taskLocal = (Task) v.getTag();
+							TaskDialogHelpers.handlePriority(TaskFragmentAdapter.this.context, taskLocal,
+									new ExecInterface() {
+								@Override
+								public void exec() {
+									TaskFragmentAdapter.this.task = Task
+											.get(TaskFragmentAdapter.this.task
+													.getId());
+									TaskFragmentAdapter.this.adapter.notifyDataSetChanged();
+								}
+							});
+
+						}
+					});
+
+					row.setTag(holder);
+				} else {
+					holder = (TaskHolder) row.getTag();
+				}
+				if (task == null) return row;
+
+				// Done
+				holder.taskRowDone.setChecked(task.isDone());
+				holder.taskRowDone.setTag(task);
+				holder.taskRowDoneWrapper.setTag(task);
+				holder.taskRowDone.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						Task taskLocal = (Task) v.getTag();
+						taskLocal.toggleDone();
+						((MainActivity) TaskFragmentAdapter.this.context).saveTask(taskLocal);
+						ReminderAlarm.updateAlarms(TaskFragmentAdapter.this.context);
+						holder.taskRowDone.setChecked(taskLocal.isDone());
+						updateName(taskLocal, row, holder);
+					}
+				});
+				if (task.getContent().length() != 0) {
+					holder.taskRowHasContent.setVisibility(View.VISIBLE);
+				} else {
+					holder.taskRowHasContent.setVisibility(View.INVISIBLE);
+				}
+				if (task.getList() != null) {
+					holder.taskRowList.setVisibility(View.VISIBLE);
+					holder.taskRowList.setText(task.getList().getName());
+				} else {
+					holder.taskRowList.setVisibility(View.GONE);
+				}
+
+				// Name
+				holder.taskRowName.setText(task.getName());
+
+				updateName(task, row, holder);
+
+				// Priority
+				holder.taskRowPriority.setText("" + task.getPriority());
+
+				GradientDrawable bg = (GradientDrawable) holder.taskRowPriority
+						.getBackground();
+				bg.setColor(TaskHelper.getPrioColor(task.getPriority()));
+				holder.taskRowPriority.setTag(task);
+
+				// Due
+				if (task.getDue() != null) {
+					holder.taskRowDue.setVisibility(View.VISIBLE);
+					holder.taskRowDue.setText(DateTimeHelper.formatDate(this.context,
+							task.getDue()));
+					holder.taskRowDue.setTextColor(row.getResources().getColor(
+							TaskHelper.getTaskDueColor(task.getDue(), task.isDone())));
+				} else {
+					holder.taskRowDue.setVisibility(View.GONE);
+				}
+				if (this.selected.get(position)) {
+					row.setBackgroundColor(this.context.getResources().getColor(
+							this.darkTheme ? R.color.highlighted_text_holo_dark
+									: R.color.highlighted_text_holo_light));
+				} else if (MirakelPreferences.colorizeTasks()) {
+					if (MirakelPreferences.colorizeSubTasks()) {
+						int w = row.getWidth() == 0 ? parent.getWidth() : row
+								.getWidth();
+						Helpers.setListColorBackground(task.getList(), row, this.darkTheme,
+								w);
+					} else {
+						row.setBackgroundColor(this.context.getResources().getColor(
+								android.R.color.transparent));
+					}
+				} else {
+					row.setBackgroundColor(this.context.getResources().getColor(
+							android.R.color.transparent));
+				}
+				return row;
+	}
+
+	private View setupSubtitle(ViewGroup parent, String title, boolean pencilButton, boolean cameraButton, OnClickListener action, View convertView) {
+		if (title == null) return new View(this.context);
+
+		final View subtitle = convertView == null ? this.inflater.inflate(
+				R.layout.task_subtitle, parent, false) : convertView;
+
+				final SubtitleHolder holder;
+				if (convertView == null) {
+					holder = new SubtitleHolder();
+					holder.title = (TextView) subtitle
+							.findViewById(R.id.task_subtitle);
+					holder.button = (ImageButton) subtitle
+							.findViewById(R.id.task_subtitle_button);
+					holder.audioButton = (ImageButton) subtitle
+							.findViewById(R.id.task_subtitle_audio_button);
+					holder.cameraButton = (ImageButton) subtitle
+							.findViewById(R.id.task_subtitle_camera_button);
+					holder.divider = subtitle.findViewById(R.id.item_separator);
+					subtitle.setTag(holder);
+				} else {
+					holder = (SubtitleHolder) subtitle.getTag();
+				}
+				holder.title.setText(title);
+				if (action != null) {
+					holder.button.setOnClickListener(action);
+					holder.button.setVisibility(View.VISIBLE);
+				} else {
+					holder.button.setVisibility(View.GONE);
+				}
+
+				if (cameraButton) {
+
+					holder.cameraButton.setVisibility(View.VISIBLE);
+					holder.audioButton.setVisibility(View.VISIBLE);
+					if (this.cameraButtonClick != null) {
+						holder.cameraButton.setOnClickListener(this.cameraButtonClick);
+					}
+					if (this.audioButtonClick != null) {
+						holder.audioButton.setOnClickListener(this.audioButtonClick);
+					}
+				} else {
+					holder.cameraButton.setVisibility(View.INVISIBLE);
+					holder.audioButton.setVisibility(View.INVISIBLE);
+				}
+				if (pencilButton) {
+					if (this.editContent) {
+						holder.button.setImageDrawable(this.context.getResources()
+								.getDrawable(android.R.drawable.ic_menu_save));
+					} else {
+						holder.button.setImageDrawable(this.context.getResources()
+								.getDrawable(android.R.drawable.ic_menu_edit));
+					}
+				} else {
+					holder.button.setImageDrawable(this.context.getResources().getDrawable(
+							android.R.drawable.ic_menu_add));
+				}
+				holder.divider.setBackgroundColor(this.context.getResources().getColor(
+						inactive_color));
+				holder.title.setTextColor(this.context.getResources().getColor(
+						inactive_color));
+				return subtitle;
+	}
+
+	public void showKeyboardForContent() {
+		if (this.contentHolder != null) {
+			Runnable r = new Runnable() {
+
+				@Override
+				public void run() {
+					InputMethodManager imm = (InputMethodManager) TaskFragmentAdapter.this.context
+							.getSystemService(Context.INPUT_METHOD_SERVICE);
+					imm.showSoftInput(
+							TaskFragmentAdapter.this.contentHolder.taskContentEdit,
+							InputMethodManager.SHOW_IMPLICIT);
+
+				}
+			};
+			r.run();
+			this.contentHolder.taskContentEdit.postDelayed(r, 100);
+		}
+	}
+
+	private void updateName(Task taskLocal, View row, final TaskHolder holder) {
+		if (taskLocal.isDone()) {
+			holder.taskRowName.setTextColor(row.getResources().getColor(
+					R.color.Grey));
+		} else {
+			holder.taskRowName.setTextColor(row.getResources().getColor(
+					this.darkTheme ? android.R.color.primary_text_dark
+							: android.R.color.primary_text_light));
 		}
 	}
 }

@@ -30,7 +30,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:descendantFocusability="afterDescendants"
+        android:descendantFocusability="beforeDescendants"
         android:divider="@null"
         android:dividerHeight="0dp" />
 
