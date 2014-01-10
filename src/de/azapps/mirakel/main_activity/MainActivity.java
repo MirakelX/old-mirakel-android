@@ -463,17 +463,18 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 	private int handleTasksFragmentMenu() {
 		int newmenu;
 		getListFragment().enableDrop(false);
-		if (getTaskFragment() != null && getTaskFragment().adapter != null&&this.mViewPager!=null) {
-			this.mViewPager.post(new Runnable() {
-
-				@Override
-				public void run() {
-					getTaskFragment().adapter.setEditContent(false);
-
-				}
-			});
-
-		}
+		// if (getTaskFragment() != null && getTaskFragment().adapter !=
+		// null&&this.mViewPager!=null) {
+		// this.mViewPager.post(new Runnable() {
+		//
+		// @Override
+		// public void run() {
+		// getTaskFragment().adapter.setEditContent(false);
+		//
+		// }
+		// });
+		//
+		// }
 		if (this.currentList == null) return -1;
 		if (!MirakelPreferences.isTablet()) {
 			newmenu = R.menu.tasks;
@@ -716,7 +717,7 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 						Toast.makeText(this, getString(R.string.file_vanished),
 								Toast.LENGTH_SHORT).show();
 					} else {
-						getTaskFragment().adapter.setData(this.currentTask);
+						getTaskFragment().update(this.currentTask);
 					}
 				}
 				break;
@@ -768,7 +769,7 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 
 	@Override
 	public void onBackPressed() {
-		getTaskFragment().cancelEditing();
+		// getTaskFragment().cancelEditing();
 		if (this.goBackTo.size() > 0
 				&& this.currentPosition == getTaskFragmentPosition()) {
 			final Task goBack = this.goBackTo.pop();
@@ -820,9 +821,9 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 			getTasksFragment().setActivity(this);
 			this.mDrawerToggle.onConfigurationChanged(newConfig);
 		}
-		if (getTaskFragment().isEditContent()) {
-			getTaskFragment().showKeyboardForContent();
-		}
+		// if (getTaskFragment().isEditContent()) {
+		// getTaskFragment().showKeyboardForContent();
+		// }
 	}
 
 	@SuppressLint("NewApi")
@@ -1053,7 +1054,7 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 	public void onPageSelected(final int position) {
 		if (getTasksFragment() == null) return;
 		getTasksFragment().closeActionMode();
-		getTaskFragment().closeActionMode();
+		// getTaskFragment().closeActionMode();
 		if (MirakelPreferences.lockDrawerInTaskFragment()
 				&& position == getTaskFragmentPosition()) {
 			this.mDrawerLayout

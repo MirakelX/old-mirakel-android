@@ -50,93 +50,23 @@ import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakelandroid.R;
 
 public class TaskAdapter extends MirakelArrayAdapter<Task> {
+	/**
+	 * The class, holding the Views of the Row
+	 * 
+	 * @author az
+	 * 
+	 */
+	static class TaskHolder {
+		CheckBox taskRowDone;
+		RelativeLayout taskRowDoneWrapper;
+		TextView taskRowDue, taskRowList;
+		ImageView taskRowHasContent;
+		TextView taskRowName;
+		TextView taskRowPriority;
+		ProgressWheel taskRowProgress;
+	}
 	@SuppressWarnings("unused")
 	private static final String TAG = "TaskAdapter";
-	int listId;
-	OnClickListener clickCheckbox;
-	OnClickListener clickPrio;
-	private Map<Long, View> viewsForTasks = new HashMap<Long, View>();
-	protected int touchPosition;
-
-	public View getViewForTask(Task task) {
-		return viewsForTasks.get(task.getId());
-	}
-
-	public TaskAdapter(Context c) {
-		// do not call this, only for error-fixing there
-		super(c, 0, new ArrayList<Task>());
-	}
-
-	public TaskAdapter(Context context, int layoutResourceId, List<Task> data,
-			OnClickListener clickCheckbox, OnClickListener click_prio,
-			int listId) {
-		super(context, layoutResourceId, data);
-		this.clickCheckbox = clickCheckbox;
-		this.clickPrio = click_prio;
-		this.listId = listId;
-
-	}
-
-	/**
-	 * Add a task to the head of the List
-	 * 
-	 * @param task
-	 */
-	void addToHead(Task task) {
-		data.add(0, task);
-		selected.add(false);
-	}
-
-	public void changeData(List<Task> tasks, int listID) {
-		viewsForTasks.clear();
-		this.listId = listID;
-		super.changeData(tasks);
-	}
-
-	@Override
-	public View getView(final int position, View convertView, ViewGroup parent) {
-		Task task = position >= data.size() ? null : data.get(position);
-		if (task == null) {
-			task = Task.getDummy(context, ListMirakel.safeFirst(context));
-		}
-		View row = setupRow(convertView, parent, context, layoutResourceId,
-				task, listId <= 0, darkTheme);
-		TaskHolder holder = (TaskHolder) row.getTag();
-		holder.taskRowPriority.setOnClickListener(clickPrio);
-		holder.taskRowDone.setOnClickListener(clickCheckbox);
-		holder.taskRowDoneWrapper.setOnClickListener(clickCheckbox);
-		viewsForTasks.put(task.getId(), row);
-		if (selected.get(position)) {
-			row.setBackgroundColor(context.getResources().getColor(
-					darkTheme ? R.color.highlighted_text_holo_dark
-							: R.color.highlighted_text_holo_light));
-		} else if (MirakelPreferences.colorizeTasks()) {
-			if (MirakelPreferences.colorizeTasksEverywhere()
-					|| ((MainActivity) context).getCurrentList()
-							.isSpecialList()) {
-				int w = row.getWidth() == 0 ? parent.getWidth() : row
-						.getWidth();
-				Helpers.setListColorBackground(task.getList(), row, darkTheme,
-						w);
-			} else {
-				row.setBackgroundColor(context.getResources().getColor(
-						android.R.color.transparent));
-			}
-		} else {
-			row.setBackgroundColor(context.getResources().getColor(
-					android.R.color.transparent));
-		}
-		row.setOnTouchListener(new OnTouchListener() {
-
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				touchPosition = position;
-				return false;
-			}
-		});
-		return row;
-	}
-
 	public static View setupRow(View convertView, ViewGroup parent,
 			Context context, int layoutResourceId, Task task, boolean showList,
 			boolean darkTheme) {
@@ -171,13 +101,13 @@ public class TaskAdapter extends MirakelArrayAdapter<Task> {
 			return row;
 		// Done
 		if (task.getProgress() == 0
-				|| (task.isDone() && task.getProgress() == 100)) {
+				|| task.isDone() && task.getProgress() == 100) {
 			holder.taskRowProgress.setVisibility(View.GONE);
 		} else {
 			holder.taskRowProgress.setVisibility(View.VISIBLE);
 		}
 
-		holder.taskRowProgress.setProgress(Math.round((360.0f / 100.0f)
+		holder.taskRowProgress.setProgress(Math.round(360.0f / 100.0f
 				* task.getProgress()));
 		holder.taskRowDone.setChecked(task.isDone());
 		holder.taskRowDone.setTag(task);
@@ -227,27 +157,97 @@ public class TaskAdapter extends MirakelArrayAdapter<Task> {
 		}
 		return row;
 	}
+	OnClickListener clickCheckbox;
+	OnClickListener clickPrio;
+	int listId;
 
-	public Task lastTouched() {
-		if (touchPosition < data.size())
-			return data.get(touchPosition);
-		return null;
+	protected int touchPosition;
+
+	private final Map<Long, View> viewsForTasks = new HashMap<Long, View>();
+
+	public TaskAdapter(Context c) {
+		// do not call this, only for error-fixing there
+		super(c, 0, new ArrayList<Task>());
+	}
+
+	public TaskAdapter(Context context, int layoutResourceId, List<Task> data,
+			OnClickListener clickCheckbox, OnClickListener click_prio,
+			int listId) {
+		super(context, layoutResourceId, data);
+		this.clickCheckbox = clickCheckbox;
+		this.clickPrio = click_prio;
+		this.listId = listId;
+
 	}
 
 	/**
-	 * The class, holding the Views of the Row
+	 * Add a task to the head of the List
 	 * 
-	 * @author az
-	 * 
+	 * @param task
 	 */
-	static class TaskHolder {
-		CheckBox taskRowDone;
-		RelativeLayout taskRowDoneWrapper;
-		ProgressWheel taskRowProgress;
-		TextView taskRowName;
-		TextView taskRowPriority;
-		TextView taskRowDue, taskRowList;
-		ImageView taskRowHasContent;
+	void addToHead(Task task) {
+		this.data.add(0, task);
+		this.selected.add(false);
+	}
+
+	public void changeData(List<Task> tasks, int listID) {
+		this.viewsForTasks.clear();
+		this.listId = listID;
+		super.changeData(tasks);
+	}
+
+	@Override
+	public View getView(final int position, View convertView, ViewGroup parent) {
+		Task task = position >= this.data.size() ? null : this.data.get(position);
+		if (task == null) {
+			task = Task.getDummy(this.context, ListMirakel.safeFirst(this.context));
+		}
+		View row = setupRow(convertView, parent, this.context, this.layoutResourceId,
+				task, this.listId <= 0, this.darkTheme);
+		TaskHolder holder = (TaskHolder) row.getTag();
+		holder.taskRowPriority.setOnClickListener(this.clickPrio);
+		holder.taskRowDone.setOnClickListener(this.clickCheckbox);
+		holder.taskRowDoneWrapper.setOnClickListener(this.clickCheckbox);
+		this.viewsForTasks.put(task.getId(), row);
+		if (this.selected.get(position)) {
+			row.setBackgroundColor(this.context.getResources().getColor(
+					this.darkTheme ? R.color.highlighted_text_holo_dark
+							: R.color.highlighted_text_holo_light));
+		} else if (MirakelPreferences.colorizeTasks()) {
+			if (MirakelPreferences.colorizeTasksEverywhere()
+					|| ((MainActivity) this.context).getCurrentList()
+							.isSpecialList()) {
+				int w = row.getWidth() == 0 ? parent.getWidth() : row
+						.getWidth();
+				Helpers.setListColorBackground(task.getList(), row,
+						w);
+			} else {
+				row.setBackgroundColor(this.context.getResources().getColor(
+						android.R.color.transparent));
+			}
+		} else {
+			row.setBackgroundColor(this.context.getResources().getColor(
+					android.R.color.transparent));
+		}
+		row.setOnTouchListener(new OnTouchListener() {
+
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				TaskAdapter.this.touchPosition = position;
+				return false;
+			}
+		});
+		return row;
+	}
+
+	public View getViewForTask(Task task) {
+		return this.viewsForTasks.get(task.getId());
+	}
+
+	public Task lastTouched() {
+		if (this.touchPosition < this.data.size())
+			return this.data.get(this.touchPosition);
+		return null;
 	}
 
 }

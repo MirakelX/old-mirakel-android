@@ -194,7 +194,7 @@ public class Helpers {
 
 	@SuppressWarnings("deprecation")
 	@SuppressLint("NewApi")
-	public static void setListColorBackground(ListMirakel list, View row, boolean darkTheme, int w) {
+	public static void setListColorBackground(ListMirakel list, View row, int w) {
 
 		int color;
 		if (list == null) {
@@ -203,7 +203,7 @@ public class Helpers {
 			color = list.getColor();
 		}
 		if (color != 0) {
-			if (darkTheme) {
+			if (MirakelPreferences.isDark()) {
 				color ^= 0x66000000;
 			} else {
 				color ^= 0xCC000000;

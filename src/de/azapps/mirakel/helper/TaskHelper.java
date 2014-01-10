@@ -25,43 +25,24 @@ import org.joda.time.LocalDate;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.widget.TextView;
 import de.azapps.mirakel.main_activity.MainActivity;
 import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakelandroid.R;
 
 public class TaskHelper {
 
-	public static Task getTaskFromIntent(Intent intent) {
-		Task task = null;
-		long taskId = intent.getLongExtra(MainActivity.EXTRA_ID, 0);
-		if (taskId == 0) {
-			// ugly fix for show Task from Widget
-			taskId = intent.getIntExtra(MainActivity.EXTRA_ID, 0);
-		}
-		if (taskId != 0) {
-			task = Task.get(taskId);
-		}
-		return task;
-	}
+	public static int getPrioColor(int priority) {
+		final int[] PRIO_COLOR = { Color.parseColor("#669900"),
+				Color.parseColor("#99CC00"), Color.parseColor("#33B5E5"),
+				Color.parseColor("#FFBB33"), Color.parseColor("#FF4444") };
+		final int[] DARK_PRIO_COLOR = { Color.parseColor("#008000"),
+				Color.parseColor("#00c400"), Color.parseColor("#3377FF"),
+				Color.parseColor("#FF7700"), Color.parseColor("#FF3333") };
+		if (MirakelPreferences.isDark()) return DARK_PRIO_COLOR[priority + 2];
+		return PRIO_COLOR[priority + 2];
 
-	/**
-	 * Helper for the share-functions
-	 * 
-	 * @param ctx
-	 * @param t
-	 * @return
-	 */
-	static String getTaskName(Context ctx, Task t) {
-		String subject;
-		if (t.getDue() == null)
-			subject = ctx.getString(R.string.share_task_title, t.getName());
-		else
-			subject = ctx.getString(
-					R.string.share_task_title_with_date,
-					t.getName(),
-					DateTimeHelper.formatDate(t.getDue(),
-							ctx.getString(R.string.dateFormat)));
-		return subject;
 	}
 
 	/**
@@ -95,17 +76,44 @@ public class TaskHelper {
 		return color;
 	}
 
-	public static int getPrioColor(int priority) {
-		final int[] PRIO_COLOR = { Color.parseColor("#669900"),
-				Color.parseColor("#99CC00"), Color.parseColor("#33B5E5"),
-				Color.parseColor("#FFBB33"), Color.parseColor("#FF4444") };
-		final int[] DARK_PRIO_COLOR = { Color.parseColor("#008000"),
-				Color.parseColor("#00c400"), Color.parseColor("#3377FF"),
-				Color.parseColor("#FF7700"), Color.parseColor("#FF3333") };
-		if (MirakelPreferences.isDark()) {
-			return DARK_PRIO_COLOR[priority + 2];
+	public static Task getTaskFromIntent(Intent intent) {
+		Task task = null;
+		long taskId = intent.getLongExtra(MainActivity.EXTRA_ID, 0);
+		if (taskId == 0) {
+			// ugly fix for show Task from Widget
+			taskId = intent.getIntExtra(MainActivity.EXTRA_ID, 0);
 		}
-		return PRIO_COLOR[priority + 2];
+		if (taskId != 0) {
+			task = Task.get(taskId);
+		}
+		return task;
+	}
+
+	/**
+	 * Helper for the share-functions
+	 * 
+	 * @param ctx
+	 * @param t
+	 * @return
+	 */
+	static String getTaskName(Context ctx, Task t) {
+		String subject;
+		if (t.getDue() == null) {
+			subject = ctx.getString(R.string.share_task_title, t.getName());
+		} else {
+			subject = ctx.getString(
+					R.string.share_task_title_with_date,
+					t.getName(),
+					DateTimeHelper.formatDate(t.getDue(),
+							ctx.getString(R.string.dateFormat)));
+		}
+		return subject;
+	}
+
+	public static void setPrio(TextView taskPrio, Task task) {
+		taskPrio.setText("" + task.getPriority());
+		GradientDrawable bg = (GradientDrawable) taskPrio.getBackground();
+		bg.setColor(TaskHelper.getPrioColor(task.getPriority()));
 
 	}
 
