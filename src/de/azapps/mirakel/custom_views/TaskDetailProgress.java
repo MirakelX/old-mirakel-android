@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
-import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakelandroid.R;
 
 public class TaskDetailProgress extends TaskDetailSubtitleView<Integer, TaskDetailProgressBar> {
@@ -43,10 +42,9 @@ public class TaskDetailProgress extends TaskDetailSubtitleView<Integer, TaskDeta
 	}
 
 	@Override
-	void update(Task t) {
-		this.task=t;
+	protected void updateView() {
 		List<Integer> l=new ArrayList<Integer>();
-		l.add(t.getProgress());
+		l.add(this.task.getProgress());
 		updateSubviews(l);
 
 	}

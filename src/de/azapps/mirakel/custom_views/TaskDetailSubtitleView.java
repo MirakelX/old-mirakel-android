@@ -27,9 +27,11 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import de.azapps.mirakelandroid.R;
+import de.azapps.tools.Log;
 
 public abstract class TaskDetailSubtitleView<E, T extends TaskDetailSubListBase<E>> extends BaseTaskDetailRow {
 
+	private static final String	TAG	= "TaskDetailSubtitleView";
 	protected final ImageButton	audioButton;
 	protected final ImageButton	button;
 	protected final ImageButton	cameraButton;
@@ -61,10 +63,11 @@ public abstract class TaskDetailSubtitleView<E, T extends TaskDetailSubListBase<
 	abstract T newElement();
 
 	protected void updateSubviews(List<E> elementList) {
+		Log.d(TAG, "element count: " + elementList.size());
 		if (elementList.size() < this.viewList.size()) {
 			// remove
-			for (int i = elementList.size(); i < this.viewList.size(); i++) {
-				removeViewAt(i + 1);// One more because subtitle
+			while (getChildCount() > elementList.size() + 1) {
+				removeViewAt(getChildCount() - 1);
 			}
 		} else if (elementList.size() > this.viewList.size()) {
 			// add

@@ -23,6 +23,7 @@ import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -34,12 +35,13 @@ import de.azapps.mirakel.helper.Helpers.ExecInterface;
 import de.azapps.mirakel.helper.MirakelPreferences;
 import de.azapps.mirakel.helper.TaskDialogHelpers;
 import de.azapps.mirakel.helper.TaskHelper;
-import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakel.reminders.ReminderAlarm;
 import de.azapps.mirakelandroid.R;
+import de.azapps.tools.Log;
 
 public class TaskDetailHeader extends BaseTaskDetailRow {
 
+	private final static String TAG="TaskDetailHeader";
 	private ViewSwitcher	switcher;
 	private CheckBox		taskDone;
 	private TextView		taskName;
@@ -54,6 +56,8 @@ public class TaskDetailHeader extends BaseTaskDetailRow {
 		this.taskPrio = (TextView) findViewById(R.id.task_prio);
 		this.switcher = (ViewSwitcher) findViewById(R.id.switch_name);
 		this.txt = (EditText) findViewById(R.id.edit_name);
+		final InputMethodManager imm = (InputMethodManager) TaskDetailHeader.this.context
+				.getSystemService(Context.INPUT_METHOD_SERVICE);
 		this.taskName
 		.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -63,48 +67,50 @@ public class TaskDetailHeader extends BaseTaskDetailRow {
 				//							.findViewById(R.id.tasks_new))
 				//							.setOnFocusChangeListener(null);
 				//				}
+				clearFocus();
 				TaskDetailHeader.this.switcher.showNext(); // or switcher.showPrevious();
 				CharSequence name =TaskDetailHeader.this.taskName.getText();
 				TaskDetailHeader.this.txt.setText(name);
-				//				txt
-				//				.setOnFocusChangeListener(new OnFocusChangeListener() {
-				//
-				//					@Override
-				//					public void onFocusChange(View view, boolean hasFocus) {
-				//						InputMethodManager imm = (InputMethodManager)  context
-				//								.getSystemService(Context.INPUT_METHOD_SERVICE);
-				//						if (hasFocus) {
-				//							imm.showSoftInput(
-				//									txt,
-				//									InputMethodManager.SHOW_IMPLICIT);
-				//							Log.w(TAG,
-				//									"handle keyboard show");
-				//						} else {
-				//							imm.showSoftInput(
-				//									txt,
-				//									InputMethodManager.HIDE_IMPLICIT_ONLY);
-				//							Log.wtf(TAG,
-				//									"handle keyboard hidde");
-				//						}
-				//
-				//					}
-				//				});
+				TaskDetailHeader.this.txt
+				.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+					@Override
+					public void onFocusChange(View view, boolean hasFocus) {
+						if (hasFocus) {
+							imm.showSoftInput(
+									TaskDetailHeader.this.txt,
+									InputMethodManager.SHOW_IMPLICIT);
+							Log.w(TAG, "handle keyboard show");
+						} else {
+							imm.showSoftInput(
+									TaskDetailHeader.this.txt,
+									InputMethodManager.HIDE_IMPLICIT_ONLY);
+							Log.wtf(TAG, "handle keyboard hidde");
+						}
+						imm.restartInput(TaskDetailHeader.this.txt);
+					}
+				});
 				TaskDetailHeader.this.txt.requestFocus();
 				TaskDetailHeader.this.txt.setOnEditorActionListener(new OnEditorActionListener() {
 
 					@Override
 					public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
+						TaskDetailHeader.this.txt.clearFocus();
+						imm.restartInput(TaskDetailHeader.this.txt);
+						TaskDetailHeader.this.txt
+						.setOnFocusChangeListener(null);
 						if (actionId == EditorInfo.IME_ACTION_DONE
 								&& TaskDetailHeader.this.task != null) {
-							//							InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 							TaskDetailHeader.this.task.setName(TaskDetailHeader.this.txt.getText()
 									.toString());
-									save();
+							save();
 							TaskDetailHeader.this.taskName.setText(TaskDetailHeader.this.task.getName());
 							TaskDetailHeader.this.txt.setOnFocusChangeListener(null);
-							//							imm.hideSoftInputFromWindow(
-							//									txt.getWindowToken(), 0);
+							imm.hideSoftInputFromWindow(
+									TaskDetailHeader.this.txt
+									.getWindowToken(), 0);
 							TaskDetailHeader.this.switcher.showPrevious();
+
 							return true;
 						}
 						return false;
@@ -122,7 +128,7 @@ public class TaskDetailHeader extends BaseTaskDetailRow {
 					@Override
 					public void exec() {
 						TaskHelper.setPrio(TaskDetailHeader.this.taskPrio, TaskDetailHeader.this.task);
-								save();
+						save();
 
 					}
 				});
@@ -132,8 +138,7 @@ public class TaskDetailHeader extends BaseTaskDetailRow {
 
 
 	@Override
-	void update(Task t) {
-		this.task = t;
+	protected void updateView() {
 		String tname = this.task.getName();
 		this.taskName.setText(tname == null ? "" : tname);
 		if (MirakelPreferences.isTablet()) {

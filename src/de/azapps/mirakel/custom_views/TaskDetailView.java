@@ -23,14 +23,13 @@ import java.util.List;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.SparseArray;
-import android.widget.LinearLayout;
 import de.azapps.mirakel.custom_views.BaseTaskDetailRow.OnTaskChangedListner;
 import de.azapps.mirakel.custom_views.TaskDetailDueReminder.Type;
 import de.azapps.mirakel.helper.MirakelPreferences;
 import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakelandroid.R;
 
-public class TaskDetailView extends LinearLayout implements OnTaskChangedListner {
+public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedListner {
 
 	public static class TYPE {
 		public static class NoSuchItemException extends Exception {
@@ -97,7 +96,6 @@ public class TaskDetailView extends LinearLayout implements OnTaskChangedListner
 
 	private final Context	context;
 	private final List<Integer>	items;
-	private OnTaskChangedListner	taskChangedListner;
 	private final SparseArray<BaseTaskDetailRow>	views;
 
 	public TaskDetailView(Context ctx) {
@@ -131,10 +129,21 @@ public class TaskDetailView extends LinearLayout implements OnTaskChangedListner
 
 	}
 
-
-	public void setOnTaskChangedListner(OnTaskChangedListner l){
-		this.taskChangedListner=l;
+	public void setAudioButtonClick(OnClickListener l) {
+		BaseTaskDetailRow v = this.views.get(TYPE.FILE);
+		if (v != null) {
+			((TaskDetailFile) v).setAudioClick(l);
+		}
 	}
+
+	public void setCameraButtonClick(OnClickListener l){
+		BaseTaskDetailRow v=this.views.get(TYPE.FILE);
+		if(v!=null){
+			((TaskDetailFile)v).setCameraClick(l);
+		}
+	}
+
+
 
 	private void setupView() {
 		setOrientation(VERTICAL);
@@ -197,12 +206,12 @@ public class TaskDetailView extends LinearLayout implements OnTaskChangedListner
 
 	}
 
-	public void update(Task t) {
-
+	@Override
+	protected void updateView() {
 		int key = 0;
 		for (int i = 0; i < this.views.size(); i++) {
 			key = this.views.keyAt(i);
-			this.views.get(key).update(t);
+			this.views.get(key).update(this.task);
 		}
 	}
 

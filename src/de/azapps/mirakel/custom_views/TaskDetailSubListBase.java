@@ -19,7 +19,6 @@
 package de.azapps.mirakel.custom_views;
 
 import android.content.Context;
-import de.azapps.mirakel.model.task.Task;
 
 public abstract class TaskDetailSubListBase<T> extends BaseTaskDetailRow {
 
@@ -27,12 +26,12 @@ public abstract class TaskDetailSubListBase<T> extends BaseTaskDetailRow {
 		super(ctx);
 	}
 
+	abstract public void updatePart(T newValue);
+
 	@Override
-	final void update(Task t) {
+	protected void updateView(){
 		// Nothing
 
 	}
-
-	abstract public void updatePart(T newValue);
 
 }

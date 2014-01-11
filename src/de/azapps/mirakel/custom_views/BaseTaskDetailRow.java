@@ -63,6 +63,13 @@ public abstract class BaseTaskDetailRow extends LinearLayout {
 		this.taskChangedListner = l;
 	}
 
-	abstract void update(Task t);
+	public void update(Task t) {
+		this.task = t;
+		if (t != null) {
+			updateView();
+		}
+	}
+
+	abstract protected void updateView();
 
 }

@@ -21,7 +21,6 @@ package de.azapps.mirakel.custom_views;
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -145,8 +144,7 @@ public class TaskSummary extends TaskDetailSubListBase<Task> implements android.
 		}
 		if (MirakelPreferences.colorizeTasks()) {
 			if (MirakelPreferences.colorizeSubTasks()) {
-				int w = getWidth() == 0 ? ((ViewGroup) getParent()).getWidth()
-						: getWidth();
+				int w = getWidth();
 				Helpers.setListColorBackground(this.task.getList(), this, w);
 			} else {
 				setBackgroundColor(this.context.getResources().getColor(

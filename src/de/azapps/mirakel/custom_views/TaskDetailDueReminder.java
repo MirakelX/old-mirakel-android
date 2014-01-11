@@ -270,9 +270,7 @@ public class TaskDetailDueReminder extends BaseTaskDetailRow {
 
 	@SuppressLint("NewApi")
 	@Override
-	void update(Task t) {
-		if (t == null) return;
-		task=t;
+	protected void updateView() {
 		Drawable reminder_img = this.context.getResources().getDrawable(
 				android.R.drawable.ic_menu_recent_history);
 		reminder_img.setBounds(0, 1, 42, 42);

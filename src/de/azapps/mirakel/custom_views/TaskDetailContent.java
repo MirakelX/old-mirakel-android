@@ -21,25 +21,27 @@ package de.azapps.mirakel.custom_views;
 import android.content.Context;
 import android.text.util.Linkify;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 import de.azapps.mirakel.helper.MirakelPreferences;
-import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakelandroid.R;
+import de.azapps.tools.Log;
 
 public class TaskDetailContent extends BaseTaskDetailRow {
 
+	protected static final String	TAG	= "TaskDetailContent";
 	private final ImageButton	editContent;
 	private boolean				isContentEdit;
 	private final TextView		taskContent;
 	private final EditText		taskContentEdit;
 	private final ViewSwitcher	taskContentSwitcher;
 
-	public TaskDetailContent(Context context) {
-		super(context);
-		inflate(context, R.layout.task_content, this);
+	public TaskDetailContent(Context ctx) {
+		super(ctx);
+		inflate(ctx, R.layout.task_content, this);
 		this.taskContent = (TextView) findViewById(R.id.task_content);
 		this.taskContentSwitcher = (ViewSwitcher) findViewById(R.id.switcher_content);
 		this.taskContentEdit = (EditText) findViewById(R.id.task_content_edit);
@@ -74,6 +76,12 @@ public class TaskDetailContent extends BaseTaskDetailRow {
 
 			@Override
 			public void onClick(View v) {
+				TaskDetailContent.this.context
+				.getSystemService(Context.INPUT_METHOD_SERVICE);
+				TaskDetailContent.this.isContentEdit = !TaskDetailContent.this.isContentEdit;
+				TaskDetailContent.this.taskContentSwitcher.showNext();
+				v.setBackgroundResource(TaskDetailContent.this.isContentEdit ? android.R.drawable.ic_menu_save
+						: android.R.drawable.ic_menu_edit);
 				if (TaskDetailContent.this.isContentEdit
 						&& TaskDetailContent.this.task != null) {
 					TaskDetailContent.this.task
@@ -84,13 +92,44 @@ public class TaskDetailContent extends BaseTaskDetailRow {
 					.setText(TaskDetailContent.this.task.getContent());
 					Linkify.addLinks(TaskDetailContent.this.taskContent,
 							Linkify.WEB_URLS);
+					TaskDetailContent.this.taskContentEdit
+					.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+						@Override
+						public void onFocusChange(View view, boolean hasFocus) {
+							InputMethodManager imm = (InputMethodManager) TaskDetailContent.this.context
+									.getSystemService(Context.INPUT_METHOD_SERVICE);
+							if (hasFocus) {
+								imm.showSoftInput(
+										TaskDetailContent.this.taskContentEdit,
+										InputMethodManager.SHOW_IMPLICIT);
+								Log.w(TAG, "handle keyboard show");
+							} else {
+								imm.showSoftInput(
+										TaskDetailContent.this.taskContentEdit,
+										InputMethodManager.HIDE_IMPLICIT_ONLY);
+								imm.hideSoftInputFromWindow(
+												TaskDetailContent.this.taskContentEdit
+										.getWindowToken(), 0);
+								Log.wtf(TAG, "handle keyboard hidde");
+							}
+
+						}
+					});
+					Log.d(TAG,
+							"show keyboard "
+									+ TaskDetailContent.this.taskContentEdit
+									.requestFocus());
+				} else if (!TaskDetailContent.this.isContentEdit) {
+					Log.d(TAG, "hidde keyboard");
+					// taskContentEdit.requestFocus();
 				}
-				TaskDetailContent.this.isContentEdit = !TaskDetailContent.this.isContentEdit;
-				TaskDetailContent.this.taskContentSwitcher.showNext();
-				v.setBackgroundResource(TaskDetailContent.this.isContentEdit ? android.R.drawable.ic_menu_edit
-						: android.R.drawable.ic_menu_save);
+
 			}
 		});
+
+
+
 		// this.divider = findViewById(R.id.item_separator);
 	}
 
@@ -221,10 +260,8 @@ public class TaskDetailContent extends BaseTaskDetailRow {
 	// }
 
 	@Override
-	void update(Task t) {
-		this.task = t;
-		this.editContent.setImageDrawable(this.context.getResources()
-				.getDrawable(android.R.drawable.ic_menu_edit));
+	protected void updateView() {
+		this.editContent.setBackgroundResource(android.R.drawable.ic_menu_edit);
 		if (this.task.getContent().length() > 0) {
 			this.taskContent.setText(this.task.getContent());
 			// taskEditText = this.task.getContent();

@@ -24,7 +24,6 @@ import android.view.View;
 import de.azapps.mirakel.helper.Helpers;
 import de.azapps.mirakel.main_activity.MainActivity;
 import de.azapps.mirakel.model.file.FileMirakel;
-import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakelandroid.R;
 
 public class TaskDetailFile extends TaskDetailSubtitleView<FileMirakel, TaskDetailFilePart> {
@@ -66,8 +65,7 @@ public class TaskDetailFile extends TaskDetailSubtitleView<FileMirakel, TaskDeta
 
 
 	@Override
-	void update(Task t) {
-		this.task = t;
+	protected void updateView() {
 		updateSubviews(this.task.getFiles());
 	}
 

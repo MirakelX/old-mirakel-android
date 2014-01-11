@@ -59,8 +59,7 @@ public class TaskDetailSubtask extends TaskDetailSubtitleView<Task, TaskSummary>
 
 
 	@Override
-	void update(Task t) {
-		this.task = t;
+	protected void updateView() {
 		updateSubviews(this.task.getSubtasks());
 	}
 
