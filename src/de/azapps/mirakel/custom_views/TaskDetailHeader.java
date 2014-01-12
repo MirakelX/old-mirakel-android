@@ -45,6 +45,7 @@ public class TaskDetailHeader extends BaseTaskDetailRow {
 	private ViewSwitcher	switcher;
 	private CheckBox		taskDone;
 	private TextView		taskName;
+
 	private TextView		taskPrio;
 	private EditText		txt;
 
@@ -135,6 +136,8 @@ public class TaskDetailHeader extends BaseTaskDetailRow {
 			}
 		});
 	}
+
+
 
 
 	@Override

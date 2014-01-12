@@ -25,6 +25,9 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.todddavies.components.progressbar.ProgressWheel;
+
 import de.azapps.mirakel.helper.DateTimeHelper;
 import de.azapps.mirakel.helper.Helpers;
 import de.azapps.mirakel.helper.Helpers.ExecInterface;
@@ -36,13 +39,19 @@ import de.azapps.mirakel.reminders.ReminderAlarm;
 import de.azapps.mirakelandroid.R;
 
 public class TaskSummary extends TaskDetailSubListBase<Task> implements android.view.View.OnClickListener {
+	public interface OnTaskClickListner {
+		public abstract void onTaskClick(Task t);
+	}
+	private OnTaskClickListner	onTaskClick;
 	protected Task	task;
+	private final ProgressWheel taskProgress;
 	private final CheckBox			taskRowDone;
 	private final RelativeLayout	taskRowDoneWrapper;
 	private final TextView			taskRowDue;
 	private final ImageView			taskRowHasContent;
 	private final TextView			taskRowList;
 	private final TextView			taskRowName;
+
 	private final TextView	taskRowPriority;
 
 	public TaskSummary(Context ctx) {
@@ -55,6 +64,7 @@ public class TaskSummary extends TaskDetailSubListBase<Task> implements android.
 		this.taskRowDue = (TextView) findViewById(R.id.tasks_row_due);
 		this.taskRowHasContent = (ImageView) findViewById(R.id.tasks_row_has_content);
 		this.taskRowList = (TextView) findViewById(R.id.tasks_row_list_name);
+		this.taskProgress = (ProgressWheel) findViewById(R.id.tasks_row_progress);
 
 		this.taskRowDoneWrapper.setOnClickListener(this);
 
@@ -74,6 +84,15 @@ public class TaskSummary extends TaskDetailSubListBase<Task> implements android.
 
 			}
 		});
+		setOnClickListener(new OnClickListener() {
+
+
+			@Override
+			public void onClick(View v) {
+				TaskSummary.this.onTaskClick.onTaskClick(TaskSummary.this.task);
+
+			}
+		});
 	}
 
 	@Override
@@ -84,6 +103,10 @@ public class TaskSummary extends TaskDetailSubListBase<Task> implements android.
 		TaskSummary.this.taskRowDone.setChecked(taskLocal.isDone());
 		save();
 		updateName();
+	}
+
+	public void setOnTaskClick(OnTaskClickListner l) {
+		this.onTaskClick = l;
 	}
 
 	private void updateName() {
@@ -126,6 +149,14 @@ public class TaskSummary extends TaskDetailSubListBase<Task> implements android.
 
 		// Priority
 		this.taskRowPriority.setText("" + this.task.getPriority());
+
+		// Progress
+		this.taskProgress.setProgress(this.task.getProgress());
+		if (this.task.getProgress() > 0) {
+			this.taskProgress.setVisibility(VISIBLE);
+		} else {
+			this.taskProgress.setVisibility(GONE);
+		}
 
 		GradientDrawable bg = (GradientDrawable) this.taskRowPriority
 				.getBackground();

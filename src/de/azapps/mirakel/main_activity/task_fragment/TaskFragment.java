@@ -30,6 +30,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import de.azapps.mirakel.custom_views.BaseTaskDetailRow.OnTaskChangedListner;
 import de.azapps.mirakel.custom_views.TaskDetailView;
+import de.azapps.mirakel.custom_views.TaskSummary.OnTaskClickListner;
 import de.azapps.mirakel.helper.Helpers;
 import de.azapps.mirakel.helper.Helpers.ExecInterfaceWithTask;
 import de.azapps.mirakel.helper.MirakelPreferences;
@@ -73,8 +74,16 @@ public class TaskFragment extends Fragment {
 
 			@Override
 			public void onTaskChanged(Task newTask) {
-				// TODO Auto-generated method stub
-				Log.w(TAG, "implement this");
+				main.getTasksFragment().updateList();
+				main.getListFragment().update();
+
+			}
+		});
+		this.detailView.setOnSubtaskClick(new OnTaskClickListner() {
+
+			@Override
+			public void onTaskClick(Task t) {
+				main.setCurrentTask(t);
 
 			}
 		});

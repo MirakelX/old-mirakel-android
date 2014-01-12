@@ -25,6 +25,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import de.azapps.mirakelandroid.R;
 import de.azapps.tools.Log;
@@ -42,6 +43,9 @@ public abstract class TaskDetailSubtitleView<E, T extends TaskDetailSubListBase<
 
 	public TaskDetailSubtitleView(Context ctx) {
 		super(ctx);
+		setLayoutParams(new LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.MATCH_PARENT,
+				LinearLayout.LayoutParams.WRAP_CONTENT));
 		this.subtitle = LayoutInflater.from(this.context).inflate(
 				R.layout.task_subtitle, null);
 		this.title = (TextView) this.subtitle.findViewById(R.id.task_subtitle);
@@ -57,6 +61,7 @@ public abstract class TaskDetailSubtitleView<E, T extends TaskDetailSubListBase<
 		this.title.setTextColor(this.context.getResources().getColor(
 				inactive_color));
 		this.viewList = new ArrayList<T>();
+		setOrientation(VERTICAL);
 		addView(this.subtitle);
 	}
 
@@ -68,6 +73,7 @@ public abstract class TaskDetailSubtitleView<E, T extends TaskDetailSubListBase<
 			// remove
 			while (getChildCount() > elementList.size() + 1) {
 				removeViewAt(getChildCount() - 1);
+				this.viewList.remove(this.viewList.size() - 1);
 			}
 		} else if (elementList.size() > this.viewList.size()) {
 			// add
@@ -75,11 +81,14 @@ public abstract class TaskDetailSubtitleView<E, T extends TaskDetailSubListBase<
 				T temp = newElement();
 				this.viewList.add(temp);
 				addView(temp);
+				Log.d(TAG, "Add " + temp.toString());
+				Log.i(TAG, "hight " + temp.getHeight());
 			}
 		}
 		for (int i = 0; i < elementList.size(); i++) {
 			this.viewList.get(i).updatePart(elementList.get(i));
 		}
+		invalidate();
 	}
 
 

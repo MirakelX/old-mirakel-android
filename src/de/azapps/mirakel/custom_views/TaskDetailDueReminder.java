@@ -213,9 +213,10 @@ public class TaskDetailDueReminder extends BaseTaskDetailRow {
 	}
 
 	private void handleMultiline() {
+		Log.d(TAG, "handle Multiline");
 		if (this.type == null || this.type != Type.Combined) return;
 		if (this.mainWrapper.getWidth() < MIN_DUE_NEXT_TO_REMINDER_SIZE) {
-			this.mainWrapper.setOrientation(VERTICAL);
+			this.mainWrapper.setOrientation(HORIZONTAL);
 			android.view.ViewGroup.LayoutParams dueParams = this.dueWrapper
 					.getLayoutParams();
 			this.dueWrapper.setLayoutParams(new LayoutParams(dueParams.width,
@@ -225,7 +226,7 @@ public class TaskDetailDueReminder extends BaseTaskDetailRow {
 			this.reminderWrapper.setLayoutParams(new LayoutParams(
 					reminderParams.width, reminderParams.height, 1));
 		}else{
-			this.mainWrapper.setOrientation(HORIZONTAL);
+			this.mainWrapper.setOrientation(VERTICAL);
 			android.view.ViewGroup.LayoutParams dueParams = this.dueWrapper
 					.getLayoutParams();
 			this.dueWrapper.setLayoutParams(new LayoutParams(dueParams.width,

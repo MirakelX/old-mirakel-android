@@ -20,11 +20,14 @@ package de.azapps.mirakel.custom_views;
 
 import android.content.Context;
 import android.view.View;
+import de.azapps.mirakel.custom_views.TaskSummary.OnTaskClickListner;
 import de.azapps.mirakel.helper.TaskDialogHelpers;
 import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakelandroid.R;
 
 public class TaskDetailSubtask extends TaskDetailSubtitleView<Task, TaskSummary> {
+
+	private OnTaskClickListner	onClick;
 
 	public TaskDetailSubtask(Context ctx) {
 		super(ctx);
@@ -32,17 +35,16 @@ public class TaskDetailSubtask extends TaskDetailSubtitleView<Task, TaskSummary>
 		this.button.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				TaskDialogHelpers.handleSubtask(
-						TaskDetailSubtask.this.context,
+				TaskDialogHelpers.handleSubtask(TaskDetailSubtask.this.context,
 						TaskDetailSubtask.this.task,
 						new OnTaskChangedListner() {
 
-							@Override
-							public void onTaskChanged(Task newTask) {
-								update(newTask);
+					@Override
+					public void onTaskChanged(Task newTask) {
+						update(newTask);
 
-							}
-						}, false);
+					}
+				}, false);
 			}
 		});
 		this.cameraButton.setVisibility(GONE);
@@ -53,8 +55,14 @@ public class TaskDetailSubtask extends TaskDetailSubtitleView<Task, TaskSummary>
 
 	@Override
 	TaskSummary newElement() {
-		return new TaskSummary(this.context);
+		TaskSummary t = new TaskSummary(this.context);
+		t.setOnTaskClick(this.onClick);
+		return t;
 
+	}
+
+	public void setOnClick(OnTaskClickListner l) {
+		this.onClick=l;
 	}
 
 

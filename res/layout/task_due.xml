@@ -40,8 +40,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginLeft="5dp"
+        android:background="@android:color/transparent"
         android:layout_marginStart="5dp"
-        android:background="@android:drawable/ic_menu_mylocation"
         tools:ignore="ContentDescription" />
 
 </LinearLayout>

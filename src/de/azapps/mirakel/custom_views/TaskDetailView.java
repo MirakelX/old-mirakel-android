@@ -25,9 +25,11 @@ import android.util.AttributeSet;
 import android.util.SparseArray;
 import de.azapps.mirakel.custom_views.BaseTaskDetailRow.OnTaskChangedListner;
 import de.azapps.mirakel.custom_views.TaskDetailDueReminder.Type;
+import de.azapps.mirakel.custom_views.TaskSummary.OnTaskClickListner;
 import de.azapps.mirakel.helper.MirakelPreferences;
 import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakelandroid.R;
+import de.azapps.tools.Log;
 
 public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedListner {
 
@@ -94,6 +96,8 @@ public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedLi
 		}
 	}
 
+	private static final String						TAG	= "TaskDetailView";
+
 	private final Context	context;
 	private final List<Integer>	items;
 	private final SparseArray<BaseTaskDetailRow>	views;
@@ -140,6 +144,13 @@ public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedLi
 		BaseTaskDetailRow v=this.views.get(TYPE.FILE);
 		if(v!=null){
 			((TaskDetailFile)v).setCameraClick(l);
+		}
+	}
+
+	public void setOnSubtaskClick(OnTaskClickListner l) {
+		BaseTaskDetailRow v = this.views.get(TYPE.SUBTASK);
+		if (v != null) {
+			((TaskDetailSubtask) v).setOnClick(l);
 		}
 	}
 
@@ -200,6 +211,7 @@ public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedLi
 					continue;
 			}
 			item.setOnTaskChangedListner(this);
+			Log.d(TAG, "heigh mainviews: " + item.getHeight());
 			addView(item);
 			this.views.put(i, item);
 		}
