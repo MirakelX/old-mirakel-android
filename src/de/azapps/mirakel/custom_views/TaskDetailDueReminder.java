@@ -27,9 +27,11 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.app.FragmentManager;
+import android.view.Display;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -61,15 +63,6 @@ public class TaskDetailDueReminder extends BaseTaskDetailRow {
 	public static void setRecurringImage(ImageButton image, int id) {
 		image.setImageResource(id == -1 ? android.R.drawable.ic_menu_mylocation
 				: android.R.drawable.ic_menu_rotate);
-		/*
-		Drawable d = ctx.getResources().getDrawable(
-				id == -1 ? android.R.drawable.ic_menu_mylocation
-						: android.R.drawable.ic_menu_rotate);
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-			image.setBackgroundDrawable(d);
-		} else {
-			image.setBackground(d);
-		}*/
 	}
 	private static void setupRecurrenceDrawable(ImageButton reccurence, Recurring recurring) {
 		int id;
@@ -79,17 +72,6 @@ public class TaskDetailDueReminder extends BaseTaskDetailRow {
 			id = android.R.drawable.ic_menu_rotate;
 		}
 		reccurence.setImageResource(id);
-
-		// if (Build.VERSION.SDK_INT < 16) return;
-		// if (recurring == null || recurring.getId() == -1) {
-		//
-		// reccurence.setBackground(this.context.getResources().getDrawable(
-		// android.R.drawable.ic_menu_mylocation));
-		// } else {
-		// reccurence.setBackground(this.context.getResources().getDrawable(
-		// android.R.drawable.ic_menu_rotate));
-		// }
-
 	}
 	private final LinearLayout	dueWrapper;
 	private final LinearLayout	mainWrapper;
@@ -213,10 +195,13 @@ public class TaskDetailDueReminder extends BaseTaskDetailRow {
 	}
 
 	private void handleMultiline() {
-		Log.d(TAG, "handle Multiline");
 		if (this.type == null || this.type != Type.Combined) return;
-		if (this.mainWrapper.getWidth() < MIN_DUE_NEXT_TO_REMINDER_SIZE) {
-			this.mainWrapper.setOrientation(HORIZONTAL);
+		Display display = ((Activity) this.context).getWindowManager()
+				.getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
+		if (size.x < MIN_DUE_NEXT_TO_REMINDER_SIZE) {
+			this.mainWrapper.setOrientation(VERTICAL);
 			android.view.ViewGroup.LayoutParams dueParams = this.dueWrapper
 					.getLayoutParams();
 			this.dueWrapper.setLayoutParams(new LayoutParams(dueParams.width,
@@ -226,7 +211,7 @@ public class TaskDetailDueReminder extends BaseTaskDetailRow {
 			this.reminderWrapper.setLayoutParams(new LayoutParams(
 					reminderParams.width, reminderParams.height, 1));
 		}else{
-			this.mainWrapper.setOrientation(VERTICAL);
+			this.mainWrapper.setOrientation(HORIZONTAL);
 			android.view.ViewGroup.LayoutParams dueParams = this.dueWrapper
 					.getLayoutParams();
 			this.dueWrapper.setLayoutParams(new LayoutParams(dueParams.width,
@@ -320,6 +305,7 @@ public class TaskDetailDueReminder extends BaseTaskDetailRow {
 			this.taskReminder.setTextColor(this.context.getResources()
 					.getColor(inactive_color));
 		}
+		handleMultiline();
 
 	}
 

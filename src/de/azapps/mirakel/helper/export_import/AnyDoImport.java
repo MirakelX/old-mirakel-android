@@ -59,7 +59,7 @@ public class AnyDoImport {
 	public static boolean exec(Context ctx, String path_any_do) {
 		String json;
 		try {
-			json = ExportImport.getStringFromFile(path_any_do, ctx);
+			json = ExportImport.getStringFromFile(path_any_do);
 		} catch (IOException e) {
 			Log.e(TAG, "cannot read File");
 			return false;
@@ -139,7 +139,7 @@ public class AnyDoImport {
 							public void onClick(DialogInterface dialog,
 									int which) {
 								exec(activity, backupFile == null ? ""
-											: backupFile.getAbsolutePath());
+										: backupFile.getAbsolutePath());
 								android.os.Process
 								.killProcess(android.os.Process
 										.myPid());

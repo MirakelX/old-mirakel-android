@@ -46,53 +46,53 @@ public class MainWidgetService extends RemoteViewsService {
 class MainWidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
 	private static final String TAG = "MainWidgetViewsFactory";
-	private Context mContext;
-	private List<Task> tasks;
-	private int widgetId;
 	private ListMirakel list;
+	private final Context mContext;
+	private List<Task> tasks;
+	private final int widgetId;
 
 	public MainWidgetViewsFactory(Context context, Intent intent) {
 		if (intent.getIntExtra(MainWidgetProvider.EXTRA_WIDGET_LAYOUT,
 				MainWidgetProvider.NORMAL_WIDGET) != MainWidgetProvider.NORMAL_WIDGET) {
 			Log.wtf(TAG, "falscher provider");
 		}
-		mContext = context;
-		widgetId = intent.getIntExtra(MainWidgetProvider.EXTRA_WIDGET_ID, 0);
+		this.mContext = context;
+		this.widgetId = intent.getIntExtra(MainWidgetProvider.EXTRA_WIDGET_ID, 0);
 	}
 
-	/**
-	 * Define and open the DataSources
-	 */
 	@Override
-	public void onCreate() {
-		list = WidgetHelper.getList(mContext, widgetId);
-		tasks = list.tasks(WidgetHelper.showDone(mContext, widgetId));
-	}
-
-	public void onDestroy() {
-	}
-
 	public int getCount() {
-		if (tasks.size() == 0)
+		if (this.tasks.size() == 0) {
 			onDataSetChanged();
-		return tasks.size();
+		}
+		return this.tasks.size();
 	}
 
+	@Override
+	public long getItemId(int position) {
+		return position;
+	}
+
+	public int getItemViewType() {
+		return 0;
+	}
+
+	@Override
+	public RemoteViews getLoadingView() {
+		// We aren't going to return a default loading view in this sample
+		return null;
+	}
+
+	@Override
 	public RemoteViews getViewAt(int position) {
-		if (position >= tasks.size()) {
-			return null;
-		}
-		Task task = tasks.get(position);
+		if (position >= this.tasks.size()) return null;
+		Task task = this.tasks.get(position);
 		// Get The Task
-		boolean isMinimalistic = WidgetHelper
-				.isMinimalistic(mContext, widgetId);
-		RemoteViews rv = new RemoteViews(mContext.getPackageName(),
-				isMinimalistic ? R.layout.widget_row_minimal
-						: R.layout.widget_row);
+		RemoteViews rv = new RemoteViews(this.mContext.getPackageName(), R.layout.widget_row_minimal);
 
 		// Set the Contents of the Row
-		rv = WidgetHelper.configureItem(rv, task, mContext, list.getId(),
-				isMinimalistic, widgetId);
+		rv = WidgetHelper.configureItem(rv, task, this.mContext,
+				this.widgetId);
 
 		// Set the Click–Intent
 		// We need to do so, because we can not start the Activity directly from
@@ -106,29 +106,32 @@ class MainWidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 		return rv;
 	}
 
-	public RemoteViews getLoadingView() {
-		// We aren't going to return a default loading view in this sample
-		return null;
-	}
-
+	@Override
 	public int getViewTypeCount() {
 		return 1;
 	}
 
-	public int getItemViewType(int position) {
-		return 0;
-	}
-
-	public long getItemId(int position) {
-		return position;
-	}
-
+	@Override
 	public boolean hasStableIds() {
 		return false;
 	}
 
+	/**
+	 * Define and open the DataSources
+	 */
+	@Override
+	public void onCreate() {
+		this.list = WidgetHelper.getList(this.mContext, this.widgetId);
+		this.tasks = this.list.tasks(WidgetHelper.showDone(this.mContext, this.widgetId));
+	}
+
+	@Override
 	public void onDataSetChanged() {
-		tasks = Task.getTasks(list.getId(), list.getSortBy(),
-				WidgetHelper.showDone(mContext, widgetId));
+		this.tasks = Task.getTasks(this.list.getId(), this.list.getSortBy(),
+				WidgetHelper.showDone(this.mContext, this.widgetId));
+	}
+
+	@Override
+	public void onDestroy() {
 	}
 }

@@ -9,6 +9,26 @@ import de.azapps.mirakelandroid.R;
 public class SharingHelper {
 
 	/**
+	 * Share a list of Tasks from a List with other apps
+	 * 
+	 * @param ctx
+	 * @param l
+	 */
+	public static void share(Context ctx, ListMirakel l) {
+		String subject = ctx.getString(R.string.share_list_title, l.getName(),
+				l.countTasks());
+		String body = "";
+		for (Task t : l.tasks()) {
+			if (t.isDone()) {
+				// body += "* ";
+				continue;
+			} 
+			body += "* "+TaskHelper.getTaskName(ctx, t) + "\n";
+		}
+		share(ctx, subject, body);
+	}
+
+	/**
 	 * Share something
 	 * 
 	 * @param context
@@ -26,28 +46,6 @@ public class SharingHelper {
 				.getString(R.string.share_using));
 		ci.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(ci);
-	}
-
-	/**
-	 * Share a list of Tasks from a List with other apps
-	 * 
-	 * @param ctx
-	 * @param l
-	 */
-	public static void share(Context ctx, ListMirakel l) {
-		String subject = ctx.getString(R.string.share_list_title, l.getName(),
-				l.countTasks());
-		String body = "";
-		for (Task t : l.tasks()) {
-			if (t.isDone()) {
-				// body += "* ";
-				continue;
-			} else {
-				body += "* ";
-			}
-			body += TaskHelper.getTaskName(ctx, t) + "\n";
-		}
-		share(ctx, subject, body);
 	}
 
 	// Sharing

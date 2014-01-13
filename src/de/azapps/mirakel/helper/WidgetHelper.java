@@ -23,10 +23,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
-import android.graphics.Canvas;
-import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -38,27 +34,33 @@ import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakelandroid.R;
 
 public class WidgetHelper {
-	public static RemoteViews configureItem(RemoteViews rv, Task task, Context context, int listId, boolean isMinimal, int widgetId) {
+	private static final String			PREF_PREFIX	= "widget_";
+
+	// For settings
+	private static final String			PREFS_NAME	= "de.azapps.mirakelandroid.appwidget.MainWidgetProvider";
+	private static SharedPreferences	settings	= null;
+	@SuppressWarnings("unused")
+	private static final String			TAG			= "WidgetHelper";
+
+	public static RemoteViews configureItem(RemoteViews rv, Task task, Context context, int widgetId) {
 		Intent openIntent = new Intent(context, MainActivity.class);
 		openIntent.setAction(MainActivity.SHOW_TASK);
 		openIntent.putExtra(MainActivity.EXTRA_ID, task.getId());
 		openIntent
-				.setData(Uri.parse(openIntent.toUri(Intent.URI_INTENT_SCHEME)));
+		.setData(Uri.parse(openIntent.toUri(Intent.URI_INTENT_SCHEME)));
 		PendingIntent pOpenIntent = PendingIntent.getActivity(context, 0,
 				openIntent, 0);
 
 		rv.setOnClickPendingIntent(R.id.tasks_row, pOpenIntent);
 		rv.setOnClickPendingIntent(R.id.tasks_row_name, pOpenIntent);
-		if (isMinimal) {
-			if (task.getDue() != null) {
-				rv.setTextViewText(R.id.tasks_row_due,
-						DateTimeHelper.formatDate(context, task.getDue()));
-			} else {
-				rv.setViewVisibility(R.id.tasks_row_due, View.GONE);
-			}
-			rv.setInt(R.id.tasks_row_priority, "setBackgroundColor",
-					TaskHelper.getPrioColor(task.getPriority()));
+		if (task.getDue() != null) {
+			rv.setTextViewText(R.id.tasks_row_due,
+					DateTimeHelper.formatDate(context, task.getDue()));
+		} else {
+			rv.setViewVisibility(R.id.tasks_row_due, View.GONE);
 		}
+		rv.setInt(R.id.tasks_row_priority, "setBackgroundColor",
+				TaskHelper.getPrioColor(task.getPriority()));
 		rv.setTextColor(R.id.tasks_row_name,
 				WidgetHelper.getFontColor(context, widgetId));
 		if (getBoolean(context, widgetId, "widgetDueColors", true)) {
@@ -83,69 +85,12 @@ public class WidgetHelper {
 			 * R.color.White : R.color.Black));
 			 */
 		}
-		if (!isMinimal) {
 
-			rv.setTextViewText(R.id.tasks_row_priority, task.getPriority() + "");
-			rv.setTextColor(R.id.tasks_row_priority, context.getResources()
-					.getColor(R.color.Black));
-			GradientDrawable drawable = (GradientDrawable) context
-					.getResources().getDrawable(R.drawable.priority_rectangle);
-			drawable.setColor(TaskHelper.getPrioColor(task.getPriority()));
-			Bitmap bitmap = Bitmap.createBitmap(40, 40, Config.ARGB_8888);
-			Canvas canvas = new Canvas(bitmap);
-			drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-			drawable.draw(canvas);
-			rv.setImageViewBitmap(R.id.label_bg, bitmap);
-
-			if (listId <= 0) {
-				rv.setViewVisibility(R.id.tasks_row_list_name, View.VISIBLE);
-				rv.setTextViewText(R.id.tasks_row_list_name, task.getList()
-						.getName());
-			} else {
-				rv.setViewVisibility(R.id.tasks_row_list_name, View.GONE);
-			}
-			if (task.getContent().length() != 0 || task.getSubtaskCount() > 0
-					|| task.getFiles().size() > 0) {
-				rv.setViewVisibility(R.id.tasks_row_has_content, View.VISIBLE);
-			} else {
-				rv.setViewVisibility(R.id.tasks_row_has_content, View.GONE);
-			}
-
-			if (task.getDue() != null) {
-				rv.setViewVisibility(R.id.tasks_row_due, View.VISIBLE);
-
-				rv.setTextViewText(R.id.tasks_row_due,
-						DateTimeHelper.formatDate(context, task.getDue()));
-				if (!isMinimal) {
-					rv.setTextColor(
-							R.id.tasks_row_due,
-							context.getResources().getColor(
-									TaskHelper.getTaskDueColor(task.getDue(),
-											task.isDone())));
-				}
-			} else {
-				rv.setViewVisibility(R.id.tasks_row_due, View.GONE);
-			}
-		}
 		return rv;
 	}
 
-	// For settings
-	private static final String			PREFS_NAME	= "de.azapps.mirakelandroid.appwidget.MainWidgetProvider";
-	private static final String			PREF_PREFIX	= "widget_";
-	@SuppressWarnings("unused")
-	private static final String			TAG			= "WidgetHelper";
-	private static SharedPreferences	settings	= null;
-
-	private static SharedPreferences getSettings(Context ctx) {
-		if (settings == null) {
-			settings = ctx.getSharedPreferences(PREFS_NAME, 0);
-		}
-		return settings;
-	}
-
-	private static String getKey(int widgetId, String key) {
-		return PREF_PREFIX + widgetId + "_" + key;
+	public static boolean dueColors(Context context, int widgetId) {
+		return getBoolean(context, widgetId, "widgetDueColors", true);
 	}
 
 	private static boolean getBoolean(Context context, int widgetId, String key, boolean def) {
@@ -153,33 +98,17 @@ public class WidgetHelper {
 
 	}
 
-	private static int getInt(Context context, int widgetId, String key, int white) {
-		return getSettings(context).getInt(getKey(widgetId, key), white);
-	}
-
-	public static boolean isDark(Context context, int widgetId) {
-		return getBoolean(context, widgetId, "isDark", true);
-	}
-
-	public static boolean isMinimalistic(Context context, int widgetId) {
-		return true;
-	}
-
-	public static boolean showDone(Context context, int widgetId) {
-		return getBoolean(context, widgetId, "showDone", false);
-	}
-
-	public static boolean dueColors(Context context, int widgetId) {
-		return getBoolean(context, widgetId, "widgetDueColors", true);
-	}
-
 	public static int getFontColor(Context context, int widgetId) {
 		return getInt(context, widgetId, "widgetFontColor", context
 				.getResources().getColor(android.R.color.white));
 	}
 
-	public static int getTransparency(Context context, int widgetId) {
-		return getInt(context, widgetId, "widgetTransparency", 100);
+	private static int getInt(Context context, int widgetId, String key, int white) {
+		return getSettings(context).getInt(getKey(widgetId, key), white);
+	}
+
+	private static String getKey(int widgetId, String key) {
+		return PREF_PREFIX + widgetId + "_" + key;
 	}
 
 	public static ListMirakel getList(Context context, int widgetId) {
@@ -201,10 +130,19 @@ public class WidgetHelper {
 		return list;
 	}
 
-	public static void setList(Context context, int widgetId, int listId) {
-		Editor editor = getSettings(context).edit();
-		editor.putInt(getKey(widgetId, "list_id"), listId);
-		editor.commit();
+	private static SharedPreferences getSettings(Context ctx) {
+		if (settings == null) {
+			settings = ctx.getSharedPreferences(PREFS_NAME, 0);
+		}
+		return settings;
+	}
+
+	public static int getTransparency(Context context, int widgetId) {
+		return getInt(context, widgetId, "widgetTransparency", 100);
+	}
+
+	public static boolean isDark(Context context, int widgetId) {
+		return getBoolean(context, widgetId, "isDark", true);
 	}
 
 	public static void putBool(Context context, int widgetId, String key, boolean value) {
@@ -221,16 +159,12 @@ public class WidgetHelper {
 
 	}
 
-	public static void setDone(Context context, int widgetId, boolean done) {
-		putBool(context, widgetId, "showDone", done);
-	}
-
-	public static void setMinimalistic(Context context, int widgetId, boolean minimalistic) {
-		putBool(context, widgetId, "isMinimalistic", minimalistic);
-	}
-
 	public static void setDark(Context context, int widgetId, boolean dark) {
 		putBool(context, widgetId, "isDark", dark);
+	}
+
+	public static void setDone(Context context, int widgetId, boolean done) {
+		putBool(context, widgetId, "showDone", done);
 	}
 
 	public static void setDueColors(Context context, int widgetId, boolean done) {
@@ -241,7 +175,21 @@ public class WidgetHelper {
 		putInt(context, widgetId, "widgetFontColor", color);
 	}
 
+	public static void setList(Context context, int widgetId, int listId) {
+		Editor editor = getSettings(context).edit();
+		editor.putInt(getKey(widgetId, "list_id"), listId);
+		editor.commit();
+	}
+
+	public static void setMinimalistic(Context context, int widgetId, boolean minimalistic) {
+		putBool(context, widgetId, "isMinimalistic", minimalistic);
+	}
+
 	public static void setTransparency(Context context, int widgetId, int transparency) {
 		putInt(context, widgetId, "widgetTransparency", transparency);
+	}
+
+	public static boolean showDone(Context context, int widgetId) {
+		return getBoolean(context, widgetId, "showDone", false);
 	}
 }

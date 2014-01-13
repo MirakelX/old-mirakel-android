@@ -97,19 +97,6 @@ public class TaskDetailFilePart extends TaskDetailSubListBase<FileMirakel> {
 		} else {
 			this.filePath.setText(file.getPath());
 		}
-		// markSelected(position, row);
 	}
-
-
-	// private void markSelected(int position, final View row) {
-	// if (this.selected.get(position)) {
-	// row.setBackgroundColor(this.context.getResources().getColor(
-	// this.darkTheme ? R.color.highlighted_text_holo_dark
-	// : R.color.highlighted_text_holo_light));
-	// } else {
-	// row.setBackgroundColor(this.context.getResources().getColor(
-	// android.R.color.transparent));
-	// }
-	// }
 
 }

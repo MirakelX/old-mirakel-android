@@ -44,13 +44,18 @@ import de.azapps.mirakel.model.task.Task;
 import de.azapps.tools.Log;
 
 public class WunderlistImport {
+	/**
+	 * <Subtask, id of parent>
+	 */
+	private static List<Pair<Task, String>> subtasks = new ArrayList<Pair<Task, String>>();
 	private static final String TAG = "WunderlistImport";
+
 	private static Map<String, Integer> taskMapping;
 
 	public static Boolean exec(Context ctx, String file_path) {
 		String json;
 		try {
-			json = ExportImport.getStringFromFile(file_path, ctx);
+			json = ExportImport.getStringFromFile(file_path);
 		} catch (IOException e) {
 			Log.e(TAG, "cannot read File");
 			return false;
@@ -110,11 +115,6 @@ public class WunderlistImport {
 		return listMapping;
 
 	}
-
-	/**
-	 * <Subtask, id of parent>
-	 */
-	private static List<Pair<Task, String>> subtasks = new ArrayList<Pair<Task, String>>();
 
 	private static List<Pair<Integer, String>> parseTask(JsonObject jsonTask,
 			Map<String, Integer> listMapping,

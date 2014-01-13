@@ -98,8 +98,8 @@ public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedLi
 
 	private static final String						TAG	= "TaskDetailView";
 
-	private final Context	context;
-	private final List<Integer>	items;
+	private final Context							context;
+	private List<Integer>							items;
 	private final SparseArray<BaseTaskDetailRow>	views;
 
 	public TaskDetailView(Context ctx) {
@@ -117,6 +117,7 @@ public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedLi
 		this.views = new SparseArray<BaseTaskDetailRow>();
 		setupView();
 	}
+
 	public TaskDetailView(Context ctx, AttributeSet attrs, int defStyle) {
 		super(ctx, attrs, defStyle);
 		this.context = ctx;
@@ -127,7 +128,7 @@ public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedLi
 
 	@Override
 	public void onTaskChanged(Task newTask) {
-		if(this.taskChangedListner!=null){
+		if (this.taskChangedListner != null) {
 			this.taskChangedListner.onTaskChanged(newTask);
 		}
 
@@ -140,10 +141,10 @@ public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedLi
 		}
 	}
 
-	public void setCameraButtonClick(OnClickListener l){
-		BaseTaskDetailRow v=this.views.get(TYPE.FILE);
-		if(v!=null){
-			((TaskDetailFile)v).setCameraClick(l);
+	public void setCameraButtonClick(OnClickListener l) {
+		BaseTaskDetailRow v = this.views.get(TYPE.FILE);
+		if (v != null) {
+			((TaskDetailFile) v).setCameraClick(l);
 		}
 	}
 
@@ -154,9 +155,8 @@ public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedLi
 		}
 	}
 
-
-
 	private void setupView() {
+		removeAllViews();
 		setOrientation(VERTICAL);
 		for(int position=0;position<this.items.size();position++){
 			int i = this.items.get(position);
@@ -175,8 +175,7 @@ public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedLi
 					item=new TaskDetailContent(this.context);
 					break;
 				case TYPE.REMINDER:
-					if (getWidth() < TaskDetailDueReminder.MIN_DUE_NEXT_TO_REMINDER_SIZE
-							|| position > 1
+					if (position > 1
 							&& this.items.get(position - 1) != TYPE.DUE
 							&& position < this.items.size() && this.items
 							.get(position + 1) != TYPE.DUE) {
@@ -190,15 +189,15 @@ public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedLi
 				case TYPE.DUE:
 					TaskDetailDueReminder t = new TaskDetailDueReminder(
 							this.context);
-					if (getWidth() < TaskDetailDueReminder.MIN_DUE_NEXT_TO_REMINDER_SIZE
-							|| position > 1
-							&& this.items.get(position - 1) != TYPE.REMINDER
-							&& position < this.items.size()
-							&& this.items.get(position + 1) != TYPE.REMINDER) {
-						t.setType(Type.Due);
-					} else {
+					if (position > 1
+							&& this.items.get(position - 1) == TYPE.REMINDER
+							|| position < this.items.size()
+							&& this.items.get(position + 1) == TYPE.REMINDER) {
 						t.setType(Type.Combined);
+					}else{
+						t.setType(Type.Due);
 					}
+
 					item = t;
 					break;
 				case TYPE.FILE:
@@ -218,6 +217,11 @@ public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedLi
 
 	}
 
+	public void updateLayout() {
+		this.items = MirakelPreferences.getTaskFragmentLayout();
+		setupView();
+	}
+
 	@Override
 	protected void updateView() {
 		int key = 0;
@@ -226,41 +230,5 @@ public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedLi
 			this.views.get(key).update(this.task);
 		}
 	}
-
-	// private static List<Pair<Integer, Integer>> generateData(Task task) {
-	// // From config
-	// List<Integer> items = MirakelPreferences.getTaskFragmentLayout();
-	//
-	// List<Pair<Integer, Integer>> data = new ArrayList<Pair<Integer, Integer>>();
-	// for (Integer item : items) {
-	// switch (item) {
-	// case TYPE.SUBTASK:
-	// data.add(new Pair<Integer, Integer>(TYPE.SUBTITLE,
-	// SUBTITLE_SUBTASKS));
-	// int subtaskCount = task == null ? 0 : task
-	// .getSubtaskCount();
-	// for (int i = 0; i < subtaskCount; i++) {
-	// data.add(new Pair<Integer, Integer>(TYPE.SUBTASK, i));
-	// }
-	// break;
-	// case TYPE.FILE:
-	// data.add(new Pair<Integer, Integer>(TYPE.SUBTITLE,
-	// SUBTITLE_FILES));
-	// int fileCount = FileMirakel.getFileCount(task);
-	// for (int i = 0; i < fileCount; i++) {
-	// data.add(new Pair<Integer, Integer>(TYPE.FILE, i));
-	// }
-	// break;
-	// case TYPE.PROGRESS:
-	// data.add(new Pair<Integer, Integer>(TYPE.SUBTITLE,
-	// SUBTITLE_PROGRESS));
-	// data.add(new Pair<Integer, Integer>(TYPE.PROGRESS, 0));
-	// break;
-	// default:
-	// data.add(new Pair<Integer, Integer>(item, 0));
-	// }
-	// }
-	// return data;
-	// }
 
 }

@@ -37,11 +37,9 @@ import de.azapps.mirakel.helper.TaskDialogHelpers;
 import de.azapps.mirakel.helper.TaskHelper;
 import de.azapps.mirakel.reminders.ReminderAlarm;
 import de.azapps.mirakelandroid.R;
-import de.azapps.tools.Log;
 
 public class TaskDetailHeader extends BaseTaskDetailRow {
 
-	private final static String TAG="TaskDetailHeader";
 	private ViewSwitcher	switcher;
 	private CheckBox		taskDone;
 	private TextView		taskName;
@@ -63,11 +61,6 @@ public class TaskDetailHeader extends BaseTaskDetailRow {
 		.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				//				if (MirakelPreferences.isTablet()) {
-				//					((EditText) ((Activity) context
-				//							.findViewById(R.id.tasks_new))
-				//							.setOnFocusChangeListener(null);
-				//				}
 				clearFocus();
 				TaskDetailHeader.this.switcher.showNext(); // or switcher.showPrevious();
 				CharSequence name =TaskDetailHeader.this.taskName.getText();
@@ -81,12 +74,10 @@ public class TaskDetailHeader extends BaseTaskDetailRow {
 							imm.showSoftInput(
 									TaskDetailHeader.this.txt,
 									InputMethodManager.SHOW_IMPLICIT);
-							Log.w(TAG, "handle keyboard show");
 						} else {
 							imm.showSoftInput(
 									TaskDetailHeader.this.txt,
 									InputMethodManager.HIDE_IMPLICIT_ONLY);
-							Log.wtf(TAG, "handle keyboard hidde");
 						}
 						imm.restartInput(TaskDetailHeader.this.txt);
 					}

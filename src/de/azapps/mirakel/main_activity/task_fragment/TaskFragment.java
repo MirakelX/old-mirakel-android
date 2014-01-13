@@ -44,16 +44,9 @@ import de.azapps.tools.Log;
 public class TaskFragment extends Fragment {
 	private static final String	TAG			= "TaskActivity";
 
-	// private final ActionMode mActionMode = null;
-
 	private TaskDetailView		detailView;
 
 	private Task				task;
-
-
-
-
-
 
 
 	@Override
@@ -64,7 +57,6 @@ public class TaskFragment extends Fragment {
 		try {
 			view = inflater.inflate(R.layout.task_fragment, container, false);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			Log.i(TAG, Log.getStackTraceString(e));
 			return null;
 		}
@@ -129,186 +121,13 @@ public class TaskFragment extends Fragment {
 			});
 		}
 
-		//		ListView listView = (ListView) view.findViewById(R.id.taskFragment);
-		//		this.adapter = new TaskFragmentAdapter(main, R.layout.task_head_line,
-		//				main.getCurrentTask());
-		//		listView.setAdapter(this.adapter);
-		//		listView.setItemsCanFocus(true);
-		//		listView.setOnItemClickListener(new OnItemClickListener() {
-		//			@Override
-		//			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long id) {
-		//				int type = TaskFragment.this.adapter.getData().get(position).first;
-		//				if (type == TYPE.FILE) {
-		//					if (main.getCurrentTask() == null) return;
-		//					FileMirakel file = main.getCurrentTask().getFiles()
-		//							.get(TaskFragment.this.adapter.getData().get(position).second);
-		//					if (file.getPath().endsWith(".mp3")) {
-		//						TaskDialogHelpers.handleAudioPlayback(main, file);
-		//						return;
-		//					}
-		//					TaskDialogHelpers.openFile(main, file);
-		//				} else if (type == TYPE.SUBTASK) {
-		//					Task t = TaskFragment.this.adapter.getTask().getSubtasks()
-		//							.get(TaskFragment.this.adapter.getData().get(position).second);
-		//					main.setGoBackTo(TaskFragment.this.adapter.getTask());
-		//					if (t.getList().getId() != main.getCurrentList().getId()) {
-		//						main.setSkipSwipe();
-		//						main.setCurrentList(t.getList(), null, false, false);
-		//					}
-		//					main.setCurrentTask(t, false, false);
-		//				}
-		//
-		//			}
-		//		});
-		//
-		//		listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-		//		if (this.adapter != null) {
-		//			this.adapter.resetSelected();
-		//		}
-		//		listView.setHapticFeedbackEnabled(true);
-		//		listView.setMultiChoiceModeListener(new MultiChoiceModeListener() {
-		//
-		//			@Override
-		//			public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		//
-		//				switch (item.getItemId()) {
-		//					case R.id.menu_delete:
-		//						List<Pair<Integer, Integer>> selected = TaskFragment.this.adapter
-		//						.getSelected();
-		//						if (TaskFragment.this.adapter.getSelectedCount() > 0
-		//								&& TaskFragment.this.adapter.getSelected().get(0).first == TYPE.FILE) {
-		//							List<FileMirakel> files = TaskFragment.this.adapter.getTask()
-		//									.getFiles();
-		//							List<FileMirakel> selectedItems = new ArrayList<FileMirakel>();
-		//							for (Pair<Integer, Integer> p : selected) {
-		//								if (p.first == TYPE.FILE) {
-		//									selectedItems.add(files.get(p.second));
-		//								}
-		//							}
-		//							TaskDialogHelpers.handleDeleteFile(selectedItems,
-		//									main, TaskFragment.this.adapter.getTask(), TaskFragment.this.adapter);
-		//							break;
-		//						} else if (TaskFragment.this.adapter.getSelectedCount() > 0
-		//								&& TaskFragment.this.adapter.getSelected().get(0).first == TYPE.SUBTASK) {
-		//							List<Task> subtasks = TaskFragment.this.adapter.getTask()
-		//									.getSubtasks();
-		//							List<Task> selectedItems = new ArrayList<Task>();
-		//							for (Pair<Integer, Integer> p : selected) {
-		//								if (p.first == TYPE.SUBTASK) {
-		//									selectedItems.add(subtasks.get(p.second));
-		//								}
-		//							}
-		//							TaskDialogHelpers.handleRemoveSubtask(
-		//									selectedItems, main, TaskFragment.this.adapter,
-		//									TaskFragment.this.adapter.getTask());
-		//						} else {
-		//							Log.e(TAG, "How did you get selected this?");
-		//						}
-		//						break;
-		//					case R.id.edit_task:
-		//						if (TaskFragment.this.adapter.getSelectedCount() == 1) {
-		//							TaskFragment.this.adapter.setData(TaskFragment.this.adapter.getTask().getSubtasks()
-		//									.get(TaskFragment.this.adapter.getSelected().get(0).second));
-		//						}
-		//						break;
-		//					case R.id.done_task:
-		//						List<Task> subtasks = TaskFragment.this.adapter.getTask().getSubtasks();
-		//						for (Pair<Integer, Integer> s : TaskFragment.this.adapter.getSelected()) {
-		//							Task t = subtasks.get(s.second);
-		//							t.setDone(true);
-		//							try {
-		//								t.save();
-		//							} catch (NoSuchListException e) {
-		//								Log.d(TAG, "list did vanish");
-		//							}
-		//						}
-		//						break;
-		//					default:
-		//						break;
-		//				}
-		//				mode.finish();
-		//				return false;
-		//			}
-		//
-		//			@Override
-		//			public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-		//				MenuInflater menuInflater = mode.getMenuInflater();
-		//				menuInflater.inflate(R.menu.context_task, menu);
-		//				TaskFragment.this.mActionMode = mode;
-		//				return true;
-		//			}
-		//
-		//			@Override
-		//			public void onDestroyActionMode(ActionMode mode) {
-		//				TaskFragment.this.adapter.resetSelected();
-		//			}
-		//
-		//			@Override
-		//			public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-		//				Log.d(TAG, "item " + position + " selected");
-		//				Integer type = TaskFragment.this.adapter.getData().get(position).first;
-		//				int count = TaskFragment.this.adapter.getSelectedCount();
-		//				if (type == TYPE.FILE && (count == 0 || TaskFragment.this.adapter.getSelected()
-		//						.get(0).first == TYPE.FILE)
-		//						|| type == TYPE.SUBTASK && (count == 0 || TaskFragment.this.adapter
-		//						.getSelected().get(0).first == TYPE.SUBTASK)) {
-		//					TaskFragment.this.adapter.setSelected(position, checked);
-		//					TaskFragment.this.adapter.notifyDataSetChanged();
-		//					mode.invalidate();
-		//				}
-		//				count = TaskFragment.this.adapter.getSelectedCount();
-		//				if (count == 0) {
-		//					mode.finish();// No CAB
-		//					return;
-		//				}
-		//				if (type == TYPE.FILE) {
-		//					mode.setTitle(getResources().getQuantityString(
-		//							R.plurals.file, count, count));
-		//				} else if (type == TYPE.SUBTASK) {
-		//					mode.setTitle(getResources().getQuantityString(
-		//							R.plurals.subtasks, count, count));
-		//				}
-		//
-		//			}
-		//
-		//			@Override
-		//			public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-		//				if (TaskFragment.this.adapter.getSelectedCount() > 0) {
-		//					menu.findItem(R.id.edit_task)
-		//					.setVisible(
-		//							TaskFragment.this.adapter.getSelectedCount() == 1
-		//							&& TaskFragment.this.adapter.getSelected().get(0).first == TYPE.SUBTASK);
-		//					menu.findItem(R.id.done_task).setVisible(
-		//							TaskFragment.this.adapter.getSelected().get(0).first == TYPE.SUBTASK);
-		//				}
-		//				return false;
-		//			}
-		//		});
-
-
 		if (this.task != null) {
 			update(this.task);
 		}
-		Log.d(TAG, "created");
 
-		// this.detailView.setOnTaskChangedListner(new OnTaskChangedListner() {
-		//
-		// @Override
-		// public void onTaskChanged(Task newTask) {
-		// // TODO Auto-generated method stub
-		// Log.w(TAG, "implement this");
-		//
-		// }
-		// });
 		return view;
 	}
 
-	// public void showKeyboardForContent() {
-	// if (this.adapter != null) {
-	// this.adapter.showKeyboardForContent();
-	// }
-	//
-	// }
 
 	public void update(Task t) {
 		this.task = t;
@@ -318,5 +137,11 @@ public class TaskFragment extends Fragment {
 
 	}
 
+	public void updateLayout() {
+		if (this.detailView != null) {
+			this.detailView.updateLayout();
+		}
+
+	}
 
 }

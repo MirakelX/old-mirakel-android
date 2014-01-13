@@ -57,13 +57,9 @@ import de.azapps.tools.Log;
 public class ExportImport {
 	private static final File dbFile = new File(FileUtils.getMirakelDir()
 			+ "databases/mirakel.db");
-	private static final String TAG = "ExportImport";
 	private static final File exportDir = new File(
 			Environment.getExternalStorageDirectory(), "mirakel");
-
-	public static File getBackupDir() {
-		return exportDir;
-	}
+	private static final String TAG = "ExportImport";
 
 	@SuppressLint("SimpleDateFormat")
 	public static void exportDB(Context ctx) {
@@ -90,32 +86,23 @@ public class ExportImport {
 		}
 	}
 
-	public static void importDB(Context ctx, File file) {
-
-		try {
-			FileUtils.copyFile(file, dbFile);
-			Toast.makeText(ctx, ctx.getString(R.string.backup_import_ok),
-					Toast.LENGTH_LONG).show();
-			android.os.Process.killProcess(android.os.Process.myPid());
-		} catch (IOException e) {
-			Log.e("mypck", e.getMessage(), e);
-			Toast.makeText(ctx, ctx.getString(R.string.backup_import_error),
-					Toast.LENGTH_LONG).show();
-		}
+	public static File getBackupDir() {
+		return exportDir;
 	}
 
-	public static void importDB(Context ctx, FileInputStream inputstream) {
+	public static String getStringFromFile(String path)
+			throws IOException {
+		BufferedReader br = new BufferedReader(new FileReader(path));
+		StringBuilder sb = new StringBuilder();
+		String line = br.readLine();
 
-		try {
-			FileUtils.copyByStream(inputstream, new FileOutputStream(dbFile));
-			Toast.makeText(ctx, ctx.getString(R.string.backup_import_ok),
-					Toast.LENGTH_LONG).show();
-			android.os.Process.killProcess(android.os.Process.myPid());
-		} catch (IOException e) {
-			Log.e("mypck", e.getMessage(), e);
-			Toast.makeText(ctx, ctx.getString(R.string.backup_import_error),
-					Toast.LENGTH_LONG).show();
+		while (line != null) {
+			sb.append(line);
+			sb.append('\n');
+			line = br.readLine();
 		}
+		br.close();
+		return sb.toString();
 	}
 
 	@SuppressLint("SimpleDateFormat")
@@ -123,11 +110,9 @@ public class ExportImport {
 		File file = new File(path);
 		if (file.exists()) {
 			String mimetype = FileUtils.getMimeType(path);
-			if (mimetype.equals("application/zip")) {
-				return importAstridZip(context, file);
-			} else if (mimetype.equals("text/xml")) {
-				return importAstridXml(context, file);
-			} else {
+			if (mimetype.equals("application/zip")) return importAstridZip(context, file);
+			else if (mimetype.equals("text/xml")) return importAstridXml(file);
+			else {
 				Log.d(TAG, "unknown filetype");
 			}
 		} else {
@@ -136,7 +121,7 @@ public class ExportImport {
 		return false;
 	}
 
-	private static boolean importAstridXml(Context context, File file) {
+	private static boolean importAstridXml( File file) {
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder;
 		try {
@@ -190,20 +175,20 @@ public class ExportImport {
 					int prio = Integer.parseInt(m.getNamedItem("importance")
 							.getTextContent());
 					switch (prio) {
-					case 0:
-						t.setPriority(2);
-						break;
-					case 1:
-						t.setPriority(1);
-						break;
-					case 2:
-						t.setPriority(0);
-						break;
-					case 3:
-						t.setPriority(-2);
-						break;
-					default:
-						t.setPriority(0);
+						case 0:
+							t.setPriority(2);
+							break;
+						case 1:
+							t.setPriority(1);
+							break;
+						case 2:
+							t.setPriority(0);
+							break;
+						case 3:
+							t.setPriority(-2);
+							break;
+						default:
+							t.setPriority(0);
 					}
 					// Due
 					long due = Long.parseLong(m.getNamedItem("dueDate")
@@ -251,8 +236,8 @@ public class ExportImport {
 			outputDir.mkdirs();
 		} else {
 			String[] children = outputDir.list();
-			for (int i = 0; i < children.length; i++) {
-				new File(outputDir, children[i]).delete();
+			for (String element : children) {
+				new File(outputDir, element).delete();
 			}
 		}
 		try {
@@ -324,18 +309,31 @@ public class ExportImport {
 		return true;
 	}
 
-	public static String getStringFromFile(String path, Context ctx)
-			throws IOException {
-		BufferedReader br = new BufferedReader(new FileReader(path));
-		StringBuilder sb = new StringBuilder();
-		String line = br.readLine();
+	public static void importDB(Context ctx, File file) {
 
-		while (line != null) {
-			sb.append(line);
-			sb.append('\n');
-			line = br.readLine();
+		try {
+			FileUtils.copyFile(file, dbFile);
+			Toast.makeText(ctx, ctx.getString(R.string.backup_import_ok),
+					Toast.LENGTH_LONG).show();
+			android.os.Process.killProcess(android.os.Process.myPid());
+		} catch (IOException e) {
+			Log.e("mypck", e.getMessage(), e);
+			Toast.makeText(ctx, ctx.getString(R.string.backup_import_error),
+					Toast.LENGTH_LONG).show();
 		}
-		br.close();
-		return sb.toString();
+	}
+
+	public static void importDB(Context ctx, FileInputStream inputstream) {
+
+		try {
+			FileUtils.copyByStream(inputstream, new FileOutputStream(dbFile));
+			Toast.makeText(ctx, ctx.getString(R.string.backup_import_ok),
+					Toast.LENGTH_LONG).show();
+			android.os.Process.killProcess(android.os.Process.myPid());
+		} catch (IOException e) {
+			Log.e("mypck", e.getMessage(), e);
+			Toast.makeText(ctx, ctx.getString(R.string.backup_import_error),
+					Toast.LENGTH_LONG).show();
+		}
 	}
 }

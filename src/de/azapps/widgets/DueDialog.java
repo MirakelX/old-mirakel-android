@@ -7,14 +7,8 @@ import android.widget.NumberPicker;
 import de.azapps.mirakelandroid.R;
 
 public class DueDialog extends AlertDialog {
-	private Context		ctx;
-	private VALUE		dayYear	= VALUE.DAY;
-	private int			count;
-	private View		dialogView;
-	private String[]	s;
-
 	public enum VALUE {
-		MINUTE, HOUR, DAY, MONTH, YEAR;
+		DAY, HOUR, MINUTE, MONTH, YEAR;
 
 		public int getInt() {
 			switch (this) {
@@ -28,106 +22,83 @@ public class DueDialog extends AlertDialog {
 					return 3;
 				case HOUR:
 					return 4;
+				default:
+					break;
 			}
 			return 0;
 		}
 	}
+	private int			count;
+	private final Context		ctx;
+	private VALUE		dayYear	= VALUE.DAY;
+	private final View		dialogView;
 
-	public void setNegativeButton(int textId, OnClickListener onCancel) {
-		setButton(BUTTON_NEGATIVE, ctx.getString(textId), onCancel);
-
-	}
-
-	public void setPositiveButton(int textId, OnClickListener onCancel) {
-		setButton(BUTTON_POSITIVE, ctx.getString(textId), onCancel);
-
-	}
-
-	public void setNeutralButton(int textId, OnClickListener onCancel) {
-		setButton(BUTTON_NEUTRAL, ctx.getString(textId), onCancel);
-
-	}
+	private final String[]	s;
 
 	public DueDialog(Context context, final boolean minuteHour) {
 		super(context);
-		ctx = context;
-		s = new String[100];
-		for (int i = 0; i < s.length; i++) {
-			s[i] = (i > 10 ? "+" : "") + (i - 10) + "";
+		this.ctx = context;
+		this.s = new String[100];
+		for (int i = 0; i < this.s.length; i++) {
+			this.s[i] = (i > 10 ? "+" : "") + (i - 10) + "";
 		}
 
-		dialogView = getNumericPicker();
-		final NumberPicker pickerDay = ((NumberPicker) dialogView
-				.findViewById(R.id.due_day_year));
-		NumberPicker pickerValue = ((NumberPicker) dialogView
-				.findViewById(R.id.due_val));
+		this.dialogView = getNumericPicker();
+		final NumberPicker pickerDay = (NumberPicker) this.dialogView
+				.findViewById(R.id.due_day_year);
+		NumberPicker pickerValue = (NumberPicker) this.dialogView
+				.findViewById(R.id.due_val);
 		String dayYearValues[] = getDayYearValues(0, minuteHour);
 
 		pickerDay.setDisplayedValues(dayYearValues);
 		pickerDay.setMaxValue(dayYearValues.length - 1);
-		pickerValue.setMaxValue(s.length - 1);
+		pickerValue.setMaxValue(this.s.length - 1);
 		pickerValue.setValue(10);
 		pickerValue.setMinValue(0);
-		pickerValue.setDisplayedValues(s);
+		pickerValue.setDisplayedValues(this.s);
 		pickerValue
-				.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+		.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 		pickerDay
-				.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+		.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 		pickerValue.setWrapSelectorWheel(false);
 		pickerValue
-				.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+		.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
 
-					@Override
-					public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-						pickerDay.setDisplayedValues(getDayYearValues(
-								newVal - 10, minuteHour));
-						count = newVal - 10;
-					}
-				});
+			@Override
+			public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+				pickerDay.setDisplayedValues(getDayYearValues(
+						newVal - 10, minuteHour));
+				DueDialog.this.count = newVal - 10;
+			}
+		});
 		pickerDay
-				.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+		.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
 
-					@Override
-					public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-						switch (newVal) {
-							case 0:
-								dayYear = VALUE.DAY;
-								break;
-							case 1:
-								dayYear = VALUE.MONTH;
-								break;
-							case 2:
-								dayYear = VALUE.YEAR;
-								break;
-						}
+			@Override
+			public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+				switch (newVal) {
+					case 0:
+						DueDialog.this.dayYear = VALUE.DAY;
+						break;
+					case 1:
+						DueDialog.this.dayYear = VALUE.MONTH;
+						break;
+					case 2:
+						DueDialog.this.dayYear = VALUE.YEAR;
+						break;
+					default:
+						break;
+				}
 
-					}
-				});
+			}
+		});
 
-		setView(dialogView);
+		setView(this.dialogView);
 
 	}
 
-	protected String updateDayYear() {
-		switch (dayYear) {
-			case MINUTE:
-				return ctx.getResources().getQuantityString(
-						R.plurals.due_minute, count);
-			case HOUR:
-				return ctx.getResources().getQuantityString(R.plurals.due_hour,
-						count);
-			case DAY:
-				return ctx.getResources().getQuantityString(R.plurals.due_day,
-						count);
-			case MONTH:
-				return ctx.getResources().getQuantityString(
-						R.plurals.due_month, count);
-			case YEAR:
-				return ctx.getResources().getQuantityString(R.plurals.due_year,
-						count);
-		}
-		return "";
-
+	public VALUE getDayYear() {
+		return this.dayYear;
 	}
 
 	protected String[] getDayYearValues(int newVal, boolean minutesHour) {
@@ -135,16 +106,16 @@ public class DueDialog extends AlertDialog {
 		int i = 0;
 		String[] ret = new String[size];
 		if (minutesHour) {
-			ret[i++] = ctx.getResources().getQuantityString(
+			ret[i++] = this.ctx.getResources().getQuantityString(
 					R.plurals.due_minute, newVal);
-			ret[i++] = ctx.getResources().getQuantityString(R.plurals.due_hour,
+			ret[i++] = this.ctx.getResources().getQuantityString(R.plurals.due_hour,
 					newVal);
 		}
-		ret[i++] = ctx.getResources().getQuantityString(R.plurals.due_day,
+		ret[i++] = this.ctx.getResources().getQuantityString(R.plurals.due_day,
 				newVal);
-		ret[i++] = ctx.getResources().getQuantityString(R.plurals.due_month,
+		ret[i++] = this.ctx.getResources().getQuantityString(R.plurals.due_month,
 				newVal);
-		ret[i] = ctx.getResources().getQuantityString(R.plurals.due_year,
+		ret[i] = this.ctx.getResources().getQuantityString(R.plurals.due_year,
 				newVal);
 
 		return ret;
@@ -154,20 +125,55 @@ public class DueDialog extends AlertDialog {
 		return getLayoutInflater().inflate(R.layout.due_dialog, null);
 	}
 
-	public void setValue(int val, VALUE day) {
-		int _day = dayYear.getInt();
-		((NumberPicker) dialogView.findViewById(R.id.due_day_year))
-				.setValue(_day);;
-		((NumberPicker) dialogView.findViewById(R.id.due_val))
-				.setValue(val + 10);
-	}
-
 	public int getValue() {
-		return count;
+		return this.count;
 	}
 
-	public VALUE getDayYear() {
-		return dayYear;
+	public void setNegativeButton(int textId, OnClickListener onCancel) {
+		setButton(BUTTON_NEGATIVE, this.ctx.getString(textId), onCancel);
+
+	}
+
+	public void setNeutralButton(int textId, OnClickListener onCancel) {
+		setButton(BUTTON_NEUTRAL, this.ctx.getString(textId), onCancel);
+
+	}
+
+	public void setPositiveButton(int textId, OnClickListener onCancel) {
+		setButton(BUTTON_POSITIVE, this.ctx.getString(textId), onCancel);
+
+	}
+
+	public void setValue(int val, VALUE day) {
+		int _day = this.dayYear.getInt();
+		((NumberPicker) this.dialogView.findViewById(R.id.due_day_year))
+		.setValue(_day);;
+		((NumberPicker) this.dialogView.findViewById(R.id.due_val))
+		.setValue(val + 10);
+	}
+
+	protected String updateDayYear() {
+		switch (this.dayYear) {
+			case MINUTE:
+				return this.ctx.getResources().getQuantityString(
+						R.plurals.due_minute, this.count);
+			case HOUR:
+				return this.ctx.getResources().getQuantityString(R.plurals.due_hour,
+						this.count);
+			case DAY:
+				return this.ctx.getResources().getQuantityString(R.plurals.due_day,
+						this.count);
+			case MONTH:
+				return this.ctx.getResources().getQuantityString(
+						R.plurals.due_month, this.count);
+			case YEAR:
+				return this.ctx.getResources().getQuantityString(R.plurals.due_year,
+						this.count);
+			default:
+				break;
+		}
+		return "";
+
 	}
 
 }

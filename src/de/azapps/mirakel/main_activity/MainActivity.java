@@ -723,6 +723,7 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 				break;
 			case RESULT_SETTINGS:
 				getListFragment().update();
+				getTaskFragment().updateLayout();
 				this.highlightSelected = MirakelPreferences.highlightSelected();
 				if (!this.highlightSelected
 						&& (this.oldClickedList != null || this.oldClickedTask == null)) {
@@ -993,7 +994,7 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 				finish();
 				return false;
 			case R.id.menu_undo:
-				UndoHistory.undoLast(this);
+				UndoHistory.undoLast();
 				updateCurrentListAndTask();
 				if (this.currentPosition == getTaskFragmentPosition()) {
 					setCurrentTask(getCurrentTask());
