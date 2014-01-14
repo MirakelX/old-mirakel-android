@@ -22,13 +22,13 @@ import java.util.Locale;
 
 import org.sufficientlysecure.donations.DonationsFragment;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.view.MenuItem;
 import de.azapps.mirakel.helper.BuildHelper;
 import de.azapps.mirakel.helper.Helpers;
@@ -73,7 +73,7 @@ public class DonationsActivity extends FragmentActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
-		FragmentManager fragmentManager = getSupportFragmentManager();
+		FragmentManager fragmentManager = getFragmentManager();
 		Fragment fragment = fragmentManager
 				.findFragmentByTag("donationsFragment");
 		if (fragment != null) {
@@ -97,7 +97,7 @@ public class DonationsActivity extends FragmentActivity {
 
 		setContentView(R.layout.donations_activity);
 
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		FragmentTransaction ft = getFragmentManager().beginTransaction();
 		DonationsFragment donationsFragment;
 		if (BuildHelper.isForPlayStore()) {
 			donationsFragment = DonationsFragment.newInstance(

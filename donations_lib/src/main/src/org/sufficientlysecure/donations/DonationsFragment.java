@@ -16,29 +16,35 @@
 
 package org.sufficientlysecure.donations;
 
-import android.content.ActivityNotFoundException;
-import android.view.*;
-import android.widget.*;
 import org.sufficientlysecure.donations.google.util.IabHelper;
 import org.sufficientlysecure.donations.google.util.IabResult;
+import org.sufficientlysecure.donations.google.util.Purchase;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.app.Fragment;
+import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.webkit.WebView.HitTestResult;
-
-import android.content.DialogInterface;
-import android.os.Handler;
-import org.sufficientlysecure.donations.google.util.Purchase;
+import android.webkit.WebViewClient;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 public class DonationsFragment extends Fragment {
 
