@@ -97,10 +97,9 @@ public class TaskSummary extends TaskDetailSubListBase<Task> implements android.
 
 	@Override
 	public void onClick(View v) {
-		Task taskLocal = (Task) v.getTag();
-		taskLocal.toggleDone();
+		task.toggleDone();
 		ReminderAlarm.updateAlarms(TaskSummary.this.context);
-		TaskSummary.this.taskRowDone.setChecked(taskLocal.isDone());
+		TaskSummary.this.taskRowDone.setChecked(task.isDone());
 		save();
 		updateName();
 	}
