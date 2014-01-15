@@ -100,13 +100,16 @@ public class TaskDetailContent extends BaseTaskDetailRow {
 	}
 
 	public void cancelContent() {
-		TaskDetailContent.this.taskContentSwitcher.showNext();
+		if (this.taskContentSwitcher.getCurrentView().getId() != this.taskContent
+				.getId()) {
+			TaskDetailContent.this.taskContentSwitcher.showNext();
+		}
 		this.isContentEdit = false;
 		this.editContent
 		.setBackgroundResource(TaskDetailContent.this.isContentEdit ? android.R.drawable.ic_menu_save
 				: android.R.drawable.ic_menu_edit);
 		TaskDetailContent.this.taskContentEdit
-				.setText(TaskDetailContent.this.task.getContent());
+		.setText(TaskDetailContent.this.task.getContent());
 	}
 
 	public void saveContent() {
