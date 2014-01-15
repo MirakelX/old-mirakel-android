@@ -23,31 +23,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import android.app.Activity;
 import android.content.Context;
-import android.graphics.drawable.GradientDrawable;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-
-import com.todddavies.components.progressbar.ProgressWheel;
-
 import de.azapps.mirakel.adapter.MirakelArrayAdapter;
-import de.azapps.mirakel.helper.DateTimeHelper;
+import de.azapps.mirakel.custom_views.TaskSummary;
 import de.azapps.mirakel.helper.Helpers;
-import de.azapps.mirakel.helper.MirakelPreferences;
-import de.azapps.mirakel.helper.TaskHelper;
-import de.azapps.mirakel.main_activity.MainActivity;
-import de.azapps.mirakel.model.list.ListMirakel;
 import de.azapps.mirakel.model.task.Task;
-import de.azapps.mirakelandroid.R;
 
 public class TaskAdapter extends MirakelArrayAdapter<Task> {
 	/**
@@ -57,108 +41,9 @@ public class TaskAdapter extends MirakelArrayAdapter<Task> {
 	 * 
 	 */
 	static class TaskHolder {
-		CheckBox taskRowDone;
-		RelativeLayout taskRowDoneWrapper;
-		TextView taskRowDue, taskRowList;
-		ImageView taskRowHasContent;
-		TextView taskRowName;
-		TextView taskRowPriority;
-		ProgressWheel taskRowProgress;
+		TaskSummary	summary;	;
 	}
-	@SuppressWarnings("unused")
-	private static final String TAG = "TaskAdapter";
-	public static View setupRow(View convertView, ViewGroup parent,
-			Context context, int layoutResourceId, Task task, boolean showList,
-			boolean darkTheme) {
-		View row = convertView;
-		TaskHolder holder;
 
-		if (row == null) {
-			// Initialize the View
-			LayoutInflater inflater = ((Activity) context).getLayoutInflater();
-			row = inflater.inflate(layoutResourceId, parent, false);
-			holder = new TaskHolder();
-			holder.taskRowDone = (CheckBox) row
-					.findViewById(R.id.tasks_row_done);
-			holder.taskRowDoneWrapper = (RelativeLayout) row
-					.findViewById(R.id.tasks_row_done_wrapper);
-			holder.taskRowName = (TextView) row
-					.findViewById(R.id.tasks_row_name);
-			holder.taskRowPriority = (TextView) row
-					.findViewById(R.id.tasks_row_priority);
-			holder.taskRowDue = (TextView) row.findViewById(R.id.tasks_row_due);
-			holder.taskRowHasContent = (ImageView) row
-					.findViewById(R.id.tasks_row_has_content);
-			holder.taskRowList = (TextView) row
-					.findViewById(R.id.tasks_row_list_name);
-			holder.taskRowProgress = (ProgressWheel) row
-					.findViewById(R.id.tasks_row_progress);
-			row.setTag(holder);
-		} else {
-			holder = (TaskHolder) row.getTag();
-		}
-		if (task == null)
-			return row;
-		// Done
-		if (task.getProgress() == 0
-				|| task.isDone() && task.getProgress() == 100) {
-			holder.taskRowProgress.setVisibility(View.GONE);
-		} else {
-			holder.taskRowProgress.setVisibility(View.VISIBLE);
-		}
-
-		holder.taskRowProgress.setProgress(Math.round(360.0f / 100.0f
-				* task.getProgress()));
-		holder.taskRowDone.setChecked(task.isDone());
-		holder.taskRowDone.setTag(task);
-		holder.taskRowDoneWrapper.setTag(task);
-		if (task.getContent().length() != 0 || task.getSubtaskCount() > 0
-				|| task.getFiles().size() > 0) {
-			holder.taskRowHasContent.setVisibility(View.VISIBLE);
-		} else {
-			holder.taskRowHasContent.setVisibility(View.INVISIBLE);
-		}
-		if (showList && task.getList() != null) {
-			holder.taskRowList.setVisibility(View.VISIBLE);
-			holder.taskRowList.setText(task.getList().getName());
-		} else {
-			holder.taskRowList.setVisibility(View.GONE);
-		}
-
-		// Name
-		holder.taskRowName.setText(task.getName());
-
-		if (task.isDone()) {
-			holder.taskRowName.setTextColor(row.getResources().getColor(
-					R.color.Grey));
-		} else {
-			holder.taskRowName.setTextColor(row.getResources().getColor(
-					darkTheme ? android.R.color.primary_text_dark
-							: android.R.color.primary_text_light));
-		}
-
-		// Priority
-		holder.taskRowPriority.setText("" + task.getPriority());
-
-		GradientDrawable bg = (GradientDrawable) holder.taskRowPriority
-				.getBackground();
-		bg.setColor(TaskHelper.getPrioColor(task.getPriority()));
-		holder.taskRowPriority.setTag(task);
-
-		// Due
-		if (task.getDue() != null) {
-			holder.taskRowDue.setVisibility(View.VISIBLE);
-			holder.taskRowDue.setText(DateTimeHelper.formatDate(context,
-					task.getDue()));
-			holder.taskRowDue.setTextColor(row.getResources().getColor(
-					TaskHelper.getTaskDueColor(task.getDue(), task.isDone())));
-		} else {
-			holder.taskRowDue.setVisibility(View.GONE);
-		}
-		return row;
-	}
-	OnClickListener clickCheckbox;
-	OnClickListener clickPrio;
 	int listId;
 
 	protected int touchPosition;
@@ -171,11 +56,8 @@ public class TaskAdapter extends MirakelArrayAdapter<Task> {
 	}
 
 	public TaskAdapter(Context context, int layoutResourceId, List<Task> data,
-			OnClickListener clickCheckbox, OnClickListener click_prio,
 			int listId) {
 		super(context, layoutResourceId, data);
-		this.clickCheckbox = clickCheckbox;
-		this.clickPrio = click_prio;
 		this.listId = listId;
 
 	}
@@ -198,36 +80,20 @@ public class TaskAdapter extends MirakelArrayAdapter<Task> {
 
 	@Override
 	public View getView(final int position, View convertView, ViewGroup parent) {
-		Task task = position >= this.data.size() ? null : this.data.get(position);
-		if (task == null) {
-			task = Task.getDummy(this.context, ListMirakel.safeFirst(this.context));
-		}
-		View row = setupRow(convertView, parent, this.context, this.layoutResourceId,
-				task, this.listId <= 0, this.darkTheme);
-		TaskHolder holder = (TaskHolder) row.getTag();
-		holder.taskRowPriority.setOnClickListener(this.clickPrio);
-		holder.taskRowDone.setOnClickListener(this.clickCheckbox);
-		holder.taskRowDoneWrapper.setOnClickListener(this.clickCheckbox);
-		this.viewsForTasks.put(task.getId(), row);
-		if (this.selected.get(position)) {
-			row.setBackgroundColor(this.context.getResources().getColor(
-					this.darkTheme ? R.color.highlighted_text_holo_dark
-							: R.color.highlighted_text_holo_light));
-		} else if (MirakelPreferences.colorizeTasks()) {
-			if (MirakelPreferences.colorizeTasksEverywhere()
-					|| ((MainActivity) this.context).getCurrentList()
-							.isSpecialList()) {
-				int w = row.getWidth() == 0 ? parent.getWidth() : row
-						.getWidth();
-				Helpers.setListColorBackground(task.getList(), row,
-						w);
-			} else {
-				row.setBackgroundColor(this.context.getResources().getColor(
-						android.R.color.transparent));
-			}
+		final Task task = position >= this.data.size() ? null : this.data
+				.get(position);
+		TaskSummary row;
+		if (convertView == null) {
+			row = new TaskSummary(this.context);
 		} else {
-			row.setBackgroundColor(this.context.getResources().getColor(
-					android.R.color.transparent));
+			row = (TaskSummary) convertView;
+		}
+
+		row.updatePart(task);
+
+		if (this.selected.get(position)) {
+			row.setBackgroundColor(Helpers
+					.getHighlightedColor(this.context));
 		}
 		row.setOnTouchListener(new OnTouchListener() {
 

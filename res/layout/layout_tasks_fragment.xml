@@ -92,6 +92,7 @@
         android:id="@+id/tasks_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:focusable="false"
         android:clickable="true"
         android:descendantFocusability="beforeDescendants" >
     </ListView>

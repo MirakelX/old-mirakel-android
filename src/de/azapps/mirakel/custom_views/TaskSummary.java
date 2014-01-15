@@ -34,6 +34,7 @@ import de.azapps.mirakel.helper.Helpers.ExecInterface;
 import de.azapps.mirakel.helper.MirakelPreferences;
 import de.azapps.mirakel.helper.TaskDialogHelpers;
 import de.azapps.mirakel.helper.TaskHelper;
+import de.azapps.mirakel.model.list.ListMirakel;
 import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakel.reminders.ReminderAlarm;
 import de.azapps.mirakelandroid.R;
@@ -65,7 +66,7 @@ public class TaskSummary extends TaskDetailSubListBase<Task> implements android.
 
 	public TaskSummary(Context ctx) {
 		super(ctx);
-		inflate(ctx, R.layout.tasks_row, this);
+		inflate(ctx, R.layout.task_summary, this);
 		this.taskRowDone = (CheckBox) findViewById(R.id.tasks_row_done);
 		this.taskRowDoneWrapper = (RelativeLayout) findViewById(R.id.tasks_row_done_wrapper);
 		this.taskRowName = (TextView) findViewById(R.id.tasks_row_name);
@@ -86,19 +87,11 @@ public class TaskSummary extends TaskDetailSubListBase<Task> implements android.
 							new ExecInterface() {
 						@Override
 						public void exec() {
-							// Update prio
+							updatePriority();
 						}
 					});
 				}
 
-			}
-		});
-		setOnLongClickListener(new OnLongClickListener() {
-
-			@Override
-			public boolean onLongClick(View v) {
-				handleMark();
-				return true;
 			}
 		});
 	}
@@ -134,6 +127,14 @@ public class TaskSummary extends TaskDetailSubListBase<Task> implements android.
 
 	public void setOnTaskMarked(final OnTaskMarkedListner l) {
 		this.markedListner = l;
+		setOnLongClickListener(new OnLongClickListener() {
+
+			@Override
+			public boolean onLongClick(View v) {
+				handleMark();
+				return true;
+			}
+		});
 	}
 
 	public void setShortMark(boolean shortMark) {
@@ -161,7 +162,9 @@ public class TaskSummary extends TaskDetailSubListBase<Task> implements android.
 		setBackgroundColor(this.context.getResources().getColor(
 				android.R.color.transparent));
 		this.task = newValue;
-		if (this.task == null) return;
+		if (this.task == null) {
+			this.task = Task.getDummy(this.context, ListMirakel.safeFirst(this.context));
+		}
 		// Done
 		this.taskRowDone.setChecked(this.task.isDone());
 		this.taskRowDone.setOnClickListener(this);
@@ -183,7 +186,7 @@ public class TaskSummary extends TaskDetailSubListBase<Task> implements android.
 		updateName();
 
 		// Priority
-		this.taskRowPriority.setText("" + this.task.getPriority());
+		updatePriority();
 
 		// Progress
 		this.taskProgress.setProgress(this.task.getProgress());
@@ -193,10 +196,7 @@ public class TaskSummary extends TaskDetailSubListBase<Task> implements android.
 			this.taskProgress.setVisibility(GONE);
 		}
 
-		GradientDrawable bg = (GradientDrawable) this.taskRowPriority
-				.getBackground();
-		bg.setColor(TaskHelper.getPrioColor(this.task.getPriority()));
-		this.taskRowPriority.setTag(this.task);
+
 		// Due
 		if (this.task.getDue() != null) {
 			this.taskRowDue.setVisibility(View.VISIBLE);
@@ -220,6 +220,13 @@ public class TaskSummary extends TaskDetailSubListBase<Task> implements android.
 			setBackgroundColor(this.context.getResources().getColor(
 					android.R.color.transparent));
 		}
+	}
+
+	private void updatePriority() {
+		this.taskRowPriority.setText("" + this.task.getPriority());
+		GradientDrawable bg = (GradientDrawable) this.taskRowPriority
+				.getBackground();
+		bg.setColor(TaskHelper.getPrioColor(this.task.getPriority()));
 	}
 
 }
