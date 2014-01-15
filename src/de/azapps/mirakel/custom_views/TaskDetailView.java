@@ -266,6 +266,7 @@ public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedLi
 		if(v!=null){
 			v.update(this.task);
 		}
+		cancelContent();
 
 	}
 

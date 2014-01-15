@@ -18,10 +18,8 @@
  ******************************************************************************/
 package de.azapps.mirakel.custom_views;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.Locale;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -161,14 +159,7 @@ public class TaskDetailDueReminder extends BaseTaskDetailRow {
 												.setDue(new GregorianCalendar(
 														year, month, day));
 												save();
-												TaskDetailDueReminder.this.taskDue
-												.setText(new SimpleDateFormat(
-														TaskDetailDueReminder.this.context
-														.getString(R.string.dateFormat),
-														Locale.getDefault())
-												.format(TaskDetailDueReminder.this.task
-														.getDue()
-														.getTime()));
+										setDue();
 
 											}
 
@@ -177,9 +168,7 @@ public class TaskDetailDueReminder extends BaseTaskDetailRow {
 												TaskDetailDueReminder.this.task
 												.setDue(null);
 												save();
-												TaskDetailDueReminder.this.taskDue
-												.setText(TaskDetailDueReminder.this.context
-														.getString(R.string.no_date));
+										setDue();
 
 											}
 										}, dueLocal.get(Calendar.YEAR), dueLocal
@@ -230,6 +219,22 @@ public class TaskDetailDueReminder extends BaseTaskDetailRow {
 		handleMultiline();
 	}
 
+	private void setDue() {
+		if (this.task.getDue() == null) {
+			this.taskDue.setText(this.context.getString(R.string.no_date));
+			this.taskDue.setTextColor(this.context.getResources().getColor(
+					inactive_color));
+		} else {
+			this.taskDue.setText(DateTimeHelper.formatDate(this.context,
+					this.task.getDue()));
+			this.taskDue.setTextColor(this.context.getResources().getColor(
+					TaskHelper.getTaskDueColor(this.task.getDue(),
+							this.task.isDone())));
+		}
+	}
+
+
+
 	public void setType(Type t) {
 		this.type = t;
 		switch (t) {
@@ -251,9 +256,6 @@ public class TaskDetailDueReminder extends BaseTaskDetailRow {
 				break;
 		}
 	}
-
-
-
 	@SuppressLint("NewApi")
 	@Override
 	protected void updateView() {
@@ -282,17 +284,7 @@ public class TaskDetailDueReminder extends BaseTaskDetailRow {
 		setupRecurrenceDrawable(this.recurrenceDue, this.task.getRecurring());
 		setupRecurrenceDrawable(this.recurrenceReminder,
 				this.task.getRecurringReminder());
-		if (this.task.getDue() == null) {
-			this.taskDue.setText(this.context.getString(R.string.no_date));
-			this.taskDue.setTextColor(this.context.getResources().getColor(
-					inactive_color));
-		} else {
-			this.taskDue.setText(DateTimeHelper.formatDate(this.context,
-					this.task.getDue()));
-			this.taskDue.setTextColor(this.context.getResources().getColor(
-					TaskHelper.getTaskDueColor(this.task.getDue(),
-							this.task.isDone())));
-		}
+		setDue();
 		if (this.task.getReminder() == null) {
 			this.taskReminder.setText(this.context
 					.getString(R.string.no_reminder));

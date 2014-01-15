@@ -103,8 +103,10 @@ public class TaskDetailContent extends BaseTaskDetailRow {
 		TaskDetailContent.this.taskContentSwitcher.showNext();
 		this.isContentEdit = false;
 		this.editContent
-				.setBackgroundResource(TaskDetailContent.this.isContentEdit ? android.R.drawable.ic_menu_save
-						: android.R.drawable.ic_menu_edit);
+		.setBackgroundResource(TaskDetailContent.this.isContentEdit ? android.R.drawable.ic_menu_save
+				: android.R.drawable.ic_menu_edit);
+		TaskDetailContent.this.taskContentEdit
+				.setText(TaskDetailContent.this.task.getContent());
 	}
 
 	public void saveContent() {
@@ -115,12 +117,12 @@ public class TaskDetailContent extends BaseTaskDetailRow {
 
 	public void saveContentHelper() {
 		TaskDetailContent.this.task
-				.setContent(TaskDetailContent.this.taskContentEdit.getText()
-						.toString());
+		.setContent(TaskDetailContent.this.taskContentEdit.getText()
+				.toString());
 		save();
+		Linkify.addLinks(TaskDetailContent.this.taskContent, Linkify.WEB_URLS);
 		TaskDetailContent.this.taskContent.setText(TaskDetailContent.this.task
 				.getContent());
-		Linkify.addLinks(TaskDetailContent.this.taskContent, Linkify.WEB_URLS);
 	}
 
 	public void setOnEditChanged(OnEditChanged l) {

@@ -299,12 +299,12 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 			names += ", " + lists.get(i).getName();
 		}
 		new AlertDialog.Builder(this)
-				.setTitle(
-						getResources().getQuantityString(R.plurals.list_delete,
-								lists.size()))
-				.setMessage(this.getString(R.string.list_delete_content, names))
-				.setPositiveButton(this.getString(android.R.string.yes),
-						new DialogInterface.OnClickListener() {
+		.setTitle(
+				getResources().getQuantityString(R.plurals.list_delete,
+						lists.size()))
+						.setMessage(this.getString(R.string.list_delete_content, names))
+						.setPositiveButton(this.getString(android.R.string.yes),
+								new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(final DialogInterface dialog, final int which) {
 								for (final ListMirakel list : lists) {
@@ -318,8 +318,8 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 								}
 							}
 						})
-				.setNegativeButton(this.getString(android.R.string.no),
-						new DialogInterface.OnClickListener() {
+						.setNegativeButton(this.getString(android.R.string.no),
+								new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(final DialogInterface dialog, final int which) {
 								// do nothing
@@ -348,12 +348,12 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 			names += ", " + tasks.get(i).getName();
 		}
 		new AlertDialog.Builder(this)
-				.setTitle(
-						getResources().getQuantityString(R.plurals.task_delete,
-								tasks.size()))
-				.setMessage(this.getString(R.string.task_delete_content, names))
-				.setPositiveButton(this.getString(android.R.string.yes),
-						new DialogInterface.OnClickListener() {
+		.setTitle(
+				getResources().getQuantityString(R.plurals.task_delete,
+						tasks.size()))
+						.setMessage(this.getString(R.string.task_delete_content, names))
+						.setPositiveButton(this.getString(android.R.string.yes),
+								new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(final DialogInterface dialog, final int which) {
 								for (final Task t : tasks) {
@@ -364,8 +364,8 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 								updateShare();
 							}
 						})
-				.setNegativeButton(this.getString(android.R.string.no),
-						new DialogInterface.OnClickListener() {
+						.setNegativeButton(this.getString(android.R.string.no),
+								new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(final DialogInterface dialog, final int which) {
 								// do nothing
@@ -540,11 +540,11 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 		this.mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
 		this.mDrawerToggle = new ActionBarDrawerToggle(this, /* host Activity */
-		this.mDrawerLayout, /* DrawerLayout object */
-		R.drawable.ic_drawer, /* nav drawer icon to replace 'Up' caret */
-		R.string.list_title, /* "open drawer" description */
-		R.string.list_title /* "close drawer" description */
-		) {
+				this.mDrawerLayout, /* DrawerLayout object */
+				R.drawable.ic_drawer, /* nav drawer icon to replace 'Up' caret */
+				R.string.list_title, /* "open drawer" description */
+				R.string.list_title /* "close drawer" description */
+				) {
 			@Override
 			public void onDrawerClosed(final View view) {
 				loadMenu(MainActivity.this.currentPosition);
@@ -671,19 +671,19 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 									.findItem(R.id.menu_sync_now) != null) {
 								MainActivity.this.menu.findItem(
 										R.id.menu_sync_now).setVisible(
-										MirakelPreferences.useSync());
+												MirakelPreferences.useSync());
 							}
 							if (MainActivity.this.menu
 									.findItem(R.id.menu_kill_button) != null) {
 								MainActivity.this.menu.findItem(
 										R.id.menu_kill_button).setVisible(
-										MirakelPreferences.showKillButton());
+												MirakelPreferences.showKillButton());
 							}
 							if (MainActivity.this.menu
 									.findItem(R.id.menu_contact) != null) {
 								MainActivity.this.menu.findItem(
 										R.id.menu_contact).setVisible(
-										BuildHelper.isBeta());
+												BuildHelper.isBeta());
 							}
 
 						}
@@ -794,9 +794,9 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 			return;
 		}
 		switch (this.mViewPager.getCurrentItem()) {
-		/*
-		 * case TASKS_FRAGMENT: mDrawerLayout.openDrawer(Gravity.LEFT); break;
-		 */
+			/*
+			 * case TASKS_FRAGMENT: mDrawerLayout.openDrawer(Gravity.LEFT); break;
+			 */
 			case LEFT_FRAGMENT:
 				if (MainActivity.isRTL) {
 					this.mViewPager.setCurrentItem(MainActivity
@@ -898,7 +898,7 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 				@Override
 				public void run() {
 					MainActivity.this.mViewPager
-							.setCurrentItem(MainActivity.this.currentPosition);
+					.setCurrentItem(MainActivity.this.currentPosition);
 
 				}
 			}, 10);
@@ -951,11 +951,11 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 				this.currentList = ListDialogHelpers.handleSortBy(this,
 						this.currentList, new Helpers.ExecInterface() {
 
-							@Override
-							public void exec() {
-								setCurrentList(MainActivity.this.currentList);
-							}
-						}, null);
+					@Override
+					public void exec() {
+						setCurrentList(MainActivity.this.currentList);
+					}
+				}, null);
 				return true;
 			case R.id.menu_new_list:
 				getListFragment().editList(null);
@@ -981,9 +981,9 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 				bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
 				bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
 				ContentResolver
-						.requestSync(null, Mirakel.AUTHORITY_TYP, bundle);
+				.requestSync(null, Mirakel.AUTHORITY_TYP, bundle);
 				ContentResolver
-						.requestSync(null, Mirakel.AUTHORITY_TYP, bundle);
+				.requestSync(null, Mirakel.AUTHORITY_TYP, bundle);
 				break;
 			case R.id.share_task:
 				SharingHelper.share(this, getCurrentTask());
@@ -1010,14 +1010,14 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 					setCurrentTask(getCurrentTask());
 				} else {
 					getListFragment().getAdapter()
-							.changeData(ListMirakel.all());
+					.changeData(ListMirakel.all());
 					getListFragment().getAdapter().notifyDataSetChanged();
 					getTasksFragment().getAdapter().changeData(
 							getCurrentList().tasks(), getCurrentList().getId());
 					getTasksFragment().getAdapter().notifyDataSetChanged();
 					if (!MirakelPreferences.isTablet()
 							&& this.currentPosition == MainActivity
-									.getTasksFragmentPosition()) {
+							.getTasksFragmentPosition()) {
 						setCurrentList(getCurrentList());
 					}
 				}
@@ -1065,14 +1065,14 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 	public void onPageSelected(final int position) {
 		if (getTasksFragment() == null) return;
 		getTasksFragment().closeActionMode();
-		// getTaskFragment().closeActionMode();
+		getTaskFragment().closeActionMode();
 		if (MirakelPreferences.lockDrawerInTaskFragment()
 				&& position == getTaskFragmentPosition()) {
 			this.mDrawerLayout
-					.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+			.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 		} else {
 			this.mDrawerLayout
-					.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+			.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 		}
 		loadMenu(position);
 
@@ -1493,13 +1493,21 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 
 	public void updateShare() {
 		if (this.menu != null) {
-			MenuItem share_list = this.menu.findItem(R.id.share_list);
-			if (share_list != null) {
-				if (this.currentList.countTasks() == 0) {
-					share_list.setVisible(false);
-				} else if (this.currentList.countTasks() > 0) {
-					share_list.setVisible(true);
-				}
+			final MenuItem share_list = this.menu.findItem(R.id.share_list);
+			if (share_list != null && this.mViewPager != null) {
+				this.mViewPager.post(new Runnable() {
+
+					@Override
+					public void run() {
+						if (MainActivity.this.currentList.countTasks() == 0) {
+							share_list.setVisible(false);
+						} else if (MainActivity.this.currentList.countTasks() > 0) {
+							share_list.setVisible(true);
+						}
+
+					}
+				});
+
 			} else if (this.currentPosition == MainActivity
 					.getTasksFragmentPosition()
 					&& share_list == null
