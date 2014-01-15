@@ -99,6 +99,13 @@ public class Helpers {
 		}
 	}
 
+	public static int getHighlightedColor(Context ctx) {
+		if (MirakelPreferences.isDark())
+			return ctx.getResources().getColor(
+					R.color.highlighted_text_holo_dark);
+		return ctx.getResources().getColor(R.color.highlighted_text_holo_light);
+	}
+
 	public static Locale getLocal(Context ctx) {
 
 		String current = MirakelPreferences.getLanguage();

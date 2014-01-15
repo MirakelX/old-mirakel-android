@@ -21,13 +21,16 @@ package de.azapps.mirakel.custom_views;
 import android.content.Context;
 import android.view.View;
 import de.azapps.mirakel.custom_views.TaskSummary.OnTaskClickListner;
+import de.azapps.mirakel.custom_views.TaskSummary.OnTaskMarkedListner;
 import de.azapps.mirakel.helper.TaskDialogHelpers;
 import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakelandroid.R;
 
-public class TaskDetailSubtask extends TaskDetailSubtitleView<Task, TaskSummary> {
+public class TaskDetailSubtask extends TaskDetailSubtitleView<Task, TaskSummary> implements OnTaskClickListner, OnTaskMarkedListner {
 
+	private int	markCounter;
 	private OnTaskClickListner	onClick;
+	private OnTaskMarkedListner	onMarked;
 
 	public TaskDetailSubtask(Context ctx) {
 		super(ctx);
@@ -54,17 +57,45 @@ public class TaskDetailSubtask extends TaskDetailSubtitleView<Task, TaskSummary>
 	}
 
 	@Override
+	public void markTask(View v, Task t,boolean mark) {
+		if(this.onMarked!=null){
+			markTaskHelper(mark);
+			this.onMarked.markTask(v, t,mark);
+		}
+
+	}
+
+	private void markTaskHelper(boolean markted) {
+		this.markCounter += markted ? 1 : -1;
+		for (TaskSummary v : this.viewList) {
+			v.setShortMark(this.markCounter > 0);
+		}
+	}
+
+	@Override
 	TaskSummary newElement() {
 		TaskSummary t = new TaskSummary(this.context);
-		t.setOnTaskClick(this.onClick);
+		t.setOnTaskClick(this);
+		t.setOnTaskMarked(this);
 		return t;
 
 	}
 
-	public void setOnClick(OnTaskClickListner l) {
-		this.onClick=l;
+	@Override
+	public void onTaskClick(Task t) {
+		if(this.onClick!=null){
+			this.onClick.onTaskClick(t);
+		}
 	}
 
+
+	public void setOnClick(OnTaskClickListner l) {
+		this.onClick = l;
+	}
+
+	public void setOnTaskMarked(OnTaskMarkedListner l) {
+		this.onMarked=l;
+	}
 
 	@Override
 	protected void updateView() {

@@ -37,21 +37,30 @@ import de.azapps.mirakel.helper.TaskHelper;
 import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakel.reminders.ReminderAlarm;
 import de.azapps.mirakelandroid.R;
+import de.azapps.tools.Log;
 
 public class TaskSummary extends TaskDetailSubListBase<Task> implements android.view.View.OnClickListener {
 	public interface OnTaskClickListner {
 		public abstract void onTaskClick(Task t);
 	}
-	private OnTaskClickListner	onTaskClick;
+
+	public interface OnTaskMarkedListner {
+		abstract public void markTask(View v, Task t, boolean markted);
+	}
+
+	private static final String		TAG	= "TaskSummary";
+	private boolean marked;
+	private OnTaskMarkedListner	markedListner;
+	private boolean	markEnabeld;
 	protected Task	task;
 	private final ProgressWheel taskProgress;
 	private final CheckBox			taskRowDone;
 	private final RelativeLayout	taskRowDoneWrapper;
 	private final TextView			taskRowDue;
 	private final ImageView			taskRowHasContent;
+
 	private final TextView			taskRowList;
 	private final TextView			taskRowName;
-
 	private final TextView	taskRowPriority;
 
 	public TaskSummary(Context ctx) {
@@ -84,28 +93,52 @@ public class TaskSummary extends TaskDetailSubListBase<Task> implements android.
 
 			}
 		});
-		setOnClickListener(new OnClickListener() {
-
+		setOnLongClickListener(new OnLongClickListener() {
 
 			@Override
-			public void onClick(View v) {
-				TaskSummary.this.onTaskClick.onTaskClick(TaskSummary.this.task);
-
+			public boolean onLongClick(View v) {
+				handleMark();
+				return true;
 			}
 		});
 	}
 
+	protected void handleMark() {
+		if (this.markedListner != null) {
+			this.marked = !this.marked;
+			this.markedListner.markTask(this, this.task, this.marked);
+		}
+	}
+
 	@Override
 	public void onClick(View v) {
-		task.toggleDone();
+		this.task.toggleDone();
 		ReminderAlarm.updateAlarms(TaskSummary.this.context);
-		TaskSummary.this.taskRowDone.setChecked(task.isDone());
+		TaskSummary.this.taskRowDone.setChecked(this.task.isDone());
 		save();
 		updateName();
 	}
 
-	public void setOnTaskClick(OnTaskClickListner l) {
-		this.onTaskClick = l;
+	public void setOnTaskClick(final OnTaskClickListner l) {
+		setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (!TaskSummary.this.markEnabeld) {
+					l.onTaskClick(TaskSummary.this.task);
+				} else {
+					handleMark();
+				}
+			}
+		});
+	}
+
+	public void setOnTaskMarked(final OnTaskMarkedListner l) {
+		this.markedListner = l;
+	}
+
+	public void setShortMark(boolean shortMark) {
+		Log.w(TAG, "enable shortmark " + shortMark);
+		this.markEnabeld = shortMark;
 	}
 
 	private void updateName() {
@@ -124,6 +157,9 @@ public class TaskSummary extends TaskDetailSubListBase<Task> implements android.
 
 	@Override
 	public void updatePart(Task newValue) {
+		Log.d(TAG, "update");
+		setBackgroundColor(this.context.getResources().getColor(
+				android.R.color.transparent));
 		this.task = newValue;
 		if (this.task == null) return;
 		// Done

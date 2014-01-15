@@ -24,8 +24,11 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import de.azapps.mirakel.custom_views.BaseTaskDetailRow.OnTaskChangedListner;
+import de.azapps.mirakel.custom_views.TaskDetailContent.OnEditChanged;
 import de.azapps.mirakel.custom_views.TaskDetailDueReminder.Type;
+import de.azapps.mirakel.custom_views.TaskDetailFilePart.OnFileMarkedListner;
 import de.azapps.mirakel.custom_views.TaskSummary.OnTaskClickListner;
+import de.azapps.mirakel.custom_views.TaskSummary.OnTaskMarkedListner;
 import de.azapps.mirakel.helper.MirakelPreferences;
 import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakelandroid.R;
@@ -126,10 +129,26 @@ public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedLi
 		setupView();
 	}
 
+	public void cancelContent() {
+		BaseTaskDetailRow v = this.views.get(TYPE.CONTENT);
+		if(v!=null){
+			((TaskDetailContent) v).cancelContent();
+		}
+
+	}
+
 	@Override
 	public void onTaskChanged(Task newTask) {
 		if (this.taskChangedListner != null) {
 			this.taskChangedListner.onTaskChanged(newTask);
+		}
+
+	}
+
+	public void saveContent() {
+		BaseTaskDetailRow v = this.views.get(TYPE.CONTENT);
+		if(v!=null){
+			((TaskDetailContent) v).saveContent();
 		}
 
 	}
@@ -148,10 +167,31 @@ public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedLi
 		}
 	}
 
+	public void setOnContentEdit(OnEditChanged l) {
+		BaseTaskDetailRow v = this.views.get(TYPE.CONTENT);
+		if (v != null) {
+			((TaskDetailContent) v).setOnEditChanged(l);
+		}
+	}
+
+	public void setOnFileMarked(OnFileMarkedListner l) {
+		BaseTaskDetailRow v = this.views.get(TYPE.FILE);
+		if (v != null) {
+			((TaskDetailFile) v).setOnFileMarked(l);
+		}
+	}
+
 	public void setOnSubtaskClick(OnTaskClickListner l) {
 		BaseTaskDetailRow v = this.views.get(TYPE.SUBTASK);
 		if (v != null) {
 			((TaskDetailSubtask) v).setOnClick(l);
+		}
+	}
+
+	public void setOnSubtaskMarked(OnTaskMarkedListner l) {
+		BaseTaskDetailRow v = this.views.get(TYPE.SUBTASK);
+		if (v != null) {
+			((TaskDetailSubtask) v).setOnTaskMarked(l);
 		}
 	}
 
@@ -166,7 +206,7 @@ public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedLi
 					item=new TaskDetailHeader(this.context);
 					break;
 				case TYPE.SUBTASK:
-					item=new TaskDetailSubtask(this.context);
+					item = new TaskDetailSubtask(this.context);
 					break;
 				case TYPE.PROGRESS:
 					item=new TaskDetailProgress(this.context);
@@ -213,6 +253,18 @@ public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedLi
 			Log.d(TAG, "heigh mainviews: " + item.getHeight());
 			addView(item);
 			this.views.put(i, item);
+		}
+
+	}
+
+	public void unmark() {
+		BaseTaskDetailRow v = this.views.get(TYPE.SUBTASK);
+		if(v!=null){
+			v.update(this.task);
+		}
+		v = this.views.get(TYPE.FILE);
+		if(v!=null){
+			v.update(this.task);
 		}
 
 	}

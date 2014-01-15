@@ -31,12 +31,18 @@ import de.azapps.mirakelandroid.R;
 
 public class TaskDetailContent extends BaseTaskDetailRow {
 
+	public interface OnEditChanged {
+		abstract public void handleCab(boolean startEdit);
+	}
+
 	protected static final String	TAG	= "TaskDetailContent";
-	private final ImageButton	editContent;
-	private boolean				isContentEdit;
-	private final TextView		taskContent;
-	private final EditText		taskContentEdit;
-	private final ViewSwitcher	taskContentSwitcher;
+	private OnEditChanged			editChanged;
+	private final ImageButton		editContent;
+	private boolean					isContentEdit;
+	private final TextView			taskContent;
+	private final EditText			taskContentEdit;
+
+	private final ViewSwitcher		taskContentSwitcher;
 
 	public TaskDetailContent(Context ctx) {
 		super(ctx);
@@ -58,14 +64,6 @@ public class TaskDetailContent extends BaseTaskDetailRow {
 						: android.R.drawable.ic_menu_edit);
 				if (TaskDetailContent.this.isContentEdit
 						&& TaskDetailContent.this.task != null) {
-					TaskDetailContent.this.task
-					.setContent(TaskDetailContent.this.taskContentEdit
-							.getText().toString());
-					save();
-					TaskDetailContent.this.taskContent
-					.setText(TaskDetailContent.this.task.getContent());
-					Linkify.addLinks(TaskDetailContent.this.taskContent,
-							Linkify.WEB_URLS);
 					TaskDetailContent.this.taskContentEdit
 					.setOnFocusChangeListener(new OnFocusChangeListener() {
 
@@ -85,14 +83,48 @@ public class TaskDetailContent extends BaseTaskDetailRow {
 										TaskDetailContent.this.taskContentEdit
 										.getWindowToken(), 0);
 							}
+							if (TaskDetailContent.this.editChanged != null) {
+								TaskDetailContent.this.editChanged
+								.handleCab(hasFocus);
+							}
 
 						}
 					});
 					TaskDetailContent.this.taskContentEdit.requestFocus();
+				} else {
+					saveContentHelper();
 				}
 
 			}
 		});
+	}
+
+	public void cancelContent() {
+		TaskDetailContent.this.taskContentSwitcher.showNext();
+		this.isContentEdit = false;
+		this.editContent
+				.setBackgroundResource(TaskDetailContent.this.isContentEdit ? android.R.drawable.ic_menu_save
+						: android.R.drawable.ic_menu_edit);
+	}
+
+	public void saveContent() {
+		saveContentHelper();
+		cancelContent();
+
+	}
+
+	public void saveContentHelper() {
+		TaskDetailContent.this.task
+				.setContent(TaskDetailContent.this.taskContentEdit.getText()
+						.toString());
+		save();
+		TaskDetailContent.this.taskContent.setText(TaskDetailContent.this.task
+				.getContent());
+		Linkify.addLinks(TaskDetailContent.this.taskContent, Linkify.WEB_URLS);
+	}
+
+	public void setOnEditChanged(OnEditChanged l) {
+		this.editChanged = l;
 	}
 
 	@Override
@@ -108,8 +140,8 @@ public class TaskDetailContent extends BaseTaskDetailRow {
 			Linkify.addLinks(this.taskContentEdit, Linkify.WEB_URLS);
 		} else {
 			this.taskContent.setText(R.string.add_content);
-			this.taskContent.setTextColor(this.context
-					.getResources().getColor(inactive_color));
+			this.taskContent.setTextColor(this.context.getResources().getColor(
+					inactive_color));
 			this.taskContentEdit.setText("");
 		}
 	}

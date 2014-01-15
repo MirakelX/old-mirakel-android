@@ -22,6 +22,7 @@ import android.content.Context;
 
 public abstract class TaskDetailSubListBase<T> extends BaseTaskDetailRow {
 
+
 	public TaskDetailSubListBase(Context ctx) {
 		super(ctx);
 	}
