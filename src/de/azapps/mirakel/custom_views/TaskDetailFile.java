@@ -46,7 +46,7 @@ public class TaskDetailFile extends TaskDetailSubtitleView<FileMirakel, TaskDeta
 			}
 		});
 		this.button.setImageDrawable(this.context.getResources().getDrawable(
-				android.R.drawable.ic_menu_edit));
+				android.R.drawable.ic_menu_add));
 	}
 
 

@@ -146,6 +146,7 @@ public class TaskDetailHeader extends BaseTaskDetailRow {
 		}
 
 		// Task done
+		this.taskDone.setOnCheckedChangeListener(null);
 		this.taskDone.setChecked(this.task.isDone());
 		this.taskDone.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			@Override

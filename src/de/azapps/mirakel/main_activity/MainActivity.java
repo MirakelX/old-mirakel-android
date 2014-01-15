@@ -318,13 +318,8 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 								}
 							}
 						})
-						.setNegativeButton(this.getString(android.R.string.no),
-								new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(final DialogInterface dialog, final int which) {
-								// do nothing
-							}
-						}).show();
+						.setNegativeButton(this.getString(android.R.string.no), null)
+						.show();
 	}
 
 	/**
@@ -364,13 +359,8 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 								updateShare();
 							}
 						})
-						.setNegativeButton(this.getString(android.R.string.no),
-								new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(final DialogInterface dialog, final int which) {
-								// do nothing
-							}
-						}).show();
+						.setNegativeButton(this.getString(android.R.string.no), null)
+						.show();
 	}
 
 	/**
@@ -760,7 +750,7 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 				if (isOk) {
 					Task task;
 					if (requestCode == MainActivity.RESULT_ADD_PICTURE) {
-						task = getCurrentTask();
+						task = this.currentTask;
 					} else {
 						task = Semantic.createTask(
 								MirakelPreferences.getPhotoDefaultTitle(),
@@ -828,14 +818,12 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 			this.mPagerAdapter = null;
 			this.isResumend = false;
 			setupLayout();
+			getTaskFragment().update(this.currentTask);
 		} else {
 			getListFragment().setActivity(this);
 			getTasksFragment().setActivity(this);
 			this.mDrawerToggle.onConfigurationChanged(newConfig);
 		}
-		// if (getTaskFragment().isEditContent()) {
-		// getTaskFragment().showKeyboardForContent();
-		// }
 	}
 
 	@SuppressLint("NewApi")

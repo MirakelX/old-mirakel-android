@@ -53,7 +53,6 @@ public class TaskSummary extends TaskDetailSubListBase<Task> implements android.
 	private boolean marked;
 	private OnTaskMarkedListner	markedListner;
 	private boolean	markEnabeld;
-	protected Task	task;
 	private final ProgressWheel taskProgress;
 	private final CheckBox			taskRowDone;
 	private final RelativeLayout	taskRowDoneWrapper;
@@ -111,6 +110,7 @@ public class TaskSummary extends TaskDetailSubListBase<Task> implements android.
 		TaskSummary.this.taskRowDone.setChecked(this.task.isDone());
 		save();
 		updateName();
+		updateProgress();
 	}
 
 	public void setOnTaskClick(final OnTaskClickListner l) {
@@ -190,14 +190,7 @@ public class TaskSummary extends TaskDetailSubListBase<Task> implements android.
 		updatePriority();
 
 		// Progress
-		this.taskProgress.setProgress((int) (this.task.getProgress() * 3.7));
-		if (this.task.getProgress() > 0
-				&& (this.task.getProgress() < 100 ||
-				!this.task.isDone())) {
-			this.taskProgress.setVisibility(VISIBLE);
-		} else {
-			this.taskProgress.setVisibility(GONE);
-		}
+		updateProgress();
 
 
 		// Due
@@ -230,6 +223,17 @@ public class TaskSummary extends TaskDetailSubListBase<Task> implements android.
 		GradientDrawable bg = (GradientDrawable) this.taskRowPriority
 				.getBackground();
 		bg.setColor(TaskHelper.getPrioColor(this.task.getPriority()));
+	}
+
+	private void updateProgress() {
+		this.taskProgress.setProgress((int) (this.task.getProgress() * 3.7));
+		if (this.task.getProgress() > 0
+				&& (this.task.getProgress() < 100 ||
+						!this.task.isDone())) {
+			this.taskProgress.setVisibility(VISIBLE);
+		} else {
+			this.taskProgress.setVisibility(GONE);
+		}
 	}
 
 }
