@@ -28,6 +28,7 @@ import de.azapps.mirakelandroid.R;
 
 public class TaskDetailSubtask extends TaskDetailSubtitleView<Task, TaskSummary> implements OnTaskClickListner, OnTaskMarkedListner {
 
+	protected static final String	TAG	= "TaskDetailSubtask";
 	private int	markCounter;
 	private OnTaskClickListner	onClick;
 	private OnTaskMarkedListner	onMarked;
@@ -77,6 +78,19 @@ public class TaskDetailSubtask extends TaskDetailSubtitleView<Task, TaskSummary>
 		TaskSummary t = new TaskSummary(this.context);
 		t.setOnTaskClick(this);
 		t.setOnTaskMarked(this);
+		t.setOnTaskChangedListner(new OnTaskChangedListner() {
+
+			@Override
+			public void onTaskChanged(Task task) {
+				if (task != null) {
+					task.safeSave();
+					if (TaskDetailSubtask.this.taskChangedListner != null) {
+						TaskDetailSubtask.this.taskChangedListner
+								.onTaskChanged(task);
+					}
+				}
+			}
+		});
 		return t;
 
 	}

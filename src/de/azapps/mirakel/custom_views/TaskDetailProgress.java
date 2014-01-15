@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
+import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakelandroid.R;
 
 public class TaskDetailProgress extends TaskDetailSubtitleView<Integer, TaskDetailProgressBar> {
@@ -38,6 +39,16 @@ public class TaskDetailProgress extends TaskDetailSubtitleView<Integer, TaskDeta
 	TaskDetailProgressBar newElement() {
 		TaskDetailProgressBar t = new TaskDetailProgressBar(this.context);
 		t.setTask(this.task);
+		t.setOnTaskChangedListner(new OnTaskChangedListner() {
+
+			@Override
+			public void onTaskChanged(Task newTask) {
+				TaskDetailProgress.this.task = newTask;
+				save();
+
+			}
+		});
+		t.update(this.task);
 		return t;
 	}
 

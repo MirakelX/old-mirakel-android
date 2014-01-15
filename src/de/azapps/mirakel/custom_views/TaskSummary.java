@@ -88,6 +88,7 @@ public class TaskSummary extends TaskDetailSubListBase<Task> implements android.
 						@Override
 						public void exec() {
 							updatePriority();
+							save();
 						}
 					});
 				}
@@ -189,8 +190,10 @@ public class TaskSummary extends TaskDetailSubListBase<Task> implements android.
 		updatePriority();
 
 		// Progress
-		this.taskProgress.setProgress(this.task.getProgress());
-		if (this.task.getProgress() > 0) {
+		this.taskProgress.setProgress((int) (this.task.getProgress() * 3.7));
+		if (this.task.getProgress() > 0
+				&& (this.task.getProgress() < 100 ||
+				!this.task.isDone())) {
 			this.taskProgress.setVisibility(VISIBLE);
 		} else {
 			this.taskProgress.setVisibility(GONE);

@@ -37,9 +37,11 @@ import de.azapps.mirakel.helper.TaskDialogHelpers;
 import de.azapps.mirakel.helper.TaskHelper;
 import de.azapps.mirakel.reminders.ReminderAlarm;
 import de.azapps.mirakelandroid.R;
+import de.azapps.tools.Log;
 
 public class TaskDetailHeader extends BaseTaskDetailRow {
 
+	protected static final String	TAG	= "TaskDetailHeader";
 	private ViewSwitcher	switcher;
 	private CheckBox		taskDone;
 	private TextView		taskName;
@@ -121,7 +123,6 @@ public class TaskDetailHeader extends BaseTaskDetailRow {
 					public void exec() {
 						TaskHelper.setPrio(TaskDetailHeader.this.taskPrio, TaskDetailHeader.this.task);
 						save();
-
 					}
 				});
 			}
@@ -149,6 +150,7 @@ public class TaskDetailHeader extends BaseTaskDetailRow {
 		this.taskDone.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				Log.d(TAG, "check " + isChecked);
 				TaskDetailHeader.this.task.setDone(isChecked);
 				ReminderAlarm.updateAlarms(TaskDetailHeader.this.context);
 				save();
