@@ -44,6 +44,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import de.azapps.mirakel.model.account.AccountMirakel;
+import de.azapps.mirakel.sync.taskwarrior.TaskWarriorSetupActivity;
 import de.azapps.tools.Log;
 
 /**
@@ -73,7 +74,7 @@ class Authenticator extends AbstractAccountAuthenticator {
 
 	public Authenticator(Context context) {
 		super(context);
-		mContext = context;
+		this.mContext = context;
 	}
 
 	@Override
@@ -81,7 +82,8 @@ class Authenticator extends AbstractAccountAuthenticator {
 			String accountType, String authTokenType,
 			String[] requiredFeatures, Bundle options) {
 		Log.v(TAG, "addAccount()");
-		final Intent intent = new Intent(mContext, AuthenticatorActivity.class);
+		final Intent intent = new Intent(this.mContext,
+				TaskWarriorSetupActivity.class);
 		intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE,
 				response);
 		final Bundle bundle = new Bundle();
@@ -106,7 +108,7 @@ class Authenticator extends AbstractAccountAuthenticator {
 	@Override
 	public Bundle getAuthToken(AccountAuthenticatorResponse response,
 			Account account, String authTokenType, Bundle loginOptions)
-			throws NetworkErrorException {
+					throws NetworkErrorException {
 		Log.v(TAG, "getAuthToken()");
 
 		// If the caller requested an authToken type we don't support, then
@@ -120,11 +122,11 @@ class Authenticator extends AbstractAccountAuthenticator {
 
 		// Extract the username and password from the Account Manager, and ask
 		// the server for an appropriate AuthToken.
-		final AccountManager am = AccountManager.get(mContext);
+		final AccountManager am = AccountManager.get(this.mContext);
 		final String password = am.getPassword(account);
 		if (password != null) {
 			final String authToken = "sdfdsaf";// NetworkUtilities.authenticate(account.name,
-												// password);
+			// password);
 			if (!TextUtils.isEmpty(authToken)) {
 				final Bundle result = new Bundle();
 				result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
@@ -138,7 +140,7 @@ class Authenticator extends AbstractAccountAuthenticator {
 		// If we get here, then we couldn't access the user's password - so we
 		// need to re-prompt them for their credentials. We do that by creating
 		// an intent to display our AuthenticatorActivity panel.
-		final Intent intent = new Intent(mContext, AuthenticatorActivity.class);
+		final Intent intent = new Intent(this.mContext, AuthenticatorActivity.class);
 		intent.putExtra(AuthenticatorActivity.PARAM_USERNAME, account.name);
 		intent.putExtra(AuthenticatorActivity.PARAM_AUTHTOKEN_TYPE,
 				authTokenType);
