@@ -27,6 +27,8 @@ import de.azapps.mirakelandroid.R;
 
 public class TaskDetailProgress extends TaskDetailSubtitleView<Integer, TaskDetailProgressBar> {
 
+	private TaskDetailProgressBar	progressBar;
+
 	public TaskDetailProgress(Context ctx) {
 		super(ctx);
 		this.title.setText(R.string.task_fragment_progress);
@@ -37,9 +39,8 @@ public class TaskDetailProgress extends TaskDetailSubtitleView<Integer, TaskDeta
 
 	@Override
 	TaskDetailProgressBar newElement() {
-		TaskDetailProgressBar t = new TaskDetailProgressBar(this.context);
-		t.setTask(this.task);
-		t.setOnTaskChangedListner(new OnTaskChangedListner() {
+		this.progressBar = new TaskDetailProgressBar(this.context);
+		this.progressBar.setOnTaskChangedListner(new OnTaskChangedListner() {
 
 			@Override
 			public void onTaskChanged(Task newTask) {
@@ -48,14 +49,18 @@ public class TaskDetailProgress extends TaskDetailSubtitleView<Integer, TaskDeta
 
 			}
 		});
-		t.update(this.task);
-		return t;
+		this.progressBar.setTask(this.task);
+		this.progressBar.update(this.task);
+		return this.progressBar;
 	}
 
 	@Override
 	protected void updateView() {
 		List<Integer> l=new ArrayList<Integer>();
 		l.add(this.task.getProgress());
+		if (this.progressBar != null) {
+			this.progressBar.setTask(this.task);
+		}
 		updateSubviews(l);
 
 	}
