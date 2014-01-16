@@ -17,6 +17,13 @@
     </style>
   </head>
   <body>
+$ 2.3-alpha1
+ % Version 2.3.0-alpha1
+  _ 2014-01-16
+  * Remove support for Android <4.0
+  * Big Code-Cleanup
+  * Reimplement TaskFragment
+  * Various Fixes for Taskwarriorsync
 $ 2.2.1
   % Version 2.2.1
   _ 2013-12-28
