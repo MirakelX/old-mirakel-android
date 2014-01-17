@@ -5,8 +5,8 @@ buildscript {
         }
      }
 	dependencies {
-		classpath 'com.android.tools.build:gradle:0.7+'
-     }
+		classpath 'com.android.tools.build:gradle:0.7.2'
+    }
 }
 apply plugin: 'android'
 apply plugin: 'eclipse'
@@ -16,6 +16,7 @@ android {
     compileSdkVersion 19   
     packagingOptions {
             exclude 'META-INF/LICENSE.txt'
+            exclude 'META-INF/NOTICE.txt'
     }
     sourceSets {
         main {
