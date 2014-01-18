@@ -207,9 +207,12 @@ public class TaskWarriorSync {
 				try {
 					taskObject = new JsonParser().parse(taskString)
 							.getAsJsonObject();
-					server_task = Task.parse_json(taskObject);
-					if (server_task.getList()==null||server_task.getList().getAccount().getId() != accountMirakel
+					Log.i(TAG, taskString);
+					server_task = Task.parse_json(taskObject, accountMirakel);
+					if (server_task.getList()==null||
+							server_task.getList().getAccount().getId() != accountMirakel
 							.getId()) {
+						Log.d(TAG,"change list to eingang");
 						ListMirakel list = ListMirakel
 								.getInboxList(accountMirakel);
 						server_task.setList(list);

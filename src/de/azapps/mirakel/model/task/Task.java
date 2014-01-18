@@ -60,10 +60,10 @@ import de.azapps.tools.Log;
 public class Task extends TaskBase {
 
 	public static final String[]	allColumns	= { DatabaseHelper.ID, UUID,
-			LIST_ID, DatabaseHelper.NAME, CONTENT, DONE, DUE, REMINDER,
-			PRIORITY, DatabaseHelper.CREATED_AT, DatabaseHelper.UPDATED_AT,
-			SyncAdapter.SYNC_STATE, ADDITIONAL_ENTRIES, RECURRING,
-			RECURRING_REMINDER, PROGRESS		};
+		LIST_ID, DatabaseHelper.NAME, CONTENT, DONE, DUE, REMINDER,
+		PRIORITY, DatabaseHelper.CREATED_AT, DatabaseHelper.UPDATED_AT,
+		SyncAdapter.SYNC_STATE, ADDITIONAL_ENTRIES, RECURRING,
+		RECURRING_REMINDER, PROGRESS		};
 	private static Context			context;
 	private static SQLiteDatabase	database;
 
@@ -113,7 +113,7 @@ public class Task extends TaskBase {
 				"yyyy-MM-dd'T'kkmmss'Z'", Locale.getDefault());
 		try {
 			due.setTime(new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-					.parse(cursor.getString(6)));
+			.parse(cursor.getString(6)));
 		} catch (ParseException e) {
 			due = null;
 		} catch (NullPointerException e) {
@@ -239,13 +239,13 @@ public class Task extends TaskBase {
 				//$FALL-THROUGH$
 			case ListMirakel.SORT_BY_DUE:
 				order = " CASE WHEN (" + DUE
-						+ " IS NULL) THEN date('now','+1000 years') ELSE date("
-						+ DUE + ") END ASC" + order;
+				+ " IS NULL) THEN date('now','+1000 years') ELSE date("
+				+ DUE + ") END ASC" + order;
 				break;
 			case ListMirakel.SORT_BY_REVERT_DEFAULT:
 				order = PRIORITY + " DESC,  CASE WHEN (" + DUE
-						+ " IS NULL) THEN date('now','+1000 years') ELSE date("
-						+ DUE + ") END ASC" + order;
+				+ " IS NULL) THEN date('now','+1000 years') ELSE date("
+				+ DUE + ") END ASC" + order;
 				//$FALL-THROUGH$
 			default:
 				order = DatabaseHelper.ID + " ASC";
@@ -256,7 +256,7 @@ public class Task extends TaskBase {
 	public static List<Pair<Long, String>> getTaskNames() {
 		Cursor c = database.query(TABLE, new String[] { DatabaseHelper.ID,
 				DatabaseHelper.NAME }, "not " + SyncAdapter.SYNC_STATE + "="
-				+ SYNC_STATE.DELETE + " and done = 0", null, null, null, null);
+						+ SYNC_STATE.DELETE + " and done = 0", null, null, null, null);
 		c.moveToFirst();
 		List<Pair<Long, String>> names = new ArrayList<Pair<Long, String>>();
 		while (!c.isAfterLast()) {
@@ -361,7 +361,7 @@ public class Task extends TaskBase {
 				+ " t INNER JOIN " + SUBTASK_TABLE
 				+ " s on t._id=s.child_id WHERE s.parent_id=? ORDER BY "
 				+ getSorting(ListMirakel.SORT_BY_OPT), new String[] { ""
-				+ subtask.getId() });
+						+ subtask.getId() });
 	}
 
 	// Static Methods
@@ -450,7 +450,7 @@ public class Task extends TaskBase {
 			Log.wtf(TAG, "List vanish");
 			Log.e(TAG, Log.getStackTraceString(e));
 			Toast.makeText(context, R.string.no_lists, Toast.LENGTH_LONG)
-					.show();
+			.show();
 			return null;
 		}
 	}
@@ -461,7 +461,7 @@ public class Task extends TaskBase {
 	 * @param el
 	 * @return
 	 */
-	public static Task parse_json(JsonObject el) {
+	public static Task parse_json(JsonObject el,AccountMirakel account) {
 		Task t = null;
 		JsonElement id = el.get("id");
 		if (id != null) {
@@ -513,11 +513,11 @@ public class Task extends TaskBase {
 				t.setList(list);
 			} else if (key.equals("project")) {
 				ListMirakel list = ListMirakel.findByName(val.getAsString());
-//				if (list == null
-//						|| list.getAccount().getId() != account.getId()) {
-//					list = ListMirakel.newList(val.getAsString(),
-//							ListMirakel.SORT_BY_OPT, account);
-//				}
+				if (list == null
+						|| list.getAccount().getId() != account.getId()) {
+					list = ListMirakel.newList(val.getAsString(),
+							ListMirakel.SORT_BY_OPT, account);
+				}
 				t.setList(list);
 			} else if (key.equals("created_at")) {
 				t.setCreatedAt(val.getAsString().replace(":", ""));
@@ -590,10 +590,10 @@ public class Task extends TaskBase {
 				t.addAdditionalEntry(key, val.getAsString());
 			}
 		}
-//		if (t.getList() == null) {
-//			ListMirakel l = MirakelPreferences.getImportDefaultList(true);
-//			t.setList(l);
-//		}
+		//		if (t.getList() == null) {
+		//			ListMirakel l = MirakelPreferences.getImportDefaultList(true);
+		//			t.setList(l);
+		//		}
 		return t;
 	}
 
@@ -603,14 +603,14 @@ public class Task extends TaskBase {
 	 * @param result
 	 * @return
 	 */
-	public static List<Task> parse_json(String result) {
+	public static List<Task> parse_json(String result, AccountMirakel account) {
 		try {
 			List<Task> tasks = new ArrayList<Task>();
 			Iterator<JsonElement> i = new JsonParser().parse(result)
 					.getAsJsonArray().iterator();
 			while (i.hasNext()) {
 				JsonObject el = (JsonObject) i.next();
-				Task t = parse_json(el);
+				Task t = parse_json(el, account);
 				tasks.add(t);
 			}
 			return tasks;
@@ -626,7 +626,7 @@ public class Task extends TaskBase {
 		GregorianCalendar temp = new GregorianCalendar();
 		try {
 			temp.setTime(new SimpleDateFormat(format, Locale.getDefault())
-					.parse(date));
+			.parse(date));
 			return temp;
 		} catch (ParseException e) {
 			return null;
@@ -668,7 +668,7 @@ public class Task extends TaskBase {
 		return cursorToTaskList(cursor);
 
 	}
-	
+
 	/**
 	 * Search Tasks
 	 * 
@@ -921,7 +921,7 @@ public class Task extends TaskBase {
 		}
 		setSyncState(getSyncState() == SYNC_STATE.ADD
 				|| getSyncState() == SYNC_STATE.IS_SYNCED ? getSyncState()
-				: SYNC_STATE.NEED_SYNC);
+						: SYNC_STATE.NEED_SYNC);
 		if (context != null) {
 			setUpdatedAt(new GregorianCalendar());
 		}

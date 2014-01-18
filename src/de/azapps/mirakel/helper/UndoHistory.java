@@ -26,6 +26,7 @@ import com.google.gson.JsonParser;
 
 import de.azapps.mirakel.Mirakel;
 import de.azapps.mirakel.Mirakel.NoSuchListException;
+import de.azapps.mirakel.model.account.AccountMirakel;
 import de.azapps.mirakel.model.list.ListMirakel;
 import de.azapps.mirakel.model.task.Task;
 import de.azapps.tools.Log;
@@ -72,7 +73,8 @@ public class UndoHistory {
 				switch (type) {
 					case TASK:
 						try {
-							Task t = Task.parse_json(json);
+							Task t = Task.parse_json(json,
+									AccountMirakel.getLocal());
 							if (Task.get(t.getId()) != null) {
 								t.save(false);
 							} else {
