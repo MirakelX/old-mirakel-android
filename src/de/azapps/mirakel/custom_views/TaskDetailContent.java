@@ -20,6 +20,7 @@ package de.azapps.mirakel.custom_views;
 
 import android.content.Context;
 import android.text.util.Linkify;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -56,9 +57,13 @@ public class TaskDetailContent extends BaseTaskDetailRow {
 
 			@Override
 			public void onClick(View v) {
+				Log.wtf(TAG, "klick");
+				TaskDetailContent.this.isContentEdit = !TaskDetailContent.this.isContentEdit;
+				if (!TaskDetailContent.this.isContentEdit) {
+					saveContentHelper();
+				}
 				TaskDetailContent.this.context
 				.getSystemService(Context.INPUT_METHOD_SERVICE);
-				TaskDetailContent.this.isContentEdit = !TaskDetailContent.this.isContentEdit;
 				TaskDetailContent.this.taskContentSwitcher.showNext();
 				v.setBackgroundResource(TaskDetailContent.this.isContentEdit ? android.R.drawable.ic_menu_save
 						: android.R.drawable.ic_menu_edit);
@@ -91,8 +96,9 @@ public class TaskDetailContent extends BaseTaskDetailRow {
 						}
 					});
 					TaskDetailContent.this.taskContentEdit.requestFocus();
-				} else {
-					saveContentHelper();
+					TaskDetailContent.this.taskContentEdit
+							.setSelection(TaskDetailContent.this.task
+									.getContent().length());
 				}
 
 			}
@@ -113,6 +119,7 @@ public class TaskDetailContent extends BaseTaskDetailRow {
 	}
 
 	public void saveContent() {
+		Log.d(TAG, "save " + TaskDetailContent.this.taskContentEdit.getText());
 		saveContentHelper();
 		cancelContent();
 
@@ -123,9 +130,20 @@ public class TaskDetailContent extends BaseTaskDetailRow {
 		.setContent(TaskDetailContent.this.taskContentEdit.getText()
 				.toString());
 		save();
-		Linkify.addLinks(TaskDetailContent.this.taskContent, Linkify.WEB_URLS);
-		TaskDetailContent.this.taskContent.setText(TaskDetailContent.this.task
-				.getContent());
+		if (this.task.getContent().length() > 0) {
+			this.taskContent.setText(this.task.getContent());
+			Linkify.addLinks(this.taskContent, Linkify.WEB_URLS);
+			this.taskContent.setTextColor(this.context.getResources().getColor(
+					MirakelPreferences.isDark() ? android.R.color.white
+							: android.R.color.black));
+			this.taskContentEdit.setText(this.task.getContent());
+			Linkify.addLinks(this.taskContentEdit, Linkify.WEB_URLS);
+		} else {
+			this.taskContent.setText(R.string.add_content);
+			this.taskContent.setTextColor(this.context.getResources().getColor(
+					inactive_color));
+			this.taskContentEdit.setText("");
+		}
 	}
 
 	public void setOnEditChanged(OnEditChanged l) {
