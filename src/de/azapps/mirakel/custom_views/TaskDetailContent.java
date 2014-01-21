@@ -20,7 +20,6 @@ package de.azapps.mirakel.custom_views;
 
 import android.content.Context;
 import android.text.util.Linkify;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -37,12 +36,13 @@ public class TaskDetailContent extends BaseTaskDetailRow {
 	}
 
 	protected static final String	TAG	= "TaskDetailContent";
+	private String content;
 	private OnEditChanged			editChanged;
 	private final ImageButton		editContent;
 	private boolean					isContentEdit;
 	private final TextView			taskContent;
-	private final EditText			taskContentEdit;
 
+	private final EditText			taskContentEdit;
 	private final ViewSwitcher		taskContentSwitcher;
 
 	public TaskDetailContent(Context ctx) {
@@ -96,8 +96,8 @@ public class TaskDetailContent extends BaseTaskDetailRow {
 					});
 					TaskDetailContent.this.taskContentEdit.requestFocus();
 					TaskDetailContent.this.taskContentEdit
-							.setSelection(TaskDetailContent.this.task
-									.getContent().length());
+					.setSelection(TaskDetailContent.this.task
+							.getContent().length());
 				}
 
 			}
@@ -118,10 +118,8 @@ public class TaskDetailContent extends BaseTaskDetailRow {
 	}
 
 	public void saveContent() {
-		Log.d(TAG, "save " + TaskDetailContent.this.taskContentEdit.getText());
 		saveContentHelper();
 		cancelContent();
-
 	}
 
 	public void saveContentHelper() {
@@ -129,6 +127,7 @@ public class TaskDetailContent extends BaseTaskDetailRow {
 		.setContent(TaskDetailContent.this.taskContentEdit.getText()
 				.toString());
 		save();
+		this.content = this.task.getContent();
 		if (this.task.getContent().length() > 0) {
 			this.taskContent.setText(this.task.getContent());
 			Linkify.addLinks(this.taskContent, Linkify.WEB_URLS);
@@ -151,6 +150,10 @@ public class TaskDetailContent extends BaseTaskDetailRow {
 
 	@Override
 	protected void updateView() {
+		if (this.task.getContent() == null && this.content == null
+				|| this.task.getContent() != null
+				&& this.task.getContent().equals(this.content)) return;
+		this.content = this.task.getContent();
 		this.editContent.setBackgroundResource(android.R.drawable.ic_menu_edit);
 		if (this.task.getContent().length() > 0) {
 			this.taskContent.setText(this.task.getContent());

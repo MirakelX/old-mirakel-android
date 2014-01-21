@@ -98,7 +98,6 @@ public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedLi
 		}
 	}
 
-	private static final String						TAG	= "TaskDetailView";
 
 	private final Context							context;
 	private List<Integer>							items;

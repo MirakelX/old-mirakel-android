@@ -36,8 +36,8 @@ public class TaskDetailFilePart extends TaskDetailSubListBase<FileMirakel> {
 	private final Context	ctx;
 	private FileMirakel	file;
 	private final ImageView	fileImage;
-	private final TextView	fileName;
 
+	private final TextView	fileName;
 	private final TextView	filePath;
 	private boolean			marked;
 	private boolean			markedEnabled;
@@ -90,6 +90,8 @@ public class TaskDetailFilePart extends TaskDetailSubListBase<FileMirakel> {
 	public void updatePart(FileMirakel f) {
 		setBackgroundColor(this.context.getResources().getColor(
 				android.R.color.transparent));
+		// this will break the preview images...
+		// if (f==null&&this.file==null||f!=null&&f.equals(this.file)) return;
 		this.file = f;
 		new Thread(new Runnable() {
 			private Bitmap	preview;
