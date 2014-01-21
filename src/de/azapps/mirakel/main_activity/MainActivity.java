@@ -1404,7 +1404,7 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 			final int listId = Integer.parseInt(this.startIntent.getAction()
 					.replace(MainActivity.ADD_TASK_FROM_WIDGET, ""));
 			setCurrentList(ListMirakel.getList(listId));
-			if (getTasksFragment() != null) {
+			if (getTasksFragment() != null && getTasksFragment().isReady()) {
 				getTasksFragment().focusNew(true);
 			} else {
 				this.mViewPager.postDelayed(new Runnable() {

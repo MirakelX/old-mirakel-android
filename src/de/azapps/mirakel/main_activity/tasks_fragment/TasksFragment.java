@@ -142,7 +142,7 @@ public class TasksFragment extends Fragment {
 				TasksFragment.this.newTask.post(new Runnable() {
 					@Override
 					public void run() {
-						Log.d(TAG, "focus new " + hasFocus);
+						Log.v(TAG, "focus new " + hasFocus);
 						InputMethodManager imm = (InputMethodManager) getActivity()
 								.getSystemService(Context.INPUT_METHOD_SERVICE);
 						if (imm == null) {
@@ -164,6 +164,8 @@ public class TasksFragment extends Fragment {
 									WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 						} else if (!hasFocus) {
 							TasksFragment.this.newTask.requestFocus();
+							imm.showSoftInput(TasksFragment.this.newTask,
+									InputMethodManager.SHOW_IMPLICIT);
 						} else if (!request_focus) {
 							clearFocus();
 						}
@@ -184,6 +186,10 @@ public class TasksFragment extends Fragment {
 
 	public ListView getListView() {
 		return this.listView;
+	}
+
+	public boolean isReady() {
+		return this.newTask!=null;
 	}
 
 	private boolean newTask(String name) {
@@ -441,12 +447,9 @@ public class TasksFragment extends Fragment {
 
 			@Override
 			public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-				Log.d(TAG, "item " + position + " selected");
 				int oldCount = TasksFragment.this.adapter.getSelectedCount();
 				TasksFragment.this.adapter.setSelected(position, checked);
 				int newCount = TasksFragment.this.adapter.getSelectedCount();
-				Log.e(TAG, "old count: " + oldCount + " | newCount: "
-						+ newCount);
 				mode.setTitle(TasksFragment.this.main.getResources().getQuantityString(
 						R.plurals.selected_tasks, newCount, newCount));
 				if (oldCount < 2 && newCount >= 2
