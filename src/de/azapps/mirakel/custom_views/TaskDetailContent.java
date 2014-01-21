@@ -57,7 +57,6 @@ public class TaskDetailContent extends BaseTaskDetailRow {
 
 			@Override
 			public void onClick(View v) {
-				Log.wtf(TAG, "klick");
 				TaskDetailContent.this.isContentEdit = !TaskDetailContent.this.isContentEdit;
 				if (!TaskDetailContent.this.isContentEdit) {
 					saveContentHelper();

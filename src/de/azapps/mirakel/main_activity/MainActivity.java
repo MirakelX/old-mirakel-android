@@ -135,15 +135,16 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 	private boolean					highlightSelected;
 	// User interaction variables
 	private boolean					isResumend;
+
 	private boolean					isTablet;
 
 	protected ListFragment			listFragment;
-
 	private List<ListMirakel>		lists;
 	private DrawerLayout			mDrawerLayout;
 	private ActionBarDrawerToggle	mDrawerToggle;
 	private Menu					menu;
 	private PagerAdapter			mPagerAdapter;
+
 	// Layout variables
 	ViewPager						mViewPager;
 
@@ -158,7 +159,6 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 	private boolean					skipSwipe;
 
 	private Intent					startIntent;
-
 	protected TaskFragment			taskFragment;
 
 	private void addFilesForTask(final Task t, final Intent intent) {
@@ -496,7 +496,6 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 				currentTask);
 		if (currentView == null) {
 			currentView = getTasksFragment().getListView().getChildAt(0);
-			Log.v(MainActivity.TAG, "current view is null");
 		}
 
 		if (currentView != null && this.highlightSelected && !multiselect) {
@@ -1033,21 +1032,20 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 
 	@Override
 	public void onPageScrolled(final int position, final float positionOffset, final int positionOffsetPixels) {
-		if (getTasksFragment() != null
+		if (getTaskFragment() != null
 				&& getTasksFragment().getAdapter() != null
-				&& MirakelPreferences.swipeBehavior() && !this.skipSwipe
-				&& position == MainActivity.getTasksFragmentPosition()) {
+				&& MirakelPreferences.swipeBehavior() && !this.skipSwipe) {
+			this.skipSwipe=true;
 			setCurrentTask(getTasksFragment().getAdapter().lastTouched(), false);
-			this.skipSwipe = true;
-		}
-		if (positionOffset == 0.0f
-				&& position == MainActivity.getTasksFragmentPosition()) {
-			this.skipSwipe = false;
 		}
 	}
 
 	@Override
-	public void onPageScrollStateChanged(final int state) {}
+	public void onPageScrollStateChanged(final int state) {
+		if (this.mViewPager.getCurrentItem() == getTaskFragmentPosition()) {
+			this.skipSwipe = false;
+		}
+	}
 
 	@Override
 	public void onPageSelected(final int position) {
@@ -1276,9 +1274,6 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 	 */
 	private void setupLayout() {
 		this.closeOnBack = false;
-		if (this.currentList == null) {
-			setCurrentList(SpecialList.firstSpecial());
-		}
 		// Initialize ViewPager
 		if (!this.isResumend && this.mPagerAdapter == null) {
 			intializeFragments();
@@ -1293,7 +1288,9 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 			final Task task = TaskHelper.getTaskFromIntent(this.startIntent);
 			if (task != null) {
 				this.skipSwipe = true;
-				setCurrentList(task.getList());
+				this.currentList = task.getList();
+
+				// setCurrentList(task.getList());
 				this.mViewPager.postDelayed(new Runnable() {
 
 					@Override
@@ -1301,8 +1298,18 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 						setCurrentTask(task, true);
 						MainActivity.this.mViewPager.setCurrentItem(
 								getTaskFragmentPosition(), false);
+
 					}
 				}, 1);
+				new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						MainActivity.this.mViewPager.setCurrentItem(
+								getTaskFragmentPosition(), false);
+
+					}
+				}).start();
 
 			} else {
 				Log.d(MainActivity.TAG, "task null");
@@ -1394,7 +1401,6 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 			search(query);
 		} else if (this.startIntent.getAction().contains(
 				MainActivity.ADD_TASK_FROM_WIDGET)) {
-			Log.d(MainActivity.TAG, "add");
 			final int listId = Integer.parseInt(this.startIntent.getAction()
 					.replace(MainActivity.ADD_TASK_FROM_WIDGET, ""));
 			setCurrentList(ListMirakel.getList(listId));
@@ -1422,6 +1428,9 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 			getTasksFragment().clearFocus();
 		}
 		setIntent(null);
+		if (this.currentList == null) {
+			setCurrentList(SpecialList.firstSpecial());
+		}
 	}
 
 	private void updateCurrentListAndTask() {

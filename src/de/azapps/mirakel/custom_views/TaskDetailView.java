@@ -32,7 +32,6 @@ import de.azapps.mirakel.custom_views.TaskSummary.OnTaskMarkedListner;
 import de.azapps.mirakel.helper.MirakelPreferences;
 import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakelandroid.R;
-import de.azapps.tools.Log;
 
 public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedListner {
 
@@ -250,7 +249,6 @@ public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedLi
 					continue;
 			}
 			item.setOnTaskChangedListner(this);
-			Log.d(TAG, "heigh mainviews: " + item.getHeight());
 			addView(item);
 			this.views.put(i, item);
 		}

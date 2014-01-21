@@ -159,7 +159,6 @@ public class TaskSummary extends TaskDetailSubListBase<Task> implements android.
 
 	@Override
 	public void updatePart(Task newValue) {
-		Log.d(TAG, "update");
 		setBackgroundColor(this.context.getResources().getColor(
 				android.R.color.transparent));
 		this.task = newValue;

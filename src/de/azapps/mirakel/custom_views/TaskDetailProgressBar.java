@@ -23,11 +23,9 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakelandroid.R;
-import de.azapps.tools.Log;
 
 public class TaskDetailProgressBar extends TaskDetailSubListBase<Integer> {
 
-	private static final String	TAG	= "TaskDetailProgressBar";
 	private final SeekBar	progress;
 
 	public TaskDetailProgressBar(Context ctx) {
@@ -62,7 +60,6 @@ public class TaskDetailProgressBar extends TaskDetailSubListBase<Integer> {
 
 	@Override
 	public void updatePart(Integer newValue) {
-		Log.d(TAG, "update " + newValue);
 		this.progress.setProgress(newValue);
 	}
 
