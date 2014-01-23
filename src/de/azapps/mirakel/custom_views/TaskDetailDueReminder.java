@@ -159,7 +159,7 @@ public class TaskDetailDueReminder extends BaseTaskDetailRow {
 												.setDue(new GregorianCalendar(
 														year, month, day));
 												save();
-										setDue();
+												setDue();
 
 											}
 
@@ -168,7 +168,7 @@ public class TaskDetailDueReminder extends BaseTaskDetailRow {
 												TaskDetailDueReminder.this.task
 												.setDue(null);
 												save();
-										setDue();
+												setDue();
 
 											}
 										}, dueLocal.get(Calendar.YEAR), dueLocal

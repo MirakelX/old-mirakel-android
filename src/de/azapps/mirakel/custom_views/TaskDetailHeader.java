@@ -35,18 +35,28 @@ import de.azapps.mirakel.helper.Helpers.ExecInterface;
 import de.azapps.mirakel.helper.MirakelPreferences;
 import de.azapps.mirakel.helper.TaskDialogHelpers;
 import de.azapps.mirakel.helper.TaskHelper;
+import de.azapps.mirakel.model.task.Task;
 import de.azapps.mirakel.reminders.ReminderAlarm;
 import de.azapps.mirakelandroid.R;
 import de.azapps.tools.Log;
 
 public class TaskDetailHeader extends BaseTaskDetailRow {
 
+	public interface OnDoneChangedListner{
+		public abstract void onDoneChanged(Task newTask);
+	}
 	protected static final String	TAG	= "TaskDetailHeader";
+	private OnDoneChangedListner doneChanged;
 	private ViewSwitcher	switcher;
+
 	private CheckBox		taskDone;
 	private TextView		taskName;
 
 	private TextView		taskPrio;
+
+
+
+
 	private EditText		txt;
 
 	public TaskDetailHeader(Context ctx) {
@@ -59,13 +69,12 @@ public class TaskDetailHeader extends BaseTaskDetailRow {
 		this.txt = (EditText) findViewById(R.id.edit_name);
 		final InputMethodManager imm = (InputMethodManager) TaskDetailHeader.this.context
 				.getSystemService(Context.INPUT_METHOD_SERVICE);
-		this.taskName
-		.setOnClickListener(new View.OnClickListener() {
+		this.taskName.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				clearFocus();
 				TaskDetailHeader.this.switcher.showNext(); // or switcher.showPrevious();
-				CharSequence name =TaskDetailHeader.this.taskName.getText();
+				CharSequence name = TaskDetailHeader.this.taskName.getText();
 				TaskDetailHeader.this.txt.setText(name);
 				TaskDetailHeader.this.txt
 				.setOnFocusChangeListener(new OnFocusChangeListener() {
@@ -85,7 +94,8 @@ public class TaskDetailHeader extends BaseTaskDetailRow {
 					}
 				});
 				TaskDetailHeader.this.txt.requestFocus();
-				TaskDetailHeader.this.txt.setOnEditorActionListener(new OnEditorActionListener() {
+				TaskDetailHeader.this.txt
+				.setOnEditorActionListener(new OnEditorActionListener() {
 
 					@Override
 					public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
@@ -95,15 +105,20 @@ public class TaskDetailHeader extends BaseTaskDetailRow {
 						.setOnFocusChangeListener(null);
 						if (actionId == EditorInfo.IME_ACTION_DONE
 								&& TaskDetailHeader.this.task != null) {
-							TaskDetailHeader.this.task.setName(TaskDetailHeader.this.txt.getText()
-									.toString());
+							TaskDetailHeader.this.task
+							.setName(TaskDetailHeader.this.txt
+									.getText().toString());
 							save();
-							TaskDetailHeader.this.taskName.setText(TaskDetailHeader.this.task.getName());
-							TaskDetailHeader.this.txt.setOnFocusChangeListener(null);
+							TaskDetailHeader.this.taskName
+							.setText(TaskDetailHeader.this.task
+									.getName());
+							TaskDetailHeader.this.txt
+							.setOnFocusChangeListener(null);
 							imm.hideSoftInputFromWindow(
 									TaskDetailHeader.this.txt
 									.getWindowToken(), 0);
-							TaskDetailHeader.this.switcher.showPrevious();
+							TaskDetailHeader.this.switcher
+							.showPrevious();
 
 							return true;
 						}
@@ -117,11 +132,13 @@ public class TaskDetailHeader extends BaseTaskDetailRow {
 		this.taskPrio.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				TaskDialogHelpers.handlePriority( TaskDetailHeader.this.context,  TaskDetailHeader.this.task,
-						new ExecInterface() {
+				TaskDialogHelpers.handlePriority(TaskDetailHeader.this.context,
+						TaskDetailHeader.this.task, new ExecInterface() {
 					@Override
 					public void exec() {
-						TaskHelper.setPrio(TaskDetailHeader.this.taskPrio, TaskDetailHeader.this.task);
+						TaskHelper.setPrio(
+								TaskDetailHeader.this.taskPrio,
+								TaskDetailHeader.this.task);
 						save();
 					}
 				});
@@ -129,8 +146,9 @@ public class TaskDetailHeader extends BaseTaskDetailRow {
 		});
 	}
 
-
-
+	public void setOnDoneChangedListner(OnDoneChangedListner l) {
+		this.doneChanged = l;
+	}
 
 	@Override
 	protected void updateView() {
@@ -155,6 +173,10 @@ public class TaskDetailHeader extends BaseTaskDetailRow {
 				TaskDetailHeader.this.task.setDone(isChecked);
 				ReminderAlarm.updateAlarms(TaskDetailHeader.this.context);
 				save();
+				if(TaskDetailHeader.this.doneChanged!=null){
+					TaskDetailHeader.this.doneChanged
+					.onDoneChanged(TaskDetailHeader.this.task);
+				}
 			}
 		});
 

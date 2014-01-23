@@ -27,6 +27,7 @@ import de.azapps.mirakel.custom_views.BaseTaskDetailRow.OnTaskChangedListner;
 import de.azapps.mirakel.custom_views.TaskDetailContent.OnEditChanged;
 import de.azapps.mirakel.custom_views.TaskDetailDueReminder.Type;
 import de.azapps.mirakel.custom_views.TaskDetailFilePart.OnFileMarkedListner;
+import de.azapps.mirakel.custom_views.TaskDetailHeader.OnDoneChangedListner;
 import de.azapps.mirakel.custom_views.TaskSummary.OnTaskClickListner;
 import de.azapps.mirakel.custom_views.TaskSummary.OnTaskMarkedListner;
 import de.azapps.mirakel.helper.MirakelPreferences;
@@ -140,6 +141,7 @@ public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedLi
 		if (this.taskChangedListner != null) {
 			this.taskChangedListner.onTaskChanged(newTask);
 		}
+		this.task = newTask;
 
 	}
 
@@ -201,7 +203,17 @@ public class TaskDetailView extends BaseTaskDetailRow implements OnTaskChangedLi
 			BaseTaskDetailRow item;
 			switch (i) {
 				case TYPE.HEADER:
-					item=new TaskDetailHeader(this.context);
+					TaskDetailHeader h=new TaskDetailHeader(this.context);
+					h.setOnDoneChangedListner(new OnDoneChangedListner() {
+
+						@Override
+						public void onDoneChanged(Task newTask) {
+							if (TaskDetailView.this.views.get(TYPE.DUE) != null) {
+								TaskDetailView.this.views.get(TYPE.DUE).update(newTask);
+							}
+						}
+					});
+					item=h;
 					break;
 				case TYPE.SUBTASK:
 					item = new TaskDetailSubtask(this.context);
