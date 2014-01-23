@@ -119,6 +119,10 @@ public class MirakelContentProvider extends ContentProvider implements OnAccount
 			}
 			newValues.put(Task.PRIORITY, prio);
 		}
+		if (values.containsKey(Tasks.PERCENT_COMPLETE)) {
+			newValues.put(Task.PROGRESS,
+					values.getAsInteger(Tasks.PERCENT_COMPLETE));
+		}
 		if (values.containsKey(Tasks.STATUS)) {
 			int status = values.getAsInteger(Tasks.STATUS);
 			boolean done = status == Tasks.STATUS_COMPLETED;
@@ -250,6 +254,8 @@ public class MirakelContentProvider extends ContentProvider implements OnAccount
 				+ "." + Task.DUE + ")*1000 END)", TaskContract.Tasks.DUE, true);
 		query += addSegment("(CASE " + Task.TABLE + "." + Task.DONE
 				+ " WHEN 1 THEN 2 ELSE 0 END)", TaskContract.Tasks.STATUS, true);
+		query += addSegment(Task.TABLE + "." + Task.PROGRESS,
+				Tasks.PERCENT_COMPLETE, true);
 		if (isSyncadapter) {
 			query += addSegment("CASE " + Task.TABLE + "."
 					+ SyncAdapter.SYNC_STATE + " WHEN " + SYNC_STATE.NEED_SYNC
