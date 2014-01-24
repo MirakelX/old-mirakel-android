@@ -112,10 +112,33 @@ public class MirakelContentProvider extends ContentProvider implements OnAccount
 		}
 		if (values.containsKey(Tasks.PRIORITY)) {
 			int prio = values.getAsInteger(Tasks.PRIORITY);
-			if (prio > 2) {
-				prio = 2;
-			} else if (prio < -2) {
-				prio = -2;
+			if (isSyncadapter) {
+				switch (prio) {
+					case 1:
+					case 2:
+					case 3:
+						prio = 2;
+						break;
+					case 4:
+					case 5:
+					case 6:
+						prio = 1;
+						break;
+					case 7:
+					case 8:
+					case 9:
+						prio = -1;
+						break;
+					default:
+						prio = 0;
+						break;
+				}
+			} else {
+				if (prio > 2) {
+					prio = 2;
+				} else if (prio < -2) {
+					prio = -2;
+				}
 			}
 			newValues.put(Task.PRIORITY, prio);
 		}
@@ -246,8 +269,6 @@ public class MirakelContentProvider extends ContentProvider implements OnAccount
 				TaskContract.Tasks.TITLE, false);
 		query += addSegment(Task.TABLE + "." + Task.CONTENT,
 				TaskContract.Tasks.DESCRIPTION, true);
-		query += addSegment(Task.TABLE + "." + Task.PRIORITY,
-				TaskContract.Tasks.PRIORITY, true);
 		query += addSegment(" NULL ", Tasks.LOCATION, true);
 		query += addSegment("(CASE WHEN (" + Task.TABLE + "." + Task.DUE
 				+ " IS NULL) " + "THEN NULL ELSE strftime('%s'," + Task.TABLE
@@ -266,6 +287,14 @@ public class MirakelContentProvider extends ContentProvider implements OnAccount
 			query += addSegment("CASE " + Task.TABLE + "."
 					+ SyncAdapter.SYNC_STATE + " WHEN " + SYNC_STATE.DELETE
 					+ " THEN 1 ELSE 0 END", TaskContract.Tasks._DELETED, true);
+			query += addSegment(
+					"CASE "
+							+ Task.TABLE
+							+ "."
+							+ Task.PRIORITY
+							+ " WHEN 2 THEN 1 WHEN 1 THEN 5 WHEN -1 THEN 9"
+							+ " WHEN -2 THEN 9 ELSE 0 END",
+							Tasks.PRIORITY, true);
 			// query += addSegment("CASE " +
 			// Task.TABLE+"."+SyncAdapter.SYNC_STATE + " WHEN "
 			// + SYNC_STATE.ADD + " THEN 1 ELSE 0 END",
@@ -276,6 +305,8 @@ public class MirakelContentProvider extends ContentProvider implements OnAccount
 					+ DatabaseHelper.NAME, TaskContract.ACCOUNT_NAME, true);
 			query += addSegment("caldav_extra.REMOTE_NAME", Tasks.LIST_ID, true);
 		} else {
+			query += addSegment(Task.TABLE + "." + Task.PRIORITY,
+					TaskContract.Tasks.PRIORITY, true);
 			if (isSpecial) {
 				query += addSegment("CASE " + Task.TABLE + "." + Task.LIST_ID
 						+ " WHEN 1 THEN " + list_id + " ELSE " + list_id
