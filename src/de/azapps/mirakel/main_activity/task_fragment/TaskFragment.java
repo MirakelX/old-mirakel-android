@@ -149,7 +149,7 @@ public class TaskFragment extends Fragment {
 						default:
 							return false;
 			}
-																	mode.finish();
+			mode.finish();
 			return true;
 		}
 

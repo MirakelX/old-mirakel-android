@@ -816,8 +816,10 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 			this.isTablet = tabletLocal;
 			this.mPagerAdapter = null;
 			this.isResumend = false;
+			this.skipSwipe = true;
 			setupLayout();
-			getTaskFragment().update(this.currentTask);
+			this.skipSwipe = true;
+			getTaskFragment().update(MainActivity.this.currentTask);
 		} else {
 			getListFragment().setActivity(this);
 			getTasksFragment().setActivity(this);
@@ -994,7 +996,7 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 				UndoHistory.undoLast();
 				updateCurrentListAndTask();
 				if (this.currentPosition == getTaskFragmentPosition()) {
-					setCurrentTask(getCurrentTask());
+					setCurrentTask(this.currentTask);
 				} else {
 					getListFragment().getAdapter()
 					.changeData(ListMirakel.all());
