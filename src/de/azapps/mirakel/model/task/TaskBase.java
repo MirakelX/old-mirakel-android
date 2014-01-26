@@ -35,6 +35,7 @@ import de.azapps.mirakel.model.list.SpecialList;
 import de.azapps.mirakel.model.recurring.Recurring;
 import de.azapps.mirakel.sync.SyncAdapter;
 import de.azapps.mirakel.sync.SyncAdapter.SYNC_STATE;
+import de.azapps.mirakel.sync.taskwarrior.TaskWarriorSync;
 import de.azapps.tools.Log;
 
 class TaskBase {
@@ -77,7 +78,7 @@ class TaskBase {
 	TaskBase(long id, String uuid, ListMirakel list, String name, String content, boolean done, Calendar due, Calendar reminder, int priority, Calendar created_at, Calendar updated_at, SYNC_STATE sync_state, String additionalEntriesString, int recurring, int recurring_reminder, int progress) {
 		this.id = id;
 		this.uuid = uuid;
-		setList(list);
+		setList(list, false);
 		setName(name);
 		setContent(content);
 		setDone(done);
@@ -96,7 +97,7 @@ class TaskBase {
 	TaskBase(String name) {
 		this.id = 0;
 		this.uuid = java.util.UUID.randomUUID().toString();
-		setList(SpecialList.first());
+		setList(SpecialList.first(), false);
 		setName(name);
 		setContent("");
 		setDone(false);
@@ -358,9 +359,16 @@ class TaskBase {
 		this.edited.put(DatabaseHelper.ID, true);
 	}
 
-	public void setList(ListMirakel list) {
+
+	public void setList(ListMirakel list, boolean removeNoListFalg) {
 		this.list = list;
 		this.edited.put(LIST_ID, true);
+		if (removeNoListFalg) {
+			if (this.additionalEntries == null) {
+				initAdditionalEntries();
+			}
+			this.additionalEntries.remove(TaskWarriorSync.NO_PROJECT);
+		}
 	}
 
 	public void setName(String name) {

@@ -529,7 +529,7 @@ public class TasksFragment extends Fragment {
 				public void onClick(View v) {
 					// TODO BAHHHH this is ugly!
 					final Task task = new Task("");
-					task.setList(TasksFragment.this.main.getCurrentList());
+					task.setList(TasksFragment.this.main.getCurrentList(), true);
 					task.setId(0);
 					TaskDialogHelpers.handleAudioRecord(TasksFragment.this.main, task,
 							new ExecInterfaceWithTask() {

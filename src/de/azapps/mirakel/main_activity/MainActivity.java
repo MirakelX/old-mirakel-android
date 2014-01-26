@@ -398,7 +398,8 @@ public class MainActivity extends FragmentActivity implements ViewPager.OnPageCh
 					@Override
 					public void onClick(final DialogInterface dialog, final int item) {
 						for (final Task t : tasks) {
-							t.setList(ListMirakel.getList(list_ids.get(item)));
+							t.setList(ListMirakel.getList(list_ids.get(item)),
+									true);
 							safeSaveTask(t);
 						}
 						/*
