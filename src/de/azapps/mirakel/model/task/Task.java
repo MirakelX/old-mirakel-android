@@ -491,7 +491,6 @@ public class Task extends TaskBase {
 		for (Entry<String, JsonElement> entry : entries) {
 			String key = entry.getKey();
 			JsonElement val = entry.getValue();
-			Log.e("Blubb",key);
 			if (key == null || key.equals("id")) {
 				continue;
 			}
