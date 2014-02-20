@@ -230,7 +230,7 @@ public class TaskDialogHelpers {
 
 
 	public static void handlePriority(final Context ctx, final Task task, final Helpers.ExecInterface onSuccess) {
-
+		if (task == null) return;
 		final String[] t = { "2", "1", "0", "-1", "-2" };
 		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
 		builder.setTitle(R.string.task_change_prio_title);

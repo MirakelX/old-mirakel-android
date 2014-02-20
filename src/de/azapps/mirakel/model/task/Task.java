@@ -563,8 +563,10 @@ public class Task extends TaskBase {
 					due = parseDate(val.getAsString(),
 							context.getString(R.string.TWDateFormat));
 					// try to workaround timezone-bug
-					due.setTimeInMillis(due.getTimeInMillis()
-							+ TimeZone.getDefault().getRawOffset());
+					if (due != null) {
+						due.setTimeInMillis(due.getTimeInMillis()
+								+ TimeZone.getDefault().getRawOffset());
+					}
 				}
 				t.setDue(due);
 			} else if (key.equals("reminder")) {
