@@ -201,7 +201,7 @@ public class TLSClient {
 	}
 
 	// //////////////////////////////////////////////////////////////////////////////
-	public void init(final File root, final File user, final File user_key) {
+	public void init(final File root, final File user, final File user_key) throws ParseException {
 		Log.i(TAG, "init");
 		try {
 			X509Certificate ROOT = generateCertificateFromPEM(fileToBytes(root));
@@ -229,6 +229,8 @@ public class TLSClient {
 			context.init(keyManagerFactory.getKeyManagers(), trustManagers,
 					new SecureRandom());
 			this.sslFact = context.getSocketFactory();
+		} catch (ParseException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new AssertionError(e);
 		}

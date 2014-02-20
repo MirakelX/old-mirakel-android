@@ -379,6 +379,8 @@ public class MirakelPreferences {
 					"subtaskAddToList", "-1")));
 		} catch (NumberFormatException E) {
 			return null;
+		} catch (ClassCastException e) {
+			return ListMirakel.getList(settings.getInt("subtaskAddToList", -1));
 		}
 	}
 
